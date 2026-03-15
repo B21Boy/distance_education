@@ -2,84 +2,87 @@
 session_start();
 include("connection.php");
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>
-Home page
-</title>	
-<link rel="stylesheet" type="text/css" href="setting.css">
-<script type="text/javascript" src="javascript\date_time.js"></script>
-
+<meta charset="UTF-8">
+<title>New Students</title>
+<link rel="stylesheet" href="setting.css">
+<style>
+/* inline fallback when stylesheet isn't loaded: keep columns, spacing, and proportions */
+.main-row {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    align-items: flex-start !important;
+}
+.main-row > #left { flex: 0 0 300px !important; }
+.main-row > #content { flex: 1 1 auto !important; }
+.main-row > #sidebar { flex: 0 0 260px !important; }
+</style>
+<script src="javascript/date_time.js"></script>
 </head>
-<body>
+<body class="student-portal-page">
+
 <div id="container">
 
-<table><tr><td>
-<?php
-    require("header.php");
-?>
-</td></tr><tr><td colspan="2">
-<?php
-    require("menu.php");
-?>
-</td></tr>
-<tr><td>
-<?php
-		include("left.php");
-	?>				
-</td><td>
-	<div id="contentindex5">
-				
-				
-<!--body-->
+    <!-- Header -->
+    <div id="header">
+         <?php require("header.php"); ?>
+    </div>
 
-<i><font color="blue"size="5px">Criteria's to attend DMU Distance Education learning system as a new student</font></i><br>
-   <font style="strong"size="3px">1:The student can be admitted if and only if he/she complete grade 12 pass marks or 10+3(diploma).<br>
-	2: For grade 12, the pass mark must be above based on the ministry of education.<br>
-	3: To be accepted by natural science fields, the student must be natural science student.<br>
-	4: For diploma students their major and minor courses must be related to the course they select to register.<br>
-	5: Students must pay 30 birr for application to the finance office in its internal bank account.<br>
-	6: Students must receive recite and give the recite to be admitted.<br>
-	7:New student admitting must happens at the beginning of the first academic year<br></font>
-	<font size="3px" color="blue"><h4><u>N.B </u>For registration ,students will pay 30 birr for the first registration weeks.If registration is passed,those students who come later
-will pay a penality of 70 birr for the campus in its internal account and submit the reciet to the registrar for renew.</h4></font>
+    <!-- Menu -->
+    <div id="menu">
+        <?php require("menu.php"); ?>
+    </div>
 
-<!--body-->
-</div></td>
-	 <td>
-	 <div id="siderightindexphoto11">
-	 <div id="siderightindexphoto112">
-	 User Login
-	 </div>
-	 
-	 <?php 
-	require("leftlogin.php");
-     ?>
-	 
-	 
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Social link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </td>
-	 </tr>
-	 <tr><td>
-<?php
-include("footer.php");
-?>
-</td></tr>
+    <!-- Main row: left | center | right -->
+    <div class="main-row">
+        <!-- Left Sidebar -->
+        <div id="left">
+            <?php include("left.php"); ?>
+        </div>
+
+        <!-- Main Content (center) -->
+        <div id="content">
+            <!--body-->
+
+            <i><font color="blue" size="5px">Criteria's to attend BDU Distance Education learning system as a new student</font></i><br>
+               <font style="strong" size="3px">1:The student can be admitted if and only if he/she complete grade 12 pass marks or 10+3(diploma).<br>
+                2: For grade 12, the pass mark must be above based on the ministry of education.<br>
+                3: To be accepted by natural science fields, the student must be natural science student.<br>
+                4: For diploma students their major and minor courses must be related to the course they select to register.<br>
+                5: Students must pay 30 birr for application to the finance office in its internal bank account.<br>
+                6: Students must receive recite and give the recite to be admitted.<br>
+                7:New student admitting must happens at the beginning of the first academic year<br></font>
+                <font size="3px" color="blue"><h4><u>N.B </u>For registration ,students will pay 30 birr for the first registration weeks.If registration is passed,those students who come later
+            will pay a penality of 70 birr for the campus in its internal account and submit the reciet to the registrar for renew.</h4></font>
+
+            <!--body-->
+        </div>
+
+        <!-- Right Sidebar -->
+        <div id="sidebar">
+            <?php require("leftlogin.php"); ?>
+            <div class="sidebar-panel social-panel">
+                <div class="sidebar-panel-title">Social link</div>
+                <div class="sidebar-panel-body">
+                    <a href="https://www.facebook.com/"><span><ion-icon name="logo-facebook"></ion-icon></span>Facebook</a>
+                    <a href="https://www.twitter.com/"><span><ion-icon name="logo-twitter"></ion-icon></span>Twitter</a>
+                    <a href="https://www.youtube.com/"><span><ion-icon name="logo-youtube"></ion-icon></span>YouTube</a>
+                    <a href="https://plus.google.com/"><span><ion-icon name="logo-google"></ion-icon></span>Google++</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+        <?php include("footer.php"); ?>
+    </div>
 
 </div>
-</table>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </body>
 </html>		

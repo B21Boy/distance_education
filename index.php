@@ -63,10 +63,10 @@ include("connection.php");
             <div class="sidebar-panel social-panel">
                 <div class="sidebar-panel-title">Social link</div>
                 <div class="sidebar-panel-body">
-                    <a href="https://www.facebook.com/">Facebook</a>
-                    <a href="https://www.twitter.com/">Twitter</a>
-                    <a href="https://www.youtube.com/">YouTube</a>
-                    <a href="https://plus.google.com/">Google++</a>
+                    <a href="https://www.facebook.com/"><span><ion-icon name="logo-facebook"></ion-icon></span>Facebook</a>
+                    <a href="https://www.twitter.com/"><span><ion-icon name="logo-twitter"></ion-icon></span>Twitter</a>
+                    <a href="https://www.youtube.com/"><span><ion-icon name="logo-youtube"></ion-icon></span>YouTube</a>
+                    <a href="https://plus.google.com/"><span><ion-icon name="logo-google"></ion-icon></span>Google++</a>
                 </div>
             </div>
         </div>
@@ -78,6 +78,7 @@ include("connection.php");
     </div>
 
 </div>
-
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js
 </body>
 </html>

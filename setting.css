@@ -1074,6 +1074,26 @@ body.student-portal-page #menubar1 ul li a.has-alert.active {
 	text-decoration: underline;
 }
 
+/* Social panel specific styles */
+.social-panel .sidebar-panel-body a {
+	display: flex;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.social-panel .sidebar-panel-body a span {
+	margin-right: 10px;
+}
+
+.social-panel .sidebar-panel-body a ion-icon {
+	font-size: 24px;
+	color: #336699;
+}
+
+.social-panel .sidebar-panel-body a:hover ion-icon {
+	color: #0b1d3b;
+}
+
 .announcement-title {
 	font-family: "Georgia", serif;
 	font-size: 16px;
