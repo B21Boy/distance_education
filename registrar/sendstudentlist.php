@@ -4,6 +4,7 @@ include("../connection.php");
 ?>
 <html>
 <head>
+<script src="theme.js"></script>
 <title>
 Registrar Officer page
 </title>
@@ -16,7 +17,7 @@ a.two:visited {color:#0000ff;}
 a.two:hover {font-size:100%;text-decoration: underline;color: #ed1c16}
 </style>
 </head>
-<body>
+<body class="light-theme">
 <div id="container">
 <table><tr><td>
 <?php

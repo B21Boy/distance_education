@@ -4,6 +4,7 @@ include("../connection.php");
 ?>
 <html>
 <head>
+<script src="theme.js"></script>
 <title>
 Registrar Officer page
 </title>
@@ -42,7 +43,7 @@ Registrar Officer page
   }
 	</style>
 </head>
-<body>
+<body class="light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {

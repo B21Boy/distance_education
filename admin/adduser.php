@@ -4,6 +4,7 @@ include("../connection.php");
 ?>
 <html>
 <head>
+<script src="theme.js"></script>
 <title>
 Administrator page
 </title>
@@ -25,7 +26,7 @@ Administrator page
     })
   </script>
 </head>
-<body>
+<body class="light-theme">
 <?php
 // Render the page regardless of session state. Individual session values are
 // handled where needed (e.g. profile display) so the UI shows for guests too.
@@ -54,80 +55,73 @@ if (!empty($_SESSION['flash_error'])) {
 }
 ?>
 <div id="container">
-<table><tr><td>
+<div id="header">
+<table>
+<tr><td width="1000px" >
+ <div id="headtitl"><center>Web Based Distance Education Management System <br>For<br>Bahir Dar University</center></div></td><td><img src="../images/bg.jpg"  style="width:160px;height:98px;"></td></tr>
+</table>
+<div class="menu-area">
 <?php
-    require("header.php");
+    require("menu.php");
 ?>
-</td></tr><tr><td colspan="3">
-	<div class="menu-area">
-	<?php
-		require("menu.php");
-	?>
-	</div>
-</td></tr>
-<tr><td>
+</div>
+</div>
+<div class="main-row">
+<div id="left">
 <?php
-	 require("sidemenu.php");
+    require("sidemenu.php");
 ?>
-	
-</td><td>
-	<div id="contentindex5">
-	
-	<div id="content" class="clearfix">				
-					
+</div>
+<div id="content">
+<div id="contentindex5">
+<div id="content" class="clearfix">
 <?php
     require("blockuser.php");
 ?>
-	
-	</div>
-	
-	</div></td>
-	 <td>
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	<?php
-	// Safely output session values to avoid XSS and ensure valid attributes.
-	$sfn = isset($_SESSION['sfn']) ? htmlspecialchars($_SESSION['sfn'], ENT_QUOTES, 'UTF-8') : '';
-	$sln = isset($_SESSION['sln']) ? htmlspecialchars($_SESSION['sln'], ENT_QUOTES, 'UTF-8') : '';
-	$sphoto = isset($_SESSION['sphoto']) ? htmlspecialchars($_SESSION['sphoto'], ENT_QUOTES, 'UTF-8') : '';
-	echo "<b><br><font color=\"blue\">Welcome:</font><font color=\"#f9160b\">(".$sfn."&nbsp;&nbsp;&nbsp;".$sln.")</font></b>";
-	if (!empty($sphoto)) {
-		echo "<b><br><img src=\"".$sphoto."\" width=\"180\" height=\"160\" alt=\"User Photo\"></b>";
-	}
-	?>
+</div>
+</div>
+</div>
+<div id="sidebar">
+<div id="siderightindexphoto">
+<div id="siderightindexphoto1">
+User Profile
+</div>
+<?php
+// Safely output session values to avoid XSS and ensure valid attributes.
+$sfn = isset($_SESSION['sfn']) ? htmlspecialchars($_SESSION['sfn'], ENT_QUOTES, 'UTF-8') : '';
+$sln = isset($_SESSION['sln']) ? htmlspecialchars($_SESSION['sln'], ENT_QUOTES, 'UTF-8') : '';
+$sphoto = isset($_SESSION['sphoto']) ? htmlspecialchars($_SESSION['sphoto'], ENT_QUOTES, 'UTF-8') : '';
+echo "<b><br><font color=\"blue\">Welcome:</font><font color=\"#f9160b\">(".$sfn."&nbsp;&nbsp;&nbsp;".$sln.")</font></b>";
+if (!empty($sphoto)) {
+    echo "<b><br><img src=\"".$sphoto."\" width=\"180\" height=\"160\" alt=\"User Photo\"></b>";
+}
+?>
 <div id="sidebarr">
 <ul>
- <li><a href="updateprofilephoto.php">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
+<li><a href="updateprofilephoto.php">Change Photo</a></li>
+<li><a href="changepass.php">Change password</a></li>
+</ul>
 </div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Social link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </td>
-	 </tr>
-	 <tr><td>
+</div>
+<div id="siderightindexadational">
+<div id="siderightindexadational1">
+Social link
+</div>
+<div id="siderightindexadational12">
+<table>
+<tr><td><div id="facebook"></div></td><td>
+<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
+<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
+<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
+<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
+</div>
+</div>
+</div>
+</div>
 <?php
 include("../footer.php");
 ?>
-</td></tr>
 </div>
-</table>
 <?php
 // end of page
 ?>

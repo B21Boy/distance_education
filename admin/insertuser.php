@@ -21,16 +21,18 @@ $role=$_POST['ct'];
 		// check upload error
 		if ($pupload_error !== UPLOAD_ERR_OK) {
 			echo '<!doctype html><html><head><meta charset="utf-8"><title>Error</title>';
+<script src="theme.js"></script>
 			echo '<script type="text/javascript">alert("Photo upload error (code: ' . $pupload_error . ')");window.location="adduser.php";</script>';
-			echo '</head><body></body></html>';
+			echo '</head><body class="light-theme"></body></html>';
 			exit;
 		}
 
 		// size check (2 MB)
 		if ($psize > 2000000) {
 			echo '<!doctype html><html><head><meta charset="utf-8"><title>Error</title>';
+<script src="theme.js"></script>
 			echo '<script type="text/javascript">alert("Photo size should not be greater than 2 MB!");window.location="adduser.php";</script>';
-			echo '</head><body></body></html>';
+			echo '</head><body class="light-theme"></body></html>';
 			exit;
 		}
 
@@ -38,16 +40,18 @@ $role=$_POST['ct'];
 		$imginfo = @getimagesize($ptmploc);
 		if ($imginfo === false) {
 			echo '<!doctype html><html><head><meta charset="utf-8"><title>Error</title>';
+<script src="theme.js"></script>
 			echo '<script type="text/javascript">alert("Uploaded file is not a valid image");window.location="adduser.php";</script>';
-			echo '</head><body></body></html>';
+			echo '</head><body class="light-theme"></body></html>';
 			exit;
 		}
 		$mime = isset($imginfo['mime']) ? $imginfo['mime'] : '';
 		$allowed = array('image/jpeg', 'image/pjpeg', 'image/png');
 		if (!in_array($mime, $allowed)) {
 			echo '<!doctype html><html><head><meta charset="utf-8"><title>Error</title>';
+<script src="theme.js"></script>
 			echo '<script type="text/javascript">alert("Photo should be JPEG or PNG format");window.location="adduser.php";</script>';
-			echo '</head><body></body></html>';
+			echo '</head><body class="light-theme"></body></html>';
 			exit;
 		}
 
@@ -61,8 +65,9 @@ $role=$_POST['ct'];
 		$photopath = "userphoto/" . $newname;
 		if (!move_uploaded_file($ptmploc, $photopath)) {
 			echo '<!doctype html><html><head><meta charset="utf-8"><title>Error</title>';
+<script src="theme.js"></script>
 			echo '<script type="text/javascript">alert("Unable to upload the photo!");window.location="adduser.php";</script>';
-			echo '</head><body></body></html>';
+			echo '</head><body class="light-theme"></body></html>';
 			exit;
 		}
 	} else {
@@ -106,13 +111,15 @@ $role=$_POST['ct'];
 			mysqli_query($conn, "INSERT INTO logfile (logid,username,role,status,start_time,activity_type,activity_performed,date,ip_address,end)  VALUES(' ','Admin','system admin','$status','$actual_time','add user',concat('uid[','$uid','] ','name[','$fname','] ','father name[','$lname','] ','sex[','$sex','] ','user id[','$uid','] ','phone[','$phone','] '),'$da','$ipaddress','')") or die (mysqli_error($conn));
 			// Return a small HTML page that shows an alert then navigates back to the form.
 			echo '<!doctype html><html><head><meta charset="utf-8"><title>Registered</title>';
+<script src="theme.js"></script>
 			echo '<script type="text/javascript">alert("Your Information Is Successfully Registered !!!");window.location="adduser.php";</script>';
-			echo '</head><body></body></html>';
+			echo '</head><body class="light-theme"></body></html>';
 			exit;
 		} else {
 			echo '<!doctype html><html><head><meta charset="utf-8"><title>Error</title>';
+<script src="theme.js"></script>
 			echo '<script type="text/javascript">alert("Unable to register the user");window.location="adduser.php";</script>';
-			echo '</head><body></body></html>';
+			echo '</head><body class="light-theme"></body></html>';
 			exit;
 		}
 	}

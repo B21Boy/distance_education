@@ -4,6 +4,7 @@ include("connection.php");
 ?>
 <html>
 <head>
+<script src="theme.js"></script>
 <title>
 Home page
 </title>	
@@ -11,7 +12,7 @@ Home page
 <script type="text/javascript" src="javascript\date_time.js"></script>
 
 </head>
-<body>
+<body class="light-theme">
 <div id="container">
 
 <table><tr><td>

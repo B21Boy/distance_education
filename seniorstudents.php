@@ -1,10 +1,12 @@
 <?php
 session_start();
+ob_start();
 include("connection.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme.js"></script>
 <meta charset="UTF-8">
 <title>Senior Students</title>
 <link rel="stylesheet" href="setting.css">

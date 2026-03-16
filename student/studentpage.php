@@ -4,6 +4,7 @@ include("../connection.php");
 ?>
 <html>
 <head>
+<script src="theme.js"></script>
 <title>
 Student page
 </title>

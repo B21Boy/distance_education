@@ -4,6 +4,7 @@ include("../connection.php");
 ?>
 <html>
 <head>
+<script src="theme.js"></script>
 <title>
 Department head page
 </title>
@@ -15,7 +16,7 @@ a.two:visited {color:#0000ff;}
 a.two:hover {font-size:100%;text-decoration: underline;color: #ed1c16;background-color: cyana;font-size: 20px;}
 </style>
 </head>
-<body>
+<body class="light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {

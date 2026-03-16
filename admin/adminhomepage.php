@@ -21,109 +21,99 @@ foreach ($expected as $k) {
 $log .= "\n";
 file_put_contents($debug_file, $log, FILE_APPEND | LOCK_EX);
 ?>
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
+<script src="theme.js"></script>
+<meta charset="UTF-8">
 <title>Administrator page</title>
-<link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript/date_time.js"></script>
-
+<link rel="stylesheet" href="../setting.css">
 <style>
-/* Admin homepage grid layout */
-.admin-grid {
-	display: grid;
-	grid-template-areas:
-		"header header header"
-		"menu menu menu"
-		"sidemenu content right"
-		"footer footer footer";
-	grid-template-columns: 280px 1fr 260px;
-	gap: 12px;
-	padding: 12px;
+/* inline fallback when stylesheet isn't loaded: keep columns, spacing, and proportions */
+.main-row {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    align-items: flex-start !important;
 }
-.admin-grid > .header { grid-area: header; }
-.admin-grid > .menu-area { grid-area: menu; }
-.admin-grid > .sidemenu { grid-area: sidemenu; }
-.admin-grid > .content { grid-area: content; }
-.admin-grid > .right { grid-area: right; }
-.admin-grid > .footer { grid-area: footer; }
-
-/* Make the menu area clearly blue with white links */
-.menu-area { background: #336699; color: #fff; padding: 6px; border-radius:6px; }
-.menu-area .primary-nav, .menu-area .primary-nav a { color: #fff; }
-.menu-area .primary-nav a:hover { background: rgba(255,255,255,0.06); }
-
-/* Simple panel styling */
-.panel { background: #fff; padding: 12px; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-.profile-photo img, .profile-thumb { width: 180px; height: 160px; object-fit: cover; border-radius:4px; }
-
-@media (max-width: 900px) {
-	.admin-grid { grid-template-areas: "header" "menu" "content" "sidemenu" "right" "footer"; grid-template-columns: 1fr; }
-}
-
-/* Responsive fixes for sidemenu contents */
-.sidemenu { overflow: auto; max-width: 100%; box-sizing: border-box; }
-#sidebar1 { width: 100%; max-width: 100%; box-sizing: border-box; }
-#sidebar1 ul { list-style: none; padding: 0; margin: 0; }
-#sidebar1 li { margin: 6px 0; }
-
-/* Ensure any tables, images or calendar widgets inside the sidebar don't overflow */
-#sidebar1 img, #sidebar1 table, #sidebar1 .calendarShell, #sidebar1 .sidedate-widget { max-width: 100%; width: auto !important; height: auto; box-sizing: border-box; }
-#sidebar1 .sidedate-widget table { width: 100%; }
-#sidebar1 .sidedate-widget { margin-top: 6px; }
+.main-row > #left { flex: 0 0 300px !important; }
+.main-row > #content { flex: 1 1 auto !important; }
+.main-row > #sidebar { flex: 0 0 260px !important; }
 </style>
-
+<script src="../javascript/date_time.js"></script>
 </head>
-<body>
+<body class="student-portal-page light-theme">
 <?php
 if(isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']) && isset($_SESSION['sln']) && isset($_SESSION['srole'])) {
 ?>
 
-<div class="admin-grid">
-	<div class="header panel">
-		<?php require("header.php"); ?>
-	</div>
+<div id="container">
 
-	<div class="menu-area">
-		<?php require("menu.php"); ?>
-	</div>
+    <!-- Header -->
+    <div id="header">
+         <?php require("header.php"); ?>
+    </div>
 
-	<div class="sidemenu panel">
-		<?php require("sidemenu.php"); ?>
-	</div>
+    <!-- Menu -->
+    <div id="menu">
+        <?php require("menu.php"); ?>
+    </div>
 
-	<div class="content panel">
-		<h2>Welcome to the admin page</h2>
-		<p>Use the menu above to manage users, accounts and site data.</p>
-	</div>
+    <!-- Main row: left | center | right -->
+    <div class="main-row">
+        <!-- Left Sidebar -->
+        <div id="left">
+            <?php require("sidemenu.php"); ?>
+        </div>
 
-	<div class="right panel profile-photo">
-		<div class="profile-header"><strong>User Profile</strong></div>
-		<?php
-			echo "<div style='margin:8px 0;color:#333;'><strong>Welcome:</strong> <span style='color:#b00404;'>" . htmlspecialchars(
-				(isset($_SESSION['sfn'])?$_SESSION['sfn']:'')) . " " . htmlspecialchars((isset($_SESSION['sln'])?$_SESSION['sln']:'')) . "</span></div>";
-			$photo = isset($_SESSION['sphoto']) ? $_SESSION['sphoto'] : '../images/default.png';
-			echo "<div><img src='".htmlspecialchars($photo)."' alt='photo' class='profile-thumb'></div>";
-		?>
-		<div id="sidebarr">
-			<ul>
-				<li><a href="updateprofilephoto.php">Change Photo</a></li>
-				<li><a href="changepass.php">Change password</a></li>
-			</ul>
-		</div>
-		<div class="social-links" style="margin-top:10px;">
-			<a href="https://www.facebook.com/">Facebook</a><br>
-			<a href="https://www.twitter.com/">Twitter</a><br>
-			<a href="https://www.youtube.com/">Youtube</a>
-		</div>
-	</div>
+        <!-- Main Content (center) -->
+        <div id="content">
+            <div id="welcome">
+                <h2>Welcome to the admin page</h2>
+                <p>Use the menu above to manage users, accounts and site data.</p>
+            </div>
+        </div>
 
-	<div class="footer panel">
-		<?php include("../footer.php"); ?>
-	</div>
+        <!-- Right Sidebar -->
+        <div id="sidebar">
+            <div class="sidebar-panel profile-panel">
+                <div class="sidebar-panel-title">User Profile</div>
+                <div class="sidebar-panel-body">
+                    <?php
+                        echo "<div style='margin:8px 0;color:#333;'><strong>Welcome:</strong> <span style='color:#b00404;'>" . htmlspecialchars(
+                            (isset($_SESSION['sfn'])?$_SESSION['sfn']:'')) . " " . htmlspecialchars((isset($_SESSION['sln'])?$_SESSION['sln']:'')) . "</span></div>";
+                        $photo = isset($_SESSION['sphoto']) ? $_SESSION['sphoto'] : '../images/default.png';
+                        echo "<div><img src='".htmlspecialchars($photo)."' alt='photo' class='profile-thumb'></div>";
+                    ?>
+                    <div id="sidebarr">
+                        <ul>
+                            <li><a href="updateprofilephoto.php">Change Photo</a></li>
+                            <li><a href="changepass.php">Change password</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-panel social-panel">
+                <div class="sidebar-panel-title">Social link</div>
+                <div class="sidebar-panel-body">
+                    <a href="https://www.facebook.com/"><span><ion-icon name="logo-facebook"></ion-icon></span>Facebook</a>
+                    <a href="https://www.twitter.com/"><span><ion-icon name="logo-twitter"></ion-icon></span>Twitter</a>
+                    <a href="https://www.youtube.com/"><span><ion-icon name="logo-youtube"></ion-icon></span>YouTube</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+        <?php include("../footer.php"); ?>
+    </div>
 
 </div>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</body>
+</html>
 
 <?php
 } else {

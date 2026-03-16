@@ -1,4 +1,5 @@
 <head>
+<script src="theme.js"></script>
 <script language ="javascript" >
 var tim;
 var min =1;

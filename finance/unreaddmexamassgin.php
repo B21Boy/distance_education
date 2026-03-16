@@ -4,6 +4,7 @@ include("../connection.php");
 ?>
 <html>
 <head>
+<script src="theme.js"></script>
 <title>
 Finance Staff page
 </title>
@@ -11,7 +12,7 @@ Finance Staff page
 <script type="text/javascript" src="../javascript\date_time.js"></script>
 <link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
 </head>
-<body>
+<body class="light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {
@@ -79,6 +80,7 @@ function Clickheretoprint()
   var docprint=window.open("","",disp_setting); 
    docprint.document.open(); 
    docprint.document.write('<html><head><title>List of Passer</title>'); 
+<script src="theme.js"></script>
    docprint.document.write('</head><body onLoad="self.print()" style="width:600px;border:-10px solid red;margin-left:400px; font-size:16px; font-family:TimesNewRoman;">');          
    docprint.document.write(content_vlue);          
    docprint.document.write('</body></html>'); 

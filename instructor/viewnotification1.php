@@ -1,8 +1,9 @@
 
 <html>
 <head>
+<script src="theme.js"></script>
 </head>
-<body>
+<body class="light-theme">
 <?php
 
 include("../connection.php");

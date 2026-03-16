@@ -4,13 +4,14 @@ include("../connection.php");
 ?>
 <html>
 <head>
+<script src="theme.js"></script>
 <title>
 Department head page
 </title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
 <script type="text/javascript" src="../javascript\date_time.js"></script>
 </head>
-<body>
+<body class="light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {

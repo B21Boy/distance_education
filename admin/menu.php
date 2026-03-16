@@ -10,7 +10,7 @@
 	flex-wrap: wrap;
 }
 .primary-nav .brand { color: #fff; font-weight: 700; margin-right: 1rem; }
-.primary-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.5rem; align-items:center; }
+.primary-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.5rem; align-items:center; justify-content: center; }
 .primary-nav li { position: relative; }
 .primary-nav a { color: #fff; text-decoration: none; padding: 0.6rem 0.9rem; display: block; border-radius:4px; transition: background .15s ease, color .15s ease; }
 /* Visible hover/focus effect */

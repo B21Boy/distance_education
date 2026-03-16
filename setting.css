@@ -7,24 +7,68 @@
   --muted: #6b7c8a;
   --max-width: 1200px;
   --gap: 12px;
+  --text-color: #222;
+  --header-bg: url("images/bg2.JPG");
+  --body-bg: url("images/bb.jpg");
+  --navbar-bg: #336699;
+  --navbar-text: white;
+  --sidebar-bg: #fcfcfc;
+  --container-bg: #ffffff;
+  --icon-color: #336699;
+  --icon-hover-color: #0b1d3b;
+  --panel-title-bg: linear-gradient(135deg, #1f4b7a, #0d2b52);
+  --panel-title-color: #fff;
+  --link-color: #14335d;
+  --link-hover-color: #0b1d3b;
+}
+
+.dark-theme {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --primary: #4dabf7;
+  --accent: #4dabf7;
+  --muted: #cccccc;
+  --text-color: #ffffff;
+  --header-bg: url("images/bg2.JPG"); /* Keep or change if needed */
+  --body-bg: #121212; /* Solid dark for dark theme */
+  --navbar-bg: #1e1e1e;
+  --navbar-text: #ffffff;
+  --sidebar-bg: #2e2e2e;
+  --container-bg: #1e1e1e;
+  --icon-color: #4dabf7;
+  --icon-hover-color: #ffffff;
+  --panel-title-bg: linear-gradient(135deg, #2e2e2e, #1e1e1e);
+  --panel-title-color: #ffffff;
+  --link-color: #ffffff;
+  --link-hover-color: #cccccc;
+}
+
+.light-theme {
+  /* Same as root */
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#222}
+html,body{margin:0;padding:0;height:100%;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text-color)}
 body{ 
-	background:url("images/bb.jpg") no-repeat center top;
+	background:var(--body-bg) no-repeat center top;
 	background-size: cover;
 }
 #container {
 		display:block;
 		width:1140px;
 		margin-left:100px;
-		background:#ffffff;
+		background:var(--container-bg);
 		border-top-left-radius:10px;
 	    border-top-right-radius:10px;
 		border-bottom-left-radius:10px;
 	    border-bottom-right-radius:10px;
 		text-decoration:none;
 		}	
+#welcome {
+    color: var(--text-color);
+}
+#welcome h2, #welcome p {
+    color: var(--text-color);
+}
 #header
 	{
 	display:block;
@@ -36,7 +80,7 @@ body{
 	padding-bottom:13px;
 	padding-top:0px;
 	
-	background:url("images/bg2.JPG");
+	background:var(--header-bg);
 	border-top-left-radius:10px;
 	border-top-right-radius:10px;
 	background-size:1200px 110px;
@@ -49,7 +93,7 @@ body{
 	{
 		padding-top:5px;
 		font-size:30px;
-		color:#000000;
+		color:var(--text-color);
 		
 	}
 	
@@ -59,14 +103,14 @@ margin-top:-3px;
 font-family:Times New Roman;
 	width: 1094px;
 	height: 48px;
-	background-color:#336699;
+	background-color:var(--navbar-bg);
 	border-radius:0px;
 }
 
 .navbar a {
     float: left;
     font-size: 18px;
-    color: white;
+    color: var(--navbar-text);
     text-align: center;
     text-decoration: none;
     margin-left: 60px;
@@ -76,7 +120,7 @@ font-family:Times New Roman;
 	height: 30px;
 	line-height: 35px;
 	font-size: 15px;
-	color:white;	
+	color:var(--navbar-text);	
 	text-decoration: none;
 	outline: none;
 	text-align: center;
@@ -90,7 +134,7 @@ font-family:Times New Roman;
    
 }	
 #menubar1  {
-background-color:#336699;
+background-color:var(--navbar-bg);
 margin-left:18px;
 margin-top:-22px;
 width:1096px;
@@ -109,7 +153,7 @@ border-radius:0px;
 }
 #menubar1 ul li  a{
     float: none;
-    color: #ffffff;
+    color: var(--navbar-text);
     padding: 8px 25px;
     text-decoration: none;
     display: block;
@@ -176,7 +220,7 @@ font-family:Times New Roman;
     margin-left: 21px;
     padding: 0;
     width: 19%;
-    background:#fcfcfc;
+    background:var(--sidebar-bg);
     margin-top:-39px;
     height:620px;
     overflow: auto;
@@ -1042,8 +1086,8 @@ body.student-portal-page #menubar1 ul li a.has-alert.active {
 }
 
 .sidebar-panel-title {
-	background: linear-gradient(135deg, #1f4b7a, #0d2b52);
-	color: #fff;
+	background: var(--panel-title-bg);
+	color: var(--panel-title-color);
 	font-size: 16px;
 	font-weight: 700;
 	text-align: center;
@@ -1060,7 +1104,7 @@ body.student-portal-page #menubar1 ul li a.has-alert.active {
 
 .sidebar-panel-body a {
 	display: block;
-	color: #14335d;
+	color: var(--link-color);
 	margin-bottom: 8px;
 	text-decoration: none;
 }
@@ -1070,7 +1114,7 @@ body.student-portal-page #menubar1 ul li a.has-alert.active {
 }
 
 .sidebar-panel-body a:hover {
-	color: #0b1d3b;
+	color: var(--link-hover-color);
 	text-decoration: underline;
 }
 
@@ -1079,6 +1123,12 @@ body.student-portal-page #menubar1 ul li a.has-alert.active {
 	display: flex;
 	align-items: center;
 	margin-bottom: 12px;
+	color: black;
+}
+
+.social-panel .sidebar-panel-body a:hover {
+	color: black;
+	text-decoration: none;
 }
 
 .social-panel .sidebar-panel-body a span {
@@ -1087,11 +1137,11 @@ body.student-portal-page #menubar1 ul li a.has-alert.active {
 
 .social-panel .sidebar-panel-body a ion-icon {
 	font-size: 24px;
-	color: #336699;
+	color: var(--icon-color);
 }
 
 .social-panel .sidebar-panel-body a:hover ion-icon {
-	color: #0b1d3b;
+	color: var(--icon-color);
 }
 
 .announcement-title {

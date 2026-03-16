@@ -2,11 +2,13 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 session_start();
+ob_start();
 include("connection.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme.js"></script>
 <meta charset="UTF-8">
 <title>Home Page</title>
 <link rel="stylesheet" href="setting.css">
@@ -24,7 +26,7 @@ include("connection.php");
 </style>
 <script src="javascript/date_time.js"></script>
 </head>
-<body class="student-portal-page">
+<body class="student-portal-page light-theme">
 
 <div id="container">
 

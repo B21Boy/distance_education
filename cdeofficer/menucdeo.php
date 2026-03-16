@@ -1,5 +1,6 @@
 
 <head>
+<script src="theme.js"></script>
 <!--sa poip up-->
 <link href="src/facebox.css" media="screen" rel="stylesheet" type="text/css" />
    <script src="lib/jquery.js" type="text/javascript"></script>
