@@ -1,10 +1,23 @@
+<?php
+if (!isset($conn)) {
+	require_once("../connection.php");
+}
+?>
 <div id="sidebar1">
 <ul>
 <?php
- $id=$_SESSION['suid'];
-$s=mysql_query("select*from user where UID='$id'");
-$rr=mysql_fetch_array($s);
-$cc=$rr['c_code'];
+ $id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
+$cc = '';
+if ($id !== '') {
+	$s = mysqli_query($conn, "select*from user where UID='$id'");
+	if ($s instanceof mysqli_result) {
+		$rr = mysqli_fetch_assoc($s);
+		if ($rr) {
+			$cc = $rr['c_code'];
+		}
+		mysqli_free_result($s);
+	}
+}
 ?>
 	<div id="sidedate">
 	<li><a class="active" href="#.php"> Calendar</a></li>

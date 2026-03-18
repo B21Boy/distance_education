@@ -1,5 +1,30 @@
+<?php
+if (!function_exists('cdeofficer_safe_count')) {
+    function cdeofficer_safe_count(mysqli $conn, string $sql): int
+    {
+        $result = mysqli_query($conn, $sql);
+        if ($result instanceof mysqli_result) {
+            $count = mysqli_num_rows($result);
+            mysqli_free_result($result);
+            return $count;
+        }
 
-       
+        return 0;
+    }
+}
+
+if (!isset($conn)) {
+    require_once("../connection.php");
+}
+
+$tutorialCount = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='tutorial'");
+$iexamCount = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='iexam'");
+$mexamAssignCount = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='mexamassign'");
+$massignmentCount = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='massignment'");
+$mexamCount = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='mexam'");
+$pexamCount = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='pexam'");
+?>
+
         <link href="csss/css1.css" rel="stylesheet"/>
         <!-- Custom CSS -->
         <link href="csss/startmin.css" rel="stylesheet"/>
@@ -18,13 +43,10 @@
                                         <div class="text-right">
                                         	
            	<?php
-$query = mysql_query("select * from payment_table where unread='yes' and status='no' and type='tutorial'")
-or die(mysql_error());
-$coun = mysql_num_rows($query);
-if($coun>='1')
+if($tutorialCount>='1')
 {
 ?>												
-<font size="3px" color="#eaf50a">New Request[<?php echo $coun?>]</font>                                       	
+<font size="3px" color="#eaf50a">New Request[<?php echo $tutorialCount?>]</font>                                       	
 <?php
 }
 ?>                                    	 	
@@ -55,13 +77,10 @@ if($coun>='1')
                                         <div class="text-right">
                                         	
  <?php
-$query = mysql_query("select * from payment_table where unread='yes' and status='no' and type='iexam'")
-or die(mysql_error());
-$coun = mysql_num_rows($query);
-if($coun>='1')
+if($iexamCount>='1')
 {
 ?>												
-<font size="3px" color="#eaf50a">New Request[<?php echo $coun?>]</font>                                       	
+<font size="3px" color="#eaf50a">New Request[<?php echo $iexamCount?>]</font>                                       	
 <?php
 }
 ?>                                      	
@@ -93,13 +112,10 @@ if($coun>='1')
                                     <div class="col-xs-9 text-left">
                                         <div class="text-right">
  <?php
-$query = mysql_query("select * from payment_table where unread='yes' and status='no' and type='mexamassign'")
-or die(mysql_error());
-$coun = mysql_num_rows($query);
-if($coun>='1')
+if($mexamAssignCount>='1')
 {
 ?>												
-<font size="3px" color="#dbf428">New Request[<?php echo $coun?>]</font>                                       	
+<font size="3px" color="#dbf428">New Request[<?php echo $mexamAssignCount?>]</font>                                       	
 <?php
 }
 ?>
@@ -129,13 +145,10 @@ if($coun>='1')
                                     <div class="col-xs-9 text-left">
                                         <div class="text-right">
  <?php
-$query = mysql_query("select * from payment_table where unread='yes' and status='no' and type='massignment'")
-or die(mysql_error());
-$coun = mysql_num_rows($query);
-if($coun>='1')
+if($massignmentCount>='1')
 {
 ?>												
-<font size="3px" color="#eaf50a">New Request[<?php echo $coun?>]</font>                                       	
+<font size="3px" color="#eaf50a">New Request[<?php echo $massignmentCount?>]</font>                                       	
 <?php
 }
 ?>
@@ -166,13 +179,10 @@ if($coun>='1')
                                         <div class="text-right">
                                         	
            	<?php
-$query = mysql_query("select * from payment_table where unread='yes' and status='no' and type='mexam'")
-or die(mysql_error());
-$coun = mysql_num_rows($query);
-if($coun>='1')
+if($mexamCount>='1')
 {
 ?>												
-<font size="3px" color="#eaf50a">New Request[<?php echo $coun?>]</font>                                       	
+<font size="3px" color="#eaf50a">New Request[<?php echo $mexamCount?>]</font>                                       	
 <?php
 }
 ?>                                    	 	
@@ -205,13 +215,10 @@ if($coun>='1')
                                         <div class="text-right">
                                         	
  <?php
-$query = mysql_query("select * from payment_table where unread='yes' and status='no' and type='pexam'")
-or die(mysql_error());
-$coun = mysql_num_rows($query);
-if($coun>='1')
+if($pexamCount>='1')
 {
 ?>												
-<font size="3px" color="#dbf116">New Request[<?php echo $coun?>]</font>                                       	
+<font size="3px" color="#dbf116">New Request[<?php echo $pexamCount?>]</font>                                       	
 <?php
 }
 ?>                                      	

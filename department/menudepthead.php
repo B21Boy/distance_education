@@ -1,5 +1,7 @@
 	<?php
-	include("../connection.php");
+	if (!isset($conn)) {
+		include("../connection.php");
+	}
 	?>
 <script src="js/validation.js" type="text/javascript"></script>
 <link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
@@ -104,10 +106,16 @@
 </div>
 					<li>
 					<?php
-					$user_id=$_SESSION['suid'];
-	$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
-	$result=mysql_query($sql);
-	$count=mysql_num_rows($result);
+					$user_id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
+	$count = 0;
+	if ($user_id !== '') {
+		$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
+		$result = mysqli_query($conn, $sql);
+		if ($result instanceof mysqli_result) {
+			$count = mysqli_num_rows($result);
+			mysqli_free_result($result);
+		}
+	}
 	if($count>='1')
 	{
 					?>

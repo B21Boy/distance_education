@@ -1,6 +1,22 @@
+<?php
+if (!function_exists('cdeofficer_safe_count')) {
+	function cdeofficer_safe_count(mysqli $conn, string $sql): int
+	{
+		$result = mysqli_query($conn, $sql);
+		if ($result instanceof mysqli_result) {
+			$count = mysqli_num_rows($result);
+			mysqli_free_result($result);
+			return $count;
+		}
 
-<head>
-<script src="theme.js"></script>
+		return 0;
+	}
+}
+
+if (!isset($conn)) {
+	require_once("../connection.php");
+}
+?>
 <!--sa poip up-->
 <link href="src/facebox.css" media="screen" rel="stylesheet" type="text/css" />
    <script src="lib/jquery.js" type="text/javascript"></script>
@@ -13,30 +29,18 @@
       })
     })
   </script>
-</head>
 
 <table>
 <tr><td>
   <div id="menubar1">
   <ul>
              	<?php
-$queryt = mysql_query("select * from payment_table where unread='yes' and status='no' and type='tutorial'")or die(mysql_error());
-$count = mysql_num_rows($queryt);
-
-$queryi = mysql_query("select * from payment_table where unread='yes' and status='no' and type='iexam'")or die(mysql_error());
-$couni = mysql_num_rows($queryi);
-
-$querymea =mysql_query("select * from payment_table where unread='yes' and status='no' and type='mexamassign'")or die(mysql_error());
-$counmea = mysql_num_rows($querymea);
-
-$queryma= mysql_query("select * from payment_table where unread='yes' and status='no' and type='massignment'")or die(mysql_error());
-$counma = mysql_num_rows($queryma);
-
-$queryme= mysql_query("select * from payment_table where unread='yes' and status='no' and type='mexam'")or die(mysql_error());
-$counme = mysql_num_rows($queryme);
-
-$querype = mysql_query("select * from payment_table where unread='yes' and status='no' and type='pexam'")or die(mysql_error());
-$counpe = mysql_num_rows($querype);
+$count = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='tutorial'");
+$couni = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='iexam'");
+$counmea = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='mexamassign'");
+$counma = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='massignment'");
+$counme = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='mexam'");
+$counpe = cdeofficer_safe_count($conn, "select * from payment_table where unread='yes' and status='no' and type='pexam'");
 
 $total=$count+$couni+$counmea+$counma+$counme+$counpe;
 ?>
@@ -45,10 +49,16 @@ $total=$count+$couni+$counmea+$counma+$counme+$counpe;
 
   				
 					<?php
-					$user_id=$_SESSION['suid'];
-	$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
-	$result=mysql_query($sql);
-	$count=mysql_num_rows($result);
+					$user_id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
+	$count = 0;
+	if ($user_id !== '') {
+		$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
+		$result = mysqli_query($conn, $sql);
+		if ($result instanceof mysqli_result) {
+			$count = mysqli_num_rows($result);
+			mysqli_free_result($result);
+		}
+	}
 	if($count>='1')
 	{
 					?>

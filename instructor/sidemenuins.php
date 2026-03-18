@@ -1,7 +1,9 @@
 <?php
 
-include("../connection.php");
-$idd=$_SESSION['suid'];
+if (!isset($conn)) {
+	include("../connection.php");
+}
+$idd = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
 ?>
 <div id="sidebar1">
 <ul>
@@ -10,9 +12,14 @@ $idd=$_SESSION['suid'];
   <li><a  href="postresult.php">Record course result</a></li>
      <li><a href="viewgrade.php">Post course result</a></li>
   					<?php
-$query = mysql_query("select DISTINCT uid from course_result where status='not' and uid='$idd'")
-or die(mysql_error());
-$coun = mysql_num_rows($query);
+$coun = 0;
+if ($idd !== '') {
+	$query = mysqli_query($conn, "select DISTINCT uid from course_result where status='not' and uid='$idd'");
+	if ($query instanceof mysqli_result) {
+		$coun = mysqli_num_rows($query);
+		mysqli_free_result($query);
+	}
+}
 if($coun>='1')
 {
 ?>									

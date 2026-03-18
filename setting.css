@@ -1,4 +1,4 @@
-#Reset + variables for modern layout
+/* Reset + variables for modern layout */
 :root{
   --bg: #f2f6fa;
   --card: #ffffff;
@@ -71,7 +71,7 @@ body{
 }
 #header
 	{
-	display:block;
+	/* display:block; */
 	border:1px solid green;
 	width:1092px;
 	height:100px;

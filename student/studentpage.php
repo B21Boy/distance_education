@@ -2,17 +2,30 @@
 session_start();
 include("../connection.php");
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <script src="theme.js"></script>
+<meta charset="UTF-8">
 <title>
 Student page
 </title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" type="text/css" href="../setting.css">
+<style>
+/* inline fallback when stylesheet isn't loaded: keep columns, spacing, and proportions */
+.main-row {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    align-items: flex-start !important;
+}
+.main-row > #left { flex: 0 0 300px !important; }
+.main-row > #content { flex: 1 1 auto !important; }
+.main-row > #sidebar { flex: 0 0 260px !important; }
+</style>
 <script type="text/javascript" src="../javascript/date_time.js"></script>
 </head>
-<body class="student-portal-page">
+<body class="student-portal-page light-theme">
 <?php
 if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']) && isset($_SESSION['sln']) && isset($_SESSION['srole'])) {
 	$first_name = htmlspecialchars($_SESSION['sfn'], ENT_QUOTES, 'UTF-8');
@@ -24,7 +37,7 @@ if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']
 	}
 	$photo_path = htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8');
 ?>
-<div id="container" class="student-portal-shell">
+<div id="container">
 	<div id="header">
 		<?php require("header.php"); ?>
 	</div>
@@ -35,11 +48,11 @@ if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']
 		</div>
 
 	<div class="main-row">
-		<aside id="left">
+		<div id="left">
 			<?php require("sidemenustud.php"); ?>
-		</aside>
+		</div>
 
-		<main id="content">
+		<div id="content">
 			<div id="contentindex5" class="student-dashboard-home">
 				<section class="student-hero">
 					<p class="student-hero-label">Student Dashboard</p>
@@ -66,9 +79,9 @@ if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']
 					</a>
 				</section>
 			</div>
-		</main>
+		</div>
 
-		<aside id="sidebar">
+		<div id="sidebar">
 			<section id="user-login">
 				<h3>User Profile</h3>
 				<div class="student-profile-card">
@@ -93,13 +106,15 @@ if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']
 					<li><a href="https://plus.google.com/">Google+</a></li>
 				</ul>
 			</section>
-		</aside>
+		</div>
 	</div>
 
 	<div id="footer">
 		<?php include("../footer.php"); ?>
 	</div>
 </div>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <?php
 } else {
 	header("location:../index.php");

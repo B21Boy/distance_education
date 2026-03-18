@@ -31,11 +31,20 @@
 </li>	
 <li>
 					<?php
-					
-					$user_id=$_SESSION['suid'];
-	$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
-	$result=mysql_query($sql);
-	$count=mysql_num_rows($result);
+					if (!isset($conn)) {
+						require_once("../connection.php");
+					}
+
+					$user_id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
+					$count = 0;
+					if ($user_id !== '') {
+						$sql = "SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
+						$result = mysqli_query($conn, $sql);
+						if ($result instanceof mysqli_result) {
+							$count = mysqli_num_rows($result);
+							mysqli_free_result($result);
+						}
+					}
 	if($count>='1')
 	{
 					?>

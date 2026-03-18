@@ -1,3 +1,22 @@
+<?php
+if (!function_exists('cdeofficer_safe_count')) {
+	function cdeofficer_safe_count(mysqli $conn, string $sql): int
+	{
+		$result = mysqli_query($conn, $sql);
+		if ($result instanceof mysqli_result) {
+			$count = mysqli_num_rows($result);
+			mysqli_free_result($result);
+			return $count;
+		}
+
+		return 0;
+	}
+}
+
+if (!isset($conn)) {
+	require_once("../connection.php");
+}
+?>
 <script src="js/validation.js" type="text/javascript"></script>
 <div id="sidebar1">
 <ul>
@@ -10,10 +29,7 @@
     </li>
   					<li>
 					<?php
-					$user_id=$_SESSION['suid'];
-	$sql="SELECT * FROM course WHERE status='no'";
-	$result=mysql_query($sql);
-	$count=mysql_num_rows($result);
+	$count = cdeofficer_safe_count($conn, "SELECT * FROM course WHERE status='no'");
 	if($count>='1')
 	{
 					?>

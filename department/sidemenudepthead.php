@@ -1,9 +1,22 @@
 <?php
-$dept=$_SESSION['sdc'];
-$result1 = mysql_query("SELECT * FROM department where Dcode='$dept'");
-$row = mysql_fetch_array($result1);
-$dcode=$row['DName'];
-	$uid=$_SESSION['suid'];
+if (!isset($conn)) {
+	require_once("../connection.php");
+}
+
+$dept = isset($_SESSION['sdc']) ? mysqli_real_escape_string($conn, (string) $_SESSION['sdc']) : '';
+$dcode = '';
+$uid = isset($_SESSION['suid']) ? $_SESSION['suid'] : '';
+
+if ($dept !== '') {
+	$result1 = mysqli_query($conn, "SELECT * FROM department where Dcode='$dept'");
+	if ($result1 instanceof mysqli_result) {
+		$row = mysqli_fetch_assoc($result1);
+		if ($row) {
+			$dcode = $row['DName'];
+		}
+		mysqli_free_result($result1);
+	}
+}
 ?>
 
 <div id="sidebar1">
@@ -22,12 +35,20 @@ $dcode=$row['DName'];
     </li>
    <?php
 $query = "select distinct uid,section,C_Code,year from course_result where status='posted' and reject=' ' and send_to='$dept'";
-$result = mysql_query($query);
-$count=mysql_num_rows($result);
+$count = 0;
+$result = mysqli_query($conn, $query);
+if ($result instanceof mysqli_result) {
+	$count = mysqli_num_rows($result);
+	mysqli_free_result($result);
+}
 
 $query2 = "select distinct department,section,year from grade where status='approve' and checking='pending' and department='$dcode'";
-$result2 = mysql_query($query2);
-$count2=mysql_num_rows($result2);
+$count2 = 0;
+$result2 = mysqli_query($conn, $query2);
+if ($result2 instanceof mysqli_result) {
+	$count2 = mysqli_num_rows($result2);
+	mysqli_free_result($result2);
+}
 $t=$count+$count2;
 ?>
     <li><a href="#.php"><font size="3px" color="#940f0c">Approve student results[<?php echo $t;?></font>]</a>
