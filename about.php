@@ -36,18 +36,18 @@ Home page
 
 <div id="bodydivision">
 <h2>About Us</h2>
-<h3>If you want further information about DMU distance education </h3>
+<h3>If you want further information about BDU distance education </h3>
 <h4> we provide distance education in different field of studies </h4>
 <h2><u>Motto of the distance education</u></h2>
 <h4>1.To provide quality education</h4>
 <h4>2.Undertaking a problem solving research work, which focuses on national 
 need and benefiting the community with the outcome</h4>
-<font color="black" face="monotype corsiva" size="5">DMU Continuing and distance Office  works for change!!</font><br>
-<p>DMU Continuing and distance Office plays a great role 
+<font color="black" face="monotype corsiva" size="5">BDU Continuing and distance Office  works for change!!</font><br>
+<p>BDU Continuing and distance Office plays a great role 
 in producing a well knowledgeable citizen
  for the development of our country.</p>
-DMU CDE OFFICE!!!<br>
-<font face="Times New Roman" color="#101f30" size="3">DMU CDE OFFICE &copy; 2010 E.C.</font>
+BDU CDE OFFICE!!!<br>
+<font face="Times New Roman" color="#101f30" size="3">BDU CDE OFFICE &copy; 2018 E.C.</font>
 </div>
  
 	 </div></td>

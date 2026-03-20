@@ -5,7 +5,7 @@ include("../connection.php");
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script src="theme.js"></script>
+<script src="../theme.js"></script>
 <meta charset="UTF-8">
 <title>Administrator page</title>
 <link rel="stylesheet" href="../setting.css">

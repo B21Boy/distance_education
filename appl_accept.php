@@ -54,12 +54,12 @@ include("connection.php");
             Letter stating working experience
             Certificate and transcript
             University application form
-            Bank receipt for private students
+            chapaPayment for private students
             Registration slip</p>
             <h4>After the Application</h4>
             <p style="text-transform: capitalize;">
             Keep with you registration slip that you have been given during registration at least until you graduate
-            Private students keep either the original or the copy of the bank receipt with you at least until you graduate
+            Private students keep to pay the money in chapa with you at least until you graduate
             </p>
             <h4>New Student Orientation</h4>
             <p style="text-transform: capitalize;">

@@ -18,60 +18,45 @@ if (!isset($conn)) {
 }
 ?>
 <script src="js/validation.js" type="text/javascript"></script>
-<div id="sidebar1">
-<ul>
-  <li><a class="active" href="#.html">Side Link</a></li>
-     <li><a href="#">Add Programs<span><font size="1px">&#x25BC;</font></span></a>
-      <ul>
-        <li><a  href="managecollage.php">Add  College</a></li>
-        <li><a href="managedept.php">Add  Department</a></li>
-      </ul>
-    </li>
-  					<li>
-					<?php
-	$count = cdeofficer_safe_count($conn, "SELECT * FROM course WHERE status='no'");
-	if($count>='1')
-	{
-					?>
-						<a href="viewuploadmodule.php">
-							
-							<span style="color: red">View Uploded Module[<?php echo $count; ?>] </span>
-						</a>
-						<?php
-						}
-						else
-						{
-						?>
-						<a href="viewuploadmodule.php">
-							
-							<span >View Uploded Module[<?php echo $count; ?>] </span>
-						</a>
-						<?php
-						}
-						?>
-					</li>
-<li><a href="#">Post Announcment<span><font size="1px">&#x25BC;</font></span></a>
-      <ul>
-  <li><a href="updateposti.php">Post updated Information</a></li>
-  <li><a href="updatepost.php">Post registration date</a></li>
-  <li><a href="updateposta.php">Post Application date</a></li>
-      </ul>
-</li>   
-    <li><a href="#">View<span><font size="1px">&#x25BC;</font></span></a>
-      <ul>
-<li><a href="viewacadamicschedul.php">View acadamic schedule</a></li>
-<li><a href="postresult.php">View Entrance Exam Result</a></li>
-      </ul>
-</li> 
-    <li><a href="recordresult.php">Post Entrance Exam Result</a></li>
-   
-    
-
-   	<div id="sidedate">
-	<li><a class="active" href="#.php"> Calendar</a></li>
-	 <?php
-	 require("../date.php");
-	 ?>
-	 </div>
+<?php
+$uploaded_module_count = cdeofficer_safe_count($conn, "SELECT * FROM course WHERE status='no'");
+?>
+<div id="sidebar1" class="student-side-panel" style="width:100%;max-width:100%;box-sizing:border-box;">
+<div class="student-side-menu-title">Side Link</div>
+<ul class="student-side-nav" style="display:flex;flex-direction:column;gap:10px;margin:0;padding:18px;width:100%;min-width:0;height:auto;background:transparent;border:0;box-sizing:border-box;list-style:none;">
+	<li style="margin:0;width:100%;list-style:none;">
+		<div style="padding:6px 4px 0;color:#114c78;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Add Programs</div>
+		<ul style="display:flex;flex-direction:column;gap:10px;margin:10px 0 0;padding:0;list-style:none;">
+			<li style="margin:0;list-style:none;"><a href="managecollage.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Add College</a></li>
+			<li style="margin:0;list-style:none;"><a href="managedept.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Add Department</a></li>
+		</ul>
+	</li>
+	<li style="margin:0;width:100%;list-style:none;">
+		<a href="viewuploadmodule.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid <?php echo $uploaded_module_count >= 1 ? '#f2d0d0' : '#dce9f1'; ?>;border-radius:14px;background:<?php echo $uploaded_module_count >= 1 ? '#fff4f4' : '#f7fbfd'; ?>;color:<?php echo $uploaded_module_count >= 1 ? '#8d1c1c' : '#17364e'; ?>;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">View Uploded Module[<?php echo htmlspecialchars((string) $uploaded_module_count, ENT_QUOTES, 'UTF-8'); ?>]</a>
+	</li>
+	<li style="margin:0;width:100%;list-style:none;">
+		<div style="padding:6px 4px 0;color:#114c78;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Post Announcment</div>
+		<ul style="display:flex;flex-direction:column;gap:10px;margin:10px 0 0;padding:0;list-style:none;">
+			<li style="margin:0;list-style:none;"><a href="updateposti.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Post updated Information</a></li>
+			<li style="margin:0;list-style:none;"><a href="updatepost.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Post registration date</a></li>
+			<li style="margin:0;list-style:none;"><a href="updateposta.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Post Application date</a></li>
+		</ul>
+	</li>
+	<li style="margin:0;width:100%;list-style:none;">
+		<div style="padding:6px 4px 0;color:#114c78;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">View</div>
+		<ul style="display:flex;flex-direction:column;gap:10px;margin:10px 0 0;padding:0;list-style:none;">
+			<li style="margin:0;list-style:none;"><a href="viewacadamicschedul.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">View acadamic schedule</a></li>
+			<li style="margin:0;list-style:none;"><a href="postresult.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">View Entrance Exam Result</a></li>
+		</ul>
+	</li>
+	<li style="margin:0;width:100%;list-style:none;">
+		<a href="recordresult.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Post Entrance Exam Result</a>
+	</li>
 </ul>
+<div id="sidedate">
+	<h2>Calendar</h2>
+	<?php
+	require("../date.php");
+	?>
+</div>
 </div>

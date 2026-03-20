@@ -59,8 +59,8 @@ include("connection.php");
 
                         <li class="portfolio-item2" data-id="id-0" data-type="cat-item-4">
                   <span class="image-block">
-                    <a class="image-zoom" href="images/thumbs/p1.jpg" rel="prettyPhoto[gallery]">
-                    <img width="200" height="140" src="images/thumbs/p1.jpg" alt="selam" title="Click Here  To Zoom" />
+                    <a class="image-zoom" href="images/thumbs/p1.png" rel="prettyPhoto[gallery]">
+                    <img width="200" height="140" src="images/thumbs/p1.png" alt="selam" title="Click Here  To Zoom" />
                     </a>
                     </span>
                    <div class="home-portfolio-text">
@@ -73,8 +73,8 @@ include("connection.php");
                         <li class="portfolio-item2" data-id="id-1" data-type="cat-item-2">
 
                    <span class="image-block">
-                    <a class="image-zoom" href="images/thumbs/p2.jpg" rel="prettyPhoto[gallery]">
-                    <img width="200" height="140" src="images/thumbs/p2.jpg" alt="Up" title="Click Here  To Zoom" />
+                    <a class="image-zoom" href="images/thumbs/p1.png" rel="prettyPhoto[gallery]">
+                    <img width="200" height="140" src="images/thumbs/p1.png" alt="Up" title="Click Here  To Zoom" />
                     </a>
                     </span>
                    <div class="home-portfolio-text">
@@ -90,8 +90,8 @@ include("connection.php");
                         <li class="portfolio-item2" data-id="id-2" data-type="cat-item-1">
 
                    <span class="image-block">
-                    <a class="image-zoom" href="images/thumbs/p3.jpg" rel="prettyPhoto[gallery]">
-                    <img width="200" height="140" src="images/thumbs/p3.jpg" alt="Cars 2" title="Click Here To Zoom" />
+                    <a class="image-zoom" href="images/thumbs/p1.png" rel="prettyPhoto[gallery]">
+                    <img width="200" height="140" src="images/thumbs/p1.png" alt="Cars 2" title="Click Here To Zoom" />
                     </a>
                     </span>
                    <div class="home-portfolio-text">
@@ -102,8 +102,8 @@ include("connection.php");
                     <li class="portfolio-item2" data-id="id-3" data-type="cat-item-4">
 
                    <span class="image-block">
-                    <a class="image-zoom" href="images/thumbs/p4.jpg" rel="prettyPhoto[gallery]">
-                    <img width="200" height="140" src="images/thumbs/p4.jpg" alt="Toy Story 3" title="Click Here  To Zoom" />
+                    <a class="image-zoom" href="images/thumbs/p1.png" rel="prettyPhoto[gallery]">
+                    <img width="200" height="140" src="images/thumbs/p1.png" alt="Toy Story 3" title="Click Here  To Zoom" />
                     </a>
                     </span>
                    <div class="home-portfolio-text">

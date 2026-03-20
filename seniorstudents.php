@@ -51,7 +51,7 @@ include("connection.php");
             <i><font color="blue" size="5px">Criteria's to attend BDU Distance Education learning system as a senior student</font></i><br>
               <font size="3px;">1: You  have to achieve the passing grade (point) and complete full payment of the  semester to be registered<br>
                 2:Senior student registering must happens at the beginning of each academic semester<br>
-                3: The grading system in the DE is the same as DMU regular students.<br>
+                3: The grading system in the DE is the same as BDU regular students.<br>
                 4: The payments for the summer students are complete at once.<br>
                 5: The payment for weekend students is once in each semester.<br><br></font>
             <!--body-->

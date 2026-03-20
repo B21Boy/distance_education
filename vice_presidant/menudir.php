@@ -1,28 +1,10 @@
-<table>
-<tr><td>
-  <div id="menubar1">
-  
-  <ul>
-
-					 <li><a href="index.php">View Generated report</a></li>
-				
-					
-					<li>
-						<a href="viewacadamicschedul.php">
-						
-							<span>View academic schedule</span>
-						</a>
-					</li>
-					
-					<li>
-						<a href="../logout.php">
-							
-							<span>Log out</span>
-						</a>
-					</li>
-					
-					
-					<div class="clearfix"></div>
-				</ul>             
-	</div>					
-</td></tr></table>
+<?php
+$current_page = basename(isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : '');
+?>
+<nav id="menubar1" aria-label="Vice president navigation">
+    <ul>
+        <li><a href="index.php"<?php echo $current_page === 'index.php' ? ' class="active"' : ''; ?>>View Generated report</a></li>
+        <li><a href="viewacadamicschedul.php"<?php echo $current_page === 'viewacadamicschedul.php' ? ' class="active"' : ''; ?>>View academic schedule</a></li>
+        <li><a href="../logout.php">Log out</a></li>
+    </ul>
+</nav>

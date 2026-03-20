@@ -49,12 +49,10 @@ include("connection.php");
         <div id="content">
             <div style="height:500px; width:500px;">
             <section id="contact">
-             <h3 class="slanted">Contact Me</h3>
-
-                 <h4>Section&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A</h4>
+             <h3 class="slanted">Contact Us</h3>
 
                   <table width="430px" height="320px" border="4" cellspacing="8" cellpadding="8"  style="text-align:left;color:black;">
-                                <font align="center"><i><h4>GROUP 10 MEMBERS LIST</h4></i></font>
+                                <font align="center"><i><h4>Developer Members List</h4></i></font>
                                 <tr bgcolor="#80998e;">
                                     <td>ID Number</td>
                                     <td>Name</td>
@@ -64,43 +62,36 @@ include("connection.php");
                                 </tr>
                                 <tr>
                                     <td align="center">TER/4641/07</td>
-                                    <td align="center">Abebaw Addis</td>
+                                    <td align="center">Deksiyos Yismaw</td>
                                     <td align="center">M</td>
-                                    <td>abebawaddis@gmail.com</td>
+                                    <td>deksiman721@gmail.com</td>
                                     <td><img src="jb2/abie.jpg" height="50" width="100%"></td>
                                 </tr>
                                 <tr>
                                     <td align="center">TER/4656/07</td>
-                                    <td align="center">Dessie Techane</td>
-                                    <td align="center">M</td>
-                                    <td>dessietechane@gmail.com</td>
+                                    <td align="center">Medhanit Melesse</td>
+                                    <td align="center">F</td>
+                                    <td>medihanit@gmail.com</td>
                                     <td><img src="jb2/dess.jpg" height="50" width="100%"></td>
 
                                 </tr>
                                 <tr>
                                     <td align="center">TER/4645/07</td>
-                                    <td align="center">Assefa Adamu</td>
+                                    <td align="center">HaileMichael Melesse</td>
                                     <td align="center">M</td>
-                                    <td>assefaadamu@gmail.com</td>
+                                    <td>haile@gmail.com</td>
                                     <td><img src="jb2/asse.jpg" height="50" width="100%"></td>
 
                                 </tr>
                                 <tr>
                                     <td align="center">TER/4657/07</td>
-                                    <td align="center">Emebiet Andualem</td>
+                                    <td align="center">Rediet</td>
                                     <td align="center">F</td>
-                                    <td>emebietandualem@gmail.com</td>
+                                    <td>Rediet@gmail.com</td>
                                     <td><img src="jb2/emeb.jpg" height="50" width="100%"></td>
 
                                 </tr>
-                                <tr>
-                                    <td align="center">TER/1237/06</td>
-                                    <td align="center">Kassahun Tsegaw</td>
-                                    <td align="center">M</td>
-                                    <td>kassahuntsegaw@gmail.com</td>
-                                    <td><img src="jb2/kass.jpg" height="50" width="100%"></td>
-
-                                </tr>
+                            
                             </table>
                     </section>
             </div>

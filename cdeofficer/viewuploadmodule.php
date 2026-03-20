@@ -2,38 +2,52 @@
 session_start();
 include("../connection.php");
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src="theme.js"></script>
+<script src="../theme.js"></script>
+<meta charset="UTF-8">
 <title>
 Cde officer page
 </title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript\date_time.js"></script>
+<script type="text/javascript" src="../javascript/date_time.js"></script>
 <link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
- 
+<style>
+.main-row {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    align-items: flex-start !important;
+}
+.main-row > #left { flex: 0 0 300px !important; }
+.main-row > #content { flex: 1 1 auto !important; }
+.main-row > #sidebar { flex: 0 0 260px !important; }
+</style>
 </head>
-<body class="light-theme">
+<body class="student-portal-page light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {
 ?>
 <div id="container">
-<table><tr><td>
+<div id="header">
 <?php
     require("header.php");
 ?>
-</td></tr><tr><td colspan="3">
+</div>
+<div id="menu">
 <?php
     require("menucdeo.php");
 ?>
-</td></tr>
-<tr><td>
+</div>
+<div class="main-row">
+<div id="left">
 <?php
 	 require("sidemenucdeo.php");
 ?>
 	
-</td><td>
+</div><div id="content">
 	<div id="contentindex5">
 
 <div id="content" class="clearfix"> 
@@ -104,8 +118,8 @@ echo '<td ><div align="center"><a style="color:blue;size=4" rel="facebox" href="
 </div>
 
 
-				</div></td>
-	 <td>
+				</div></div>
+	 <div id="sidebar">
 	 <div id="siderightindexphoto">
 	 <div id="siderightindexphoto1">
 	 User Profile
@@ -135,20 +149,21 @@ echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['s
 	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
 	</div>
 	 </div>
-	  </td>
-	 </tr>
-	 <tr><td>
+	  </div>
+	 </div>
+	 <div id="footer">
 <?php
 include("../footer.php");
 ?>
-</td></tr>
-
+    </div>
 </div>
-</table>
 <?php
 }
 else
+{
 header("location:../index.php");
+exit;
+}
 ?>
 </body>
 </html>

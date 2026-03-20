@@ -1,150 +1,103 @@
 	<?php
+	if (session_status() === PHP_SESSION_NONE) {
+		session_start();
+	}
 	if (!isset($conn)) {
 		include("../connection.php");
 	}
 	?>
 <script src="js/validation.js" type="text/javascript"></script>
 <link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
-<!--sa poip up-->
-<link href="src/facebox.css" media="screen" rel="stylesheet" type="text/css" />
-   <script src="lib/jquery.js" type="text/javascript"></script>
-  <script src="src/facebox.js" type="text/javascript"></script>
-  <script type="text/javascript">
-    jQuery(document).ready(function($) {
-      $('a[rel*=facebox]').facebox({
-        loadingImage : 'src/loading.gif',
-        closeImage   : 'src/closelabel.png'
-      })
-    })
-  </script>
+<?php
+if (!defined('DEPARTMENT_FACEBOX_ASSETS_LOADED')) {
+	define('DEPARTMENT_FACEBOX_ASSETS_LOADED', true);
+	?>
+	<link href="src/facebox.css" media="screen" rel="stylesheet" type="text/css" />
+	<script src="lib/jquery.js" type="text/javascript"></script>
+	<script src="src/facebox.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		jQuery(document).ready(function($) {
+			$('a[rel*=facebox]').facebox({
+				loadingImage : 'src/loading.gif',
+				closeImage   : 'src/closelabel.png'
+			});
+		});
+	</script>
+	<?php
+}
+?>
 <style>
-.dropdown {
-    float: left;
-    overflow: hidden;
-    
+#menubar1 .dept-dropdown {
+    position: relative;
 }
-.dropdown .dropbtn1 {
-    font-size: 15px;    
-    border: none;
-    outline: none;
-    color: white;
-    padding: 14px 16px;
-    background-color:inherit;
-    font-family: inherit;
-    margin-left: 30px;
-    margin-top: 4px;
-    
-}
-.dropdown:hover .dropbtn1 {
-    	color:#fffbfb;
-	background:#2C5463;
-	border-radius:5px;
-}
-.dropdown-content {
+#menubar1 .dept-dropdown-menu {
     display: none;
     position: absolute;
-  background:#336699;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-   margin-left: 30px;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 260px;
+    padding: 10px 0;
+    margin: 0;
+    list-style: none;
+    background: #13466e;
+    border-radius: 14px;
+    box-shadow: 0 12px 24px rgba(12, 33, 76, 0.24);
+    z-index: 20;
 }
-
-.dropdown-content a {
-    float: none;
-    color: #ffffff;
-    padding: 12px 16px;
+#menubar1 .dept-dropdown:hover .dept-dropdown-menu {
+    display: block;
+}
+#menubar1 .dept-dropdown-menu li {
+    margin: 0;
+    width: 100%;
+}
+#menubar1 .dept-dropdown-menu a {
+    display: block;
+    padding: 10px 16px;
+    border-radius: 0;
+    background: transparent !important;
+    color: #f7fbff !important;
+    font-size: 14px !important;
+    font-weight: 600;
     text-decoration: none;
-    display: block;
-    text-align: left;
-     margin-left: -1px;
-     font-size: 15px; 
+    white-space: normal;
 }
-
-.dropdown-content a:hover {
-    background-color:#2C5463;
-    color:#ffffff;
-    font-size: 15px;
-   
-    
-}
-
-.dropdown:hover .dropdown-content {
-    display: block;
+#menubar1 .dept-dropdown-menu a:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #ffffff !important;
+    transform: none !important;
 }
 </style>
-<table>
-<tr><td>
-  <div id="menubar1">
-  
-  <ul>
-					<li>
-						<a  href="managecourse.php">
-							
-							<span>Register course</span>
-						</a>
-					</li>
-					<li>
-						<a href="manageinst.php">
-							
-							<span>Assign instructor</span>
-						</a>
-					</li>
-					
-					 
-					
-<div class="dropdown">
-    <button class="dropbtn1">Prepare Employee worked time<span><font size="2px">&#x25BC;</font></span></button>
-    <div class="dropdown-content">
-      <a  rel="facebox"href="offeringtutorial.php">Offering Tutorial Program</a>
-      <a rel="facebox" href="markingexam.php">Marking Exams</a>
-      <a  rel="facebox"  href="markingassignment.php">Marking Assignments</a>
-      <a rel="facebox" href="invigilatingfexam.php">Invigilating Final Exams</a>
-      <a rel="facebox" href="preparingexam.php">Preparing Exams</a>
-      <a rel="facebox"  href="markingexamassign.php">Marking Exams and Assignments</a>
-    </div>
-</div>
-					<li>
-					<?php
-					$user_id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
-	$count = 0;
-	if ($user_id !== '') {
-		$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
-		$result = mysqli_query($conn, $sql);
-		if ($result instanceof mysqli_result) {
-			$count = mysqli_num_rows($result);
-			mysqli_free_result($result);
-		}
+<?php
+$user_id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
+$count = 0;
+if ($user_id !== '') {
+	$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
+	$result = mysqli_query($conn, $sql);
+	if ($result instanceof mysqli_result) {
+		$count = mysqli_num_rows($result);
+		mysqli_free_result($result);
 	}
-	if($count>='1')
-	{
-					?>
-						<a href="usernotification.php">
-							
-							<span style="color: #dbf428">Notification[<?php echo $count; ?>] </span>
-						</a>
-						<?php
-						}
-						else
-						{
-						?>
-						<a href="usernotification.php">
-							
-							<span >Notification[<?php echo $count; ?>] </span>
-						</a>
-						<?php
-						}
-						?>
-					</li>
-					<li>
-						<a href="../logout.php">
-							
-							<span>Log out</span>
-						</a>
-					</li>
-					
-					
-					<div class="clearfix"></div>
-				</ul>             
-	</div>					
-</td></tr></table>
+}
+$current_page = basename(isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : '');
+$notification_class = trim(($count >= 1 ? 'has-alert ' : '') . ($current_page === 'usernotification.php' ? 'active' : ''));
+?>
+<nav id="menubar1" aria-label="Department navigation">
+	<ul>
+		<li><a href="managecourse.php"<?php echo $current_page === 'managecourse.php' ? ' class="active"' : ''; ?>>Register course</a></li>
+		<li><a href="manageinst.php"<?php echo $current_page === 'manageinst.php' ? ' class="active"' : ''; ?>>Assign instructor</a></li>
+		<li class="dept-dropdown">
+			<a href="#">Prepare Employee worked time</a>
+			<ul class="dept-dropdown-menu">
+				<li><a rel="facebox" href="offeringtutorial.php">Offering Tutorial Program</a></li>
+				<li><a rel="facebox" href="markingexam.php">Marking Exams</a></li>
+				<li><a rel="facebox" href="markingassignment.php">Marking Assignments</a></li>
+				<li><a rel="facebox" href="invigilatingfexam.php">Invigilating Final Exams</a></li>
+				<li><a rel="facebox" href="preparingexam.php">Preparing Exams</a></li>
+				<li><a rel="facebox" href="markingexamassign.php">Marking Exams and Assignments</a></li>
+			</ul>
+		</li>
+		<li><a href="usernotification.php"<?php echo $notification_class !== '' ? ' class="' . htmlspecialchars($notification_class, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>Notification[<?php echo htmlspecialchars((string) $count, ENT_QUOTES, 'UTF-8'); ?>]</a></li>
+		<li><a href="../logout.php">Log out</a></li>
+	</ul>
+</nav>

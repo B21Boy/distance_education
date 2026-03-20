@@ -54,7 +54,7 @@ include("connection.php");
                         <td>Department Head Office</td>
                     </tr>
                     <tr>
-                        <td>10, Ground</td>
+                        <td>2, Ground</td>
                     </tr>
                     <tr>
                         <td><strong>Tel:</strong> (+251)-011-9-54-10-18/15</td>
@@ -75,7 +75,7 @@ include("connection.php");
                         <td>Ato xx yy</td>
                     </tr>
                     <tr>
-                        <td>205, 2<sup>nd</sup> Floor, Father Block</td>
+                        <td>205, 2<sup>nd</sup> Floor, registeral Block</td>
                     </tr>
                     <tr>
                         <td><strong>Tel:</strong> (+251)-011-6-90-10-18/15</td>
@@ -105,7 +105,7 @@ include("connection.php");
                         <td><strong>Fax:</strong> (+251)-011-275-79-10</td>
                     </tr>
                     <tr>
-                        <td><p>E-mail: <a href="mailto:abebawaddis2015@gmail.com"><span style="font-family: arial, helvetica, sans-serif;"><strong><span style="font-size: 10pt;">DMU-Distance-Education-service@gmail.com</span></strong></span></a></p></td>
+                        <td><p>E-mail: <a href="mailto:deksiman721@gmail.com"><span style="font-family: arial, helvetica, sans-serif;"><strong><span style="font-size: 10pt;">BDU-Distance-Education-service@gmail.com</span></strong></span></a></p></td>
                     </tr>
                     <tr>
                         <td>&nbsp;</td>

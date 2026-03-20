@@ -1,16 +1,12 @@
 <?php
-if (!isset($conn)) {
-	require_once("../connection.php");
+if (session_status() === PHP_SESSION_NONE) {
+	session_start();
 }
-?>
-<table>
-<tr><td>
-  <div id="menubar1">
-  
-  <ul>
- <li></li>  <li></li>
-					<?php
-						$id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
+if (!isset($conn)) {
+	include("../connection.php");
+}
+
+$id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
 $cc = '';
 if ($id !== '') {
 	$s = mysqli_query($conn, "select * from user where UID='$id'");
@@ -67,64 +63,30 @@ if ($cc !== '') {
 		mysqli_free_result($query7);
 	}
 }
+$total = $coun1 + $coun2 + $coun3 + $coun4 + $coun5 + $coun6 + $coun7;
 
-$total=$coun1+$coun2+$coun3+$coun4+$coun5+$coun6+$coun7;
-if($total>='1')
-{
-?>									
-<li><a href="allrequest.php"><font size="4px" color="#f0e459">New Request From Department[<?php echo $total?>]</font></a></li>
-		<?php
-		}
-		else
-		{
-			?>
-<li><a href="allrequest.php">Request For Employee worked Time</a></li>
-			<?php
-		}
-		?>
-		<li><a href="viewacadamicschedul.php">View Acadamic Schedule</a></li>
-		
-					<li>
-					<?php
-					$user_id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
-	$count = 0;
-	if ($user_id !== '') {
-		$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
-		$result = mysqli_query($conn, $sql);
-		if ($result instanceof mysqli_result) {
-			$count = mysqli_num_rows($result);
-			mysqli_free_result($result);
-		}
+$user_id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
+$count = 0;
+if ($user_id !== '') {
+	$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
+	$result = mysqli_query($conn, $sql);
+	if ($result instanceof mysqli_result) {
+		$count = mysqli_num_rows($result);
+		mysqli_free_result($result);
 	}
-	if($count>='1')
-	{
-					?>
-						<a href="usernotification.php">
-							
-							<span style="color: #dbf428">Notification[<?php echo $count; ?>] </span>
-						</a>
-						<?php
-						}
-						else
-						{
-						?>
-						<a href="usernotification.php">
-							
-							<span >Notification[<?php echo $count; ?>] </span>
-						</a>
-						<?php
-						}
-						?>
-					</li>
-					<li>
-						<a href="../logout.php">
-							
-							<span>Log out</span>
-						</a>
-					</li>
-					
-					
-					<div class="clearfix"></div>
-				</ul>             
-	</div>					
-</td></tr></table>
+}
+
+$current_page = basename(isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : '');
+$request_label = $total >= 1 ? 'New Request From Department[' . $total . ']' : 'Request For Employee worked Time';
+$request_class = trim(($total >= 1 ? 'has-alert ' : '') . ($current_page === 'allrequest.php' ? 'active' : ''));
+$schedule_class = $current_page === 'viewacadamicschedul.php' ? ' class="active"' : '';
+$notification_class = trim(($count >= 1 ? 'has-alert ' : '') . ($current_page === 'usernotification.php' ? 'active' : ''));
+?>
+<nav id="menubar1" aria-label="Finance staff navigation">
+	<ul>
+		<li><a href="allrequest.php"<?php echo $request_class !== '' ? ' class="' . htmlspecialchars($request_class, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?php echo htmlspecialchars($request_label, ENT_QUOTES, 'UTF-8'); ?></a></li>
+		<li><a href="viewacadamicschedul.php"<?php echo $schedule_class; ?>>View Acadamic Schedule</a></li>
+		<li><a href="usernotification.php"<?php echo $notification_class !== '' ? ' class="' . htmlspecialchars($notification_class, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>Notification[<?php echo htmlspecialchars((string) $count, ENT_QUOTES, 'UTF-8'); ?>]</a></li>
+		<li><a href="../logout.php">Log out</a></li>
+	</ul>
+</nav>

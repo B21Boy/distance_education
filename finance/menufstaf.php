@@ -1,4 +1,11 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+	session_start();
+}
+if (!isset($conn)) {
+	require_once("../connection.php");
+}
+
 if (!function_exists('finance_safe_count')) {
 	function finance_safe_count(mysqli $conn, string $sql): int
 	{
@@ -13,29 +20,23 @@ if (!function_exists('finance_safe_count')) {
 	}
 }
 
-if (!isset($conn)) {
-	require_once("../connection.php");
+if (!defined('FINANCE_FACEBOX_ASSETS_LOADED')) {
+	define('FINANCE_FACEBOX_ASSETS_LOADED', true);
+	?>
+	<link href="src/facebox.css" media="screen" rel="stylesheet" type="text/css" />
+	<script src="lib/jquery.js" type="text/javascript"></script>
+	<script src="src/facebox.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		jQuery(document).ready(function($) {
+			$('a[rel*=facebox]').facebox({
+				loadingImage : 'src/loading.gif',
+				closeImage   : 'src/closelabel.png'
+			});
+		});
+	</script>
+	<?php
 }
-?>
-<!--sa poip up-->
-<link href="src/facebox.css" media="screen" rel="stylesheet" type="text/css" />
-   <script src="lib/jquery.js" type="text/javascript"></script>
-  <script src="src/facebox.js" type="text/javascript"></script>
-  <script type="text/javascript">
-    jQuery(document).ready(function($) {
-      $('a[rel*=facebox]').facebox({
-        loadingImage : 'src/loading.gif',
-        closeImage   : 'src/closelabel.png'
-      })
-    })
-  </script>
-<table>
-<tr><td>
-  <div id="menubar1">
-  
-  <ul>	
-  <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>  <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>  <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>  <li></li>  <li></li>
-<?php
+
 $coun1 = finance_safe_count($conn, "select * from payment_table where status='yes' and unread='yes' and payment='check' and type='tutorial'");
 $coun2 = finance_safe_count($conn, "select * from payment_table where status='yes' and unread='yes' and payment='check' and type='mexamassign'");
 $coun3 = finance_safe_count($conn, "select * from payment_table where status='yes' and unread='yes' and payment='check' and type='iexam'");
@@ -43,61 +44,28 @@ $coun4 = finance_safe_count($conn, "select * from payment_table where status='ye
 $coun5 = finance_safe_count($conn, "select * from payment_table where status='yes' and unread='yes' and payment='check' and type='mexam'");
 $coun6 = finance_safe_count($conn, "select * from payment_table where status='yes' and unread='yes' and payment='check' and type='pexam'");
 $coun7 = finance_safe_count($conn, "select * from payment_table where status='yes' and unread='yes' and payment='check' and type='module'");
+$total = $coun1 + $coun2 + $coun3 + $coun4 + $coun5 + $coun6 + $coun7;
 
-$total=$coun1+$coun2+$coun3+$coun4+$coun5+$coun6+$coun7;
-if($total>='1')
-{
-?>									
-<li><a href="allrequest.php"><font size="4px" color="#f0e459">New Request From CDE Officer[<?php echo $total?>]</font></a></li>
-		<?php
-		}
-		else
-		{
-			?>
-<li><a href="allrequest.php">Request For Employee Worked pay</a></li>
-			<?php
-		}
-		?>
-							<?php
-					$user_id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
-	$count = 0;
-	if ($user_id !== '') {
-		$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
-		$result = mysqli_query($conn, $sql);
-		if ($result instanceof mysqli_result) {
-			$count = mysqli_num_rows($result);
-			mysqli_free_result($result);
-		}
+$user_id = isset($_SESSION['suid']) ? mysqli_real_escape_string($conn, (string) $_SESSION['suid']) : '';
+$count = 0;
+if ($user_id !== '') {
+	$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
+	$result = mysqli_query($conn, $sql);
+	if ($result instanceof mysqli_result) {
+		$count = mysqli_num_rows($result);
+		mysqli_free_result($result);
 	}
-	if($count>='1')
-	{
-					?>
-					<li>
-						<a href="usernotification.php">
-							
-							<span style="color: #dbf428">Notification[<?php echo $count; ?>] </span>
-						</a></li>
-						<?php
-						}
-						else
-						{
-						?>
-						<li><a href="usernotification.php">
-							
-							<span >Notification[<?php echo $count; ?>] </span>
-						</a></li>
-						<?php
-						}
-						?>
-					<li>
-						<a href="../logout.php">
-							
-							<span>Log out</span>
-						</a>
-					</li>
-					
-					
-					<div class="clearfix"></div>
-				</ul>             
-	</div>					
-</td></tr></table>
+}
+
+$current_page = basename(isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : '');
+$request_label = $total >= 1 ? 'New Request From CDE Officer[' . $total . ']' : 'Request For Employee Worked pay';
+$request_class = trim(($total >= 1 ? 'has-alert ' : '') . ($current_page === 'allrequest.php' ? 'active' : ''));
+$notification_class = trim(($count >= 1 ? 'has-alert ' : '') . ($current_page === 'usernotification.php' ? 'active' : ''));
+?>
+<nav id="menubar1" aria-label="Finance navigation">
+	<ul>
+		<li><a href="allrequest.php"<?php echo $request_class !== '' ? ' class="' . htmlspecialchars($request_class, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>><?php echo htmlspecialchars($request_label, ENT_QUOTES, 'UTF-8'); ?></a></li>
+		<li><a href="usernotification.php"<?php echo $notification_class !== '' ? ' class="' . htmlspecialchars($notification_class, ENT_QUOTES, 'UTF-8') . '"' : ''; ?>>Notification[<?php echo htmlspecialchars((string) $count, ENT_QUOTES, 'UTF-8'); ?>]</a></li>
+		<li><a href="../logout.php">Log out</a></li>
+	</ul>
+</nav>

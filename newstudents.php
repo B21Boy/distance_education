@@ -54,7 +54,7 @@ include("connection.php");
                 2: For grade 12, the pass mark must be above based on the ministry of education.<br>
                 3: To be accepted by natural science fields, the student must be natural science student.<br>
                 4: For diploma students their major and minor courses must be related to the course they select to register.<br>
-                5: Students must pay 30 birr for application to the finance office in its internal bank account.<br>
+                5: Students must pay 30 birr in tfhe chap payment based on release the finacial staff .<br>
                 6: Students must receive recite and give the recite to be admitted.<br>
                 7:New student admitting must happens at the beginning of the first academic year<br></font>
                 <font size="3px" color="blue"><h4><u>N.B </u>For registration ,students will pay 30 birr for the first registration weeks.If registration is passed,those students who come later

@@ -29,7 +29,7 @@ Finance Staff page
 }
 </style>
 </head>
-<body class="light-theme">
+<body class="student-portal-page light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {

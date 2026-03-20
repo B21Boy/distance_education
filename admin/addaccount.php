@@ -2,15 +2,27 @@
 session_start();
 include("../connection.php");
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src="theme.js"></script>
+<script src="../theme.js"></script>
+<meta charset="UTF-8">
 <title>
 Administrator page
 </title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
-
-<script type="text/javascript" src="../javascript\date_time.js"></script>
+<style>
+.main-row {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    align-items: flex-start !important;
+}
+.main-row > #left { flex: 0 0 300px !important; }
+.main-row > #content { flex: 1 1 auto !important; }
+.main-row > #sidebar { flex: 0 0 260px !important; }
+</style>
+<script type="text/javascript" src="../javascript/date_time.js"></script>
 <script src="js/validation.js" type="text/javascript"></script>
 <link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
 <!--sa poip up-->
@@ -26,22 +38,21 @@ Administrator page
     })
   </script>
 </head>
-<body class="light-theme">
+<body class="student-portal-page light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {
 ?>
 <div id="container">
 <div id="header">
-<table>
-<tr><td width="1000px" >
- <div id="headtitl"><center>Web Based Distance Education Management System <br>For<br>Bahir Dar University</center></div></td><td><img src="../images/bg.jpg"  style="width:160px;height:98px;"></td></tr>
-</table>
-<div class="menu-area">
+<?php
+    require("header.php");
+?>
+</div>
+<div id="menu">
 <?php
     require("menu.php");
 ?>
-</div>
 </div>
 <div class="main-row">
 <div id="left">
@@ -95,7 +106,10 @@ include("../footer.php");
 <?php
 }
 else
+{
 header("location:../index.php");
+exit;
+}
 ?>
 </body>
 </html>

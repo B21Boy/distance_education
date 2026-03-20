@@ -21,15 +21,10 @@ CDE Officer page
 }
 .main-row > #left { flex: 0 0 300px !important; }
 .main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar {
-    flex: 0 0 260px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 18px !important;
-}
+.main-row > #sidebar { flex: 0 0 260px !important; }
 </style>
 </head>
-<body class="light-theme">
+<body class="student-portal-page light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {

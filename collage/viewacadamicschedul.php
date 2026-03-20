@@ -2,39 +2,60 @@
 session_start();
 include("../connection.php");
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src="theme.js"></script>
+<script src="../theme.js"></script>
+<meta charset="UTF-8">
 <title>
 collage dean page
 </title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript\date_time.js"></script>
+<script type="text/javascript" src="../javascript/date_time.js"></script>
+<style>
+.main-row {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 20px !important;
+    align-items: flex-start !important;
+}
+.main-row > #left { flex: 0 0 300px !important; }
+.main-row > #content { flex: 1 1 auto !important; }
+.main-row > #sidebar {
+    flex: 0 0 260px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+}
+</style>
 </head>
-<body class="light-theme">
+<body class="student-portal-page light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {
+    $first_name = htmlspecialchars($_SESSION['sfn'], ENT_QUOTES, 'UTF-8');
+    $last_name = htmlspecialchars($_SESSION['sln'], ENT_QUOTES, 'UTF-8');
+    $photo_value = isset($_SESSION['sphoto']) ? trim($_SESSION['sphoto']) : '';
+    $photo_path = htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8');
 ?>
 <div id="container">
-<table><tr><td>
+    <div id="header">
+        <?php require("header.php"); ?>
+    </div>
+
+    <div id="menu">
+        <?php require("menufstaf.php"); ?>
+    </div>
+
+    <div class="main-row">
+        <div id="left">
+            <?php require("sidemenufstaf.php"); ?>
+        </div>
+
+        <div id="content">
+            <div id="contentindex5">
 <?php
-    require("header.php");
-?>
-</td></tr><tr><td colspan="3">
-<?php
-    require("menufstaf.php");
-?>
-</td></tr>
-<tr><td>
-<?php
-	 require("sidemenufstaf.php");
-?>
-	
-</td><td>
-	<div id="contentindex5">
-<?php	
-$con=mysql_connect("localhost","root","");	
+$con=mysql_connect("localhost","root","");
 $result = mysql_query("SELECT * FROM acadamic_calender WHERE semister='Semister one'");
 $result1 = mysql_query("SELECT * FROM acadamic_calender WHERE semister='Semister two'");
 echo "<table border='1' style='width:590px;' align='center'><font color=white>
@@ -47,75 +68,78 @@ echo "<table border='1' style='width:590px;' align='center'><font color=white>
 </tr>";
 echo'</font>';
 while($row = mysql_fetch_array($result))
-  {
-  print ("<tr>");
-  print ("<td><font size='2'>" . $row['no'] . "</td>");
- print ("<td><font size='2'>" . $row['dates'] . "</td>");
- print ("<td><font size='2'>" . $row['activities'] . "</td>");
-  
-print ("</tr>");
-  }
+{
+    print ("<tr>");
+    print ("<td><font size='2'>" . $row['no'] . "</td>");
+    print ("<td><font size='2'>" . $row['dates'] . "</td>");
+    print ("<td><font size='2'>" . $row['activities'] . "</td>");
+    print ("</tr>");
+}
 echo"<tr>
 <th bgcolor='#408c70' colspan='3'><font color='white' size='5'>Semister Two</th></tr>";
 while($row1 = mysql_fetch_array($result1))
-  {
-  print ("<tr>");
-  print ("<td><font size='2'>" . $row1['no'] . "</td>");
- print ("<td><font size='2'>" . $row1['dates'] . "</td>");
- print ("<td><font size='2'>" . $row1['activities'] . "</td>");
-  
-print ("</tr>");
-  }
+{
+    print ("<tr>");
+    print ("<td><font size='2'>" . $row1['no'] . "</td>");
+    print ("<td><font size='2'>" . $row1['dates'] . "</td>");
+    print ("<td><font size='2'>" . $row1['activities'] . "</td>");
+    print ("</tr>");
+}
 print( "</table>");
 
 mysql_close($con);
 ?>
+            </div>
+        </div>
 
-</div></td>
-	 <td>
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-?>
-<div id="sidebarr">
-<ul>
- <li><a href="updateprofilephoto.php">Change Photo</a></li>
-<li><a href="changepass.php">Change password</a></li>
-	 </ul>
-</div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Social link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </td>
-	 </tr>
-	 <tr><td>
-<?php
-include("../footer.php");
-?>
-</td></tr>
+        <div id="sidebar">
+            <div id="siderightindexphoto">
+                <div id="siderightindexphoto1">
+                    User Profile
+                </div>
 
+                <p>
+                    <b><font color="blue">Welcome:</font><font color="#f9160b">(<?php echo $first_name . "&nbsp;&nbsp;&nbsp;" . $last_name; ?>)</font></b>
+                </p>
+                <?php if ($photo_path !== '') { ?>
+                <p><b><img src="<?php echo $photo_path; ?>" width="180" height="160" alt="Collage dean profile photo"></b></p>
+                <?php } ?>
+
+                <div id="sidebarr">
+                    <ul>
+                        <li><a href="updateprofilephoto.php">Change Photo</a></li>
+                        <li><a href="changepass.php">Change password</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="siderightindexadational">
+                <div id="siderightindexadational1">
+                    Social link
+                </div>
+                <div id="siderightindexadational12">
+                    <table>
+                        <tr><td><div id="facebook"></div></td><td><p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a></p></td></tr>
+                        <tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
+                        <tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
+                        <tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+        <?php include("../footer.php"); ?>
+    </div>
 </div>
-</table>
 <?php
 }
 else
-header("location:../index.php");
+{
+    header("location:../index.php");
+    exit;
+}
 ?>
 </body>
 </html>
