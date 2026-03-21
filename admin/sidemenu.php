@@ -10,18 +10,20 @@
 </style>
 
 <div id="sidebar1">
+	<div class="sidebar-panel-title">side menu</div>
 	<ul>
-		<li><a class="active" href="#.html">Side Menu</a></li>
+	
 		<li><a href="logfile.php">View Log File</a></li>
 		<li><a href="viewstudentaccount.php">Print Student Account</a></li>
 		<li><a href="viewbuser.php">View Blocked user</a></li>
 		<li><a href="backupdb.php">Take Backup</a></li>
 		<li><a href="restoredb.php">Restore Backup</a></li>
 	</ul>
-	<div class="sidebar-panel">
+	
+</div>
+<div class="sidebar-panel">
 		<div class="sidebar-panel-title">Calendar</div>
 		<div class="sidebar-panel-body">
 			<?php require("../date.php"); ?>
 		</div>
 	</div>
-</div>

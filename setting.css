@@ -1,6 +1,6 @@
 /* Reset + variables for modern layout */
 :root{
-  --bg: #f2f6fa;
+  --bg: linear-gradient(180deg, #c6d9f4 0%, #99bce0 60%, #7a9ec5 100%);
   --card: #ffffff;
   --primary: #336699;
   --accent: #bfeffd;
@@ -1349,6 +1349,18 @@ body.student-portal-page {
 	min-height: 100vh;
 	margin: 0;
 	padding: 16px 0 30px;
+}
+
+body.student-portal-page.home-page {
+  --bg: linear-gradient(180deg, #c6d9f4 0%, #99bce0 60%, #7a9ec5 100%);
+  --body-bg: linear-gradient(180deg, #c6d9f4 0%, #99bce0 60%, #7a9ec5 100%);
+  --container-bg: linear-gradient(180deg, #c6d9f4 0%, #99bce0 60%, #7a9ec5 100%);
+  background: linear-gradient(180deg, #c6d9f4 0%, #99bce0 60%, #7a9ec5 100%) !important;
+}
+
+body.student-portal-page.home-page #container {
+  background:  #eef1f4  !important;
+  min-height: calc(100vh - 46px);
 }
 
 body.student-portal-page #container {

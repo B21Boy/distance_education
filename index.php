@@ -26,7 +26,7 @@ include("connection.php");
 </style>
 <script src="javascript/date_time.js"></script>
 </head>
-<body class="student-portal-page light-theme">
+<body class="student-portal-page light-theme home-page">
 
 <div id="container">
 
@@ -81,6 +81,6 @@ include("connection.php");
 
 </div>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </body>
 </html>

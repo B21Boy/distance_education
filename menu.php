@@ -1,74 +1,144 @@
 <!-- navigation menu styled inline to avoid caching issues -->
 <style type="text/css">
-    /* copy of styling from src/menu.php with background color and hover effects */
-    #menu ul {
-        width: 1094px;
-        height: 48px;
-        padding: 0;
+    /* inline nav styling to avoid cache issues */
+    #menu > nav {
+        position: relative;
+    }
+    #menu > nav > ul {
+        width: calc(100% - 42px);
+        min-height: 52px;
+        padding: 6px 14px;
         list-style: none;
-        background: #336699;
-        border-radius: 5px;
+        background: linear-gradient(135deg, #1d5f95, #0f3f68);
+        border-radius: 10px;
         margin-left: 21px;
         margin-top: 1px;
-        white-space: nowrap;
+        box-sizing: border-box;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        box-shadow: 0 14px 26px rgba(8, 32, 58, 0.22);
     }
-    #menu ul li {
-        display: inline-block;
+    #menu > nav > ul > li {
         position: relative;
-        line-height: 21px;
-        text-align: left;
+        flex: 0 0 auto;
+        list-style: none;
     }
-    #menu ul li a {
-        display: block;
-        margin-top: 1px;
-        padding: 14px 30px;
-        color: #fdfdfd;
+    #menu > nav > ul > li > a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 10px 14px;
+        color: #f7fbff;
         text-decoration: none;
         cursor: pointer;
+        white-space: nowrap;
+        border-radius: 999px;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.15px;
+        transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     }
-    #menu ul li a:hover {
-        color: #020000;
-        background: #eee;
-        border-radius: 4px;
-        /* don't change height on hover so layout stays stable */
+    #menu > nav > ul > li > a ion-icon {
+        font-size: 15px;
+        transition: transform 0.2s ease;
     }
-    /* dropdown styling */
-    #menu ul li ul {
-        display: none;
+    #menu > nav > ul > li:hover > a,
+    #menu > nav > ul > li:focus-within > a,
+    #menu > nav > ul > li.is-open > a {
+        color: #0f406a;
+        background: #ffffff;
+        box-shadow: 0 8px 18px rgba(7, 30, 56, 0.16);
+        transform: translateY(-1px);
+    }
+    #menu > nav > ul > li:hover > a ion-icon,
+    #menu > nav > ul > li:focus-within > a ion-icon,
+    #menu > nav > ul > li.is-open > a ion-icon {
+        transform: rotate(180deg);
+    }
+    #menu > nav > ul > li > ul {
         position: absolute;
-        top: 100%;
+        top: calc(100% + 12px);
         left: 0;
-        background: #28527a;
-        padding: 8px 0;
+        min-width: 240px;
+        max-width: 320px;
+        margin: 0;
+        padding: 12px;
         list-style: none;
-        border-radius: 4px;
-        min-width: 220px;
-        max-width: 260px;
-        max-height: 280px;
-        overflow-y: auto;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        border-radius: 16px;
+        border: 1px solid rgba(129, 176, 214, 0.45);
+        background: linear-gradient(180deg, #1f5d8f 0%, #12395e 100%);
+        box-shadow: 0 20px 40px rgba(8, 28, 49, 0.28);
         z-index: 1000;
-        transition: opacity 0.2s ease, transform 0.2s ease;
         opacity: 0;
-        transform: translateY(6px);
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(12px);
+        transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
     }
-    #menu ul li:hover > ul,
-    #menu ul li ul.show {
-        display: block;
+    #menu > nav > ul > li > ul::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: 24px;
+        width: 16px;
+        height: 16px;
+        background: #1d5787;
+        border-top: 1px solid rgba(129, 176, 214, 0.45);
+        border-left: 1px solid rgba(129, 176, 214, 0.45);
+        transform: rotate(45deg);
+    }
+    #menu > nav > ul > li:hover > ul,
+    #menu > nav > ul > li:focus-within > ul,
+    #menu > nav > ul > li.is-open > ul {
         opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
         transform: translateY(0);
     }
-    #menu ul li ul li {
+    #menu > nav > ul > li > ul > li + li {
+        margin-top: 6px;
+    }
+    #menu > nav > ul > li > ul > li {
         display: block;
     }
-    #menu ul li ul li a {
-        padding: 10px 18px;
-        white-space: nowrap;
-        color: #fdfdfd;
+    #menu > nav > ul > li > ul > li > a {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        padding: 11px 14px;
+        border-radius: 12px;
+        color: #f5fbff;
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.06);
+        white-space: normal;
+        line-height: 1.35;
+        transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
     }
-    #menu ul li ul li a:hover {
-        background: #eee;
-        color: #020000;
+    #menu > nav > ul > li > ul > li > a:hover,
+    #menu > nav > ul > li > ul > li > a:focus {
+        background: #ffffff;
+        color: #0f406a;
+        transform: translateX(4px);
+    }
+    @media (max-width: 900px) {
+        #menu > nav > ul {
+            justify-content: flex-start;
+            gap: 10px;
+        }
+        #menu > nav > ul > li > ul {
+            position: static;
+            min-width: 100%;
+            max-width: none;
+            margin-top: 8px;
+            transform: none;
+        }
+        #menu > nav > ul > li > ul::before {
+            display: none;
+        }
     }
 </style>
 
@@ -98,26 +168,50 @@
         <li><a href="appl_accept.php">Application</a></li>
         <li><a href="servicefees.php">Service fees</a></li>
         <li><a href="feedback.php">Feedback</a></li>
-        <!-- <li><a href="help.php">new Register</a></li> -->
+        <li><a href="help.php">new Register</a></li>
         <li><a href="help.php">Help</a></li>
     </ul>
 </nav>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    document.querySelectorAll('#menu ul li a').forEach(function(a) {
-        const icon = a.querySelector('ion-icon');
-        if (icon) {
-            a.addEventListener('click', function(e) {
-                e.preventDefault();
-                const ul = this.nextElementSibling;
-                if (ul && ul.tagName === 'UL') {
-                    const isVisible = ul.style.display === 'block';
-                    ul.style.display = isVisible ? 'none' : 'block';
-                    ul.classList.toggle('show', !isVisible);
-                    icon.setAttribute('name', isVisible ? 'chevron-down-outline' : 'chevron-up-outline');
-                }
-            });
+    const dropdownLinks = Array.from(document.querySelectorAll('#menu > nav > ul > li > a')).filter(function(link) {
+        const next = link.nextElementSibling;
+        return next && next.tagName === 'UL';
+    });
+
+    function closeAllDropdowns(exceptLink) {
+        dropdownLinks.forEach(function(link) {
+            if (link !== exceptLink) {
+                link.parentElement.classList.remove('is-open');
+                link.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    dropdownLinks.forEach(function(link) {
+        link.setAttribute('aria-haspopup', 'true');
+        link.setAttribute('aria-expanded', 'false');
+
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const item = link.parentElement;
+            const shouldOpen = !item.classList.contains('is-open');
+            closeAllDropdowns(link);
+            item.classList.toggle('is-open', shouldOpen);
+            link.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+        });
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('#menu > nav')) {
+            closeAllDropdowns(null);
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeAllDropdowns(null);
         }
     });
 });

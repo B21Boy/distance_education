@@ -29,48 +29,95 @@ $feedback_class = trim(($feedback_count >= 1 ? 'has-alert ' : '') . ($current_pa
 #menubar1 .admin-dropdown {
     position: relative;
 }
+#menubar1 .admin-dropdown > a {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+}
+#menubar1 .admin-dropdown > a::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(45deg) translateY(-1px);
+    transition: transform 0.22s ease;
+}
+#menubar1 .admin-dropdown:hover > a::after,
+#menubar1 .admin-dropdown:focus-within > a::after {
+    transform: rotate(-135deg) translateY(-1px);
+}
 #menubar1 .admin-dropdown-menu {
-    display: none;
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 12px);
     left: 0;
-    min-width: 220px;
-    padding: 10px 0;
+    min-width: 250px;
+    padding: 12px;
     margin: 0;
     list-style: none;
-    background: #13466e;
-    border-radius: 14px;
-    box-shadow: 0 12px 24px rgba(12, 33, 76, 0.24);
-    z-index: 20;
+    border: 1px solid rgba(154, 204, 238, 0.45);
+    border-radius: 18px;
+    background: linear-gradient(180deg, #1f5f93 0%, #103a63 100%);
+    box-shadow: 0 22px 40px rgba(12, 33, 76, 0.28);
+    z-index: 30;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(12px);
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s ease;
 }
-#menubar1 .admin-dropdown:hover .admin-dropdown-menu {
-    display: block;
+#menubar1 .admin-dropdown-menu::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 24px;
+    width: 16px;
+    height: 16px;
+    background: #1b5685;
+    border-top: 1px solid rgba(154, 204, 238, 0.45);
+    border-left: 1px solid rgba(154, 204, 238, 0.45);
+    transform: rotate(45deg);
+}
+#menubar1 .admin-dropdown:hover .admin-dropdown-menu,
+#menubar1 .admin-dropdown:focus-within .admin-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+#menubar1 .admin-dropdown-menu li + li {
+    margin-top: 8px;
 }
 #menubar1 .admin-dropdown-menu li {
     margin: 0;
     width: 100%;
 }
 #menubar1 .admin-dropdown-menu a {
-    display: block;
-    padding: 10px 16px;
-    border-radius: 0;
-    background: transparent !important;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08) !important;
     color: #f7fbff !important;
     font-size: 14px !important;
     font-weight: 600;
+    line-height: 1.35;
     text-decoration: none;
     white-space: normal;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
 }
-#menubar1 .admin-dropdown-menu a:hover {
-    background: rgba(255, 255, 255, 0.12) !important;
-    color: #ffffff !important;
-    transform: none !important;
+#menubar1 .admin-dropdown-menu a:hover,
+#menubar1 .admin-dropdown-menu a:focus {
+    background: #ffffff !important;
+    color: #0f406a !important;
+    transform: translateX(4px);
 }
 </style>
 <nav id="menubar1" aria-label="Admin navigation">
     <ul>
         <li class="admin-dropdown">
-            <a href="#">Manage Account</a>
+            <a href="#" aria-haspopup="true" aria-expanded="false">Manage Account</a>
             <ul class="admin-dropdown-menu">
                 <li><a href="adduser.php">Register User</a></li>
                 <li><a href="addaccount.php">Create Account</a></li>

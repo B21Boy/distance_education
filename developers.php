@@ -61,14 +61,14 @@ include("connection.php");
                                     <td>Photo</td>
                                 </tr>
                                 <tr>
-                                    <td align="center">TER/4641/07</td>
+                                    <td align="center">1505724</td>
                                     <td align="center">Deksiyos Yismaw</td>
                                     <td align="center">M</td>
                                     <td>deksiman721@gmail.com</td>
                                     <td><img src="jb2/abie.jpg" height="50" width="100%"></td>
                                 </tr>
                                 <tr>
-                                    <td align="center">TER/4656/07</td>
+                                    <td align="center">1505</td>
                                     <td align="center">Medhanit Melesse</td>
                                     <td align="center">F</td>
                                     <td>medihanit@gmail.com</td>
@@ -76,7 +76,7 @@ include("connection.php");
 
                                 </tr>
                                 <tr>
-                                    <td align="center">TER/4645/07</td>
+                                    <td align="center">1506394</td>
                                     <td align="center">HaileMichael Melesse</td>
                                     <td align="center">M</td>
                                     <td>haile@gmail.com</td>
@@ -84,7 +84,7 @@ include("connection.php");
 
                                 </tr>
                                 <tr>
-                                    <td align="center">TER/4657/07</td>
+                                    <td align="center">1505</td>
                                     <td align="center">Rediet</td>
                                     <td align="center">F</td>
                                     <td>Rediet@gmail.com</td>
