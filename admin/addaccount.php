@@ -1,114 +1,124 @@
 <?php
 session_start();
-include("../connection.php");
+include(__DIR__ . "/../connection.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <script src="../theme.js"></script>
 <meta charset="UTF-8">
-<title>
-Administrator page
-</title>
+<title>Administrator page</title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
-<style>
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
-}
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
-</style>
+<link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
+<link href="src/facebox.css" media="screen" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="../javascript/date_time.js"></script>
 <script src="js/validation.js" type="text/javascript"></script>
-<link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
-<!--sa poip up-->
-<link href="src/facebox.css" media="screen" rel="stylesheet" type="text/css" />
-   <script src="lib/jquery.js" type="text/javascript"></script>
-  <script src="src/facebox.js" type="text/javascript"></script>
-  <script type="text/javascript">
-    jQuery(document).ready(function($) {
-      $('a[rel*=facebox]').facebox({
-        loadingImage : 'src/loading.gif',
-        closeImage   : 'src/closelabel.png'
-      })
-    })
-  </script>
+<script src="lib/jquery.js" type="text/javascript"></script>
+<script src="src/facebox.js" type="text/javascript"></script>
+<style>
+.account-shell {
+    background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+    border: 1px solid #d6e2f0;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(15, 44, 76, 0.08);
+}
+.account-shell-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.account-shell-kicker {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #d9e9fb;
+    color: #174a7c;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.account-shell-header h1 {
+    margin: 0;
+    color: #12395f;
+    font-size: 28px;
+}
+.account-shell-header p {
+    margin: 10px 0 0;
+    max-width: 720px;
+    color: #4a6480;
+    line-height: 1.6;
+}
+@media (max-width: 720px) {
+    .account-shell {
+        padding: 16px;
+    }
+}
+</style>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+    $('a[rel*=facebox]').facebox({
+        loadingImage: 'src/loading.gif',
+        closeImage: 'src/closelabel.png'
+    });
+});
+</script>
 </head>
 <body class="student-portal-page light-theme">
 <?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
+if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']) && isset($_SESSION['sln']) && isset($_SESSION['srole'])) {
+    if (!empty($_SESSION['flash_success'])) {
+        echo '<script type="text/javascript">alert(' . json_encode($_SESSION['flash_success']) . ');</script>';
+        unset($_SESSION['flash_success']);
+    }
+    if (!empty($_SESSION['flash_error'])) {
+        echo '<script type="text/javascript">alert(' . json_encode($_SESSION['flash_error']) . ');</script>';
+        unset($_SESSION['flash_error']);
+    }
 ?>
 <div id="container">
 <div id="header">
-<?php
-    require("header.php");
-?>
+<?php require("header.php"); ?>
 </div>
 <div id="menu">
-<?php
-    require("menu.php");
-?>
+<?php require("menu.php"); ?>
 </div>
 <div class="main-row">
 <div id="left">
-<?php
-    require("sidemenu.php");
-?>
+<?php require("sidemenu.php"); ?>
 </div>
 <div id="content">
 <div id="contentindex5">
 <div id="content" class="clearfix">
-<?php
-    require("createaccount.php");
-?>
+<div class="account-shell">
+    <div class="account-shell-header">
+        <div>
+            <span class="account-shell-kicker">Admin</span>
+            <h1>Account Management</h1>
+            <p>Create login accounts, check current account records, and verify that the admin account CRUD flow is properly connected to the database.</p>
+        </div>
+    </div>
+    <?php require("createaccount.php"); ?>
+</div>
 </div>
 </div>
 </div>
 <div id="sidebar">
-<div id="siderightindexphoto">
-<div id="siderightindexphoto1">
-User Profile
-</div>
-<?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-?>
-<div id="sidebarr">
-<ul>
-<li><a href="updateprofilephoto.php">Change Photo</a></li>
-<li><a href="changepass.php">Change password</a></li>
-</ul>
+<?php require("rightsidebar.php"); ?>
 </div>
 </div>
-<div id="siderightindexadational">
-<div id="siderightindexadational1">
-Social link
-</div>
-<div id="siderightindexadational12">
-<table>
-<tr><td><div id="facebook"></div></td><td>
-<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-</div>
-</div>
+<div id="footer">
+<?php include("../footer.php"); ?>
 </div>
 </div>
 <?php
-include("../footer.php");
-?>
-</div>
-<?php
-}
-else
-{
-header("location:../index.php");
-exit;
+} else {
+    header("location:../index.php");
+    exit;
 }
 ?>
 </body>

@@ -13,25 +13,38 @@ CDE Officer page
 <link rel="stylesheet" type="text/css" href="../setting.css">
 <script type="text/javascript" src="../javascript/date_time.js"></script>
 <style>
+body.student-portal-page #container {
+    max-width: 1520px !important;
+    width: calc(100% - 32px) !important;
+}
 .main-row {
     display: flex !important;
     flex-direction: row !important;
-    gap: 20px !important;
+    gap: 24px !important;
     align-items: flex-start !important;
 }
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
+.main-row > #left { flex: 0 0 285px !important; }
+.main-row > #content {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+.main-row > #sidebar { flex: 0 0 255px !important; }
+#contentindex5 {
+    padding: 30px !important;
+}
+@media (max-width: 900px) {
+    body.student-portal-page #container {
+        width: calc(100% - 20px) !important;
+    }
+}
 </style>
 </head>
 <body class="student-portal-page light-theme">
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {
-    $first_name = htmlspecialchars($_SESSION['sfn'], ENT_QUOTES, 'UTF-8');
-    $last_name = htmlspecialchars($_SESSION['sln'], ENT_QUOTES, 'UTF-8');
     $photo_value = isset($_SESSION['sphoto']) ? trim($_SESSION['sphoto']) : '';
-    $photo_path = htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8');
+    $photo_path = $photo_value !== '' ? htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8') : '../images/default.png';
 ?>
 <div id="container">
     <div id="header">
@@ -54,37 +67,27 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
         </div>
 
         <div id="sidebar">
-            <div id="siderightindexphoto">
-                <div id="siderightindexphoto1">
-                    User Profile
-                </div>
-
-                <p>
-                    <b><font color="blue">Welcome:</font><font color="#f9160b">(<?php echo $first_name . "&nbsp;&nbsp;&nbsp;" . $last_name; ?>)</font></b>
-                </p>
-                <?php if ($photo_path !== '') { ?>
-                <p><b><img src="<?php echo $photo_path; ?>" width="180" height="160" alt="CDE officer profile photo"></b></p>
-                <?php } ?>
-
-                <div id="sidebarr">
-                    <ul>
-                        <li><a href="updateprofilephoto.php">Change Photo</a></li>
-                        <li><a href="changepass.php">Change password</a></li>
-                    </ul>
+            <div class="sidebar-panel profile-panel">
+                <div class="sidebar-panel-title">User Profile</div>
+                <div class="sidebar-panel-body">
+                    <?php
+                        echo "<b><br><font color=blue>Welcome:</font><font color=#c1110d>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$photo_path."'width=180px height=160px alt='CDE officer profile photo'></b>";
+                    ?>
+                    <div id="sidebarr">
+                        <ul>
+                            <li><a href="updateprofilephoto.php">Change Photo</a></li>
+                            <li><a href="changepass.php">Change password</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-
-            <div id="siderightindexadational">
-                <div id="siderightindexadational1">
-                    Social link
-                </div>
-                <div id="siderightindexadational12">
-                    <table>
-                        <tr><td><div id="facebook"></div></td><td><p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a></p></td></tr>
-                        <tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-                        <tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-                        <tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr>
-                    </table>
+            <div class="sidebar-panel social-panel">
+                <div class="sidebar-panel-title">Social link</div>
+                <div class="sidebar-panel-body">
+                    <a href="https://www.facebook.com/"><span><ion-icon name="logo-facebook"></ion-icon></span>Facebook</a>
+                    <a href="https://www.twitter.com/"><span><ion-icon name="logo-twitter"></ion-icon></span>Twitter</a>
+                    <a href="https://www.youtube.com/"><span><ion-icon name="logo-youtube"></ion-icon></span>YouTube</a>
+                    <a href="https://plus.google.com/"><span><ion-icon name="logo-google"></ion-icon></span>Google++</a>
                 </div>
             </div>
         </div>
@@ -94,6 +97,8 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
         <?php include("../footer.php"); ?>
     </div>
 </div>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <?php
 }
 else

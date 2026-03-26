@@ -22,8 +22,9 @@ $student_side_links = array(
 			</li>
 		<?php } ?>
 	</ul>
-	<div id="sidedate">
-		<h2>Calendar</h2>
+	
+</div>
+<div id="sidedate">
+		<div class="student-side-menu-title">Calendar</div>
 		<?php require("../date.php"); ?>
 	</div>
-</div>

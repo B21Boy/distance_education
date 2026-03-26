@@ -59,8 +59,8 @@ class PS_Pagination {
 	 * @return resource
 	 */
 	function paginate() {
-		//Check for valid mysql connection
-		if (! $this->conn || ! is_resource($this->conn )) {
+		//Check for a valid mysqli or legacy mysql connection
+		if (! $this->conn || (! is_resource($this->conn ) && ! ($this->conn instanceof mysqli))) {
 			if ($this->debug)
 				echo "MySQL connection missing<br />";
 			return false;
@@ -74,7 +74,9 @@ class PS_Pagination {
 			return false;
 		}
 		$this->total_rows = mysql_num_rows($all_rs );
-		@mysql_close($all_rs );
+		if ($all_rs instanceof mysqli_result) {
+			mysqli_free_result($all_rs );
+		}
 		
 		//Return FALSE if no rows found
 		if ($this->total_rows == 0) {

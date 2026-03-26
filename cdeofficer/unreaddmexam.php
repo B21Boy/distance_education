@@ -2,176 +2,116 @@
 session_start();
 include("../connection.php");
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src="theme.js"></script>
-<title>
-CDE Officer page
-</title>
+<script src="../theme.js"></script>
+<meta charset="UTF-8">
+<title>CDE Officer page</title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript\date_time.js"></script>
-<link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
+<script type="text/javascript" src="../javascript/date_time.js"></script>
 </head>
-<body class="light-theme">
+<body class="student-portal-page light-theme">
 <?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
+if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']) && isset($_SESSION['sln']) && isset($_SESSION['srole'])) {
+    include('ps_pagination.php');
+    $conn = mysql_connect('localhost', 'root', '');
+    if (!$conn) {
+        die("Failed to connect to database!");
+    }
+    $status = mysql_select_db('cde', $conn);
+    if (!$status) {
+        die("Failed to select database!");
+    }
+
+    $requestType = 'mexam';
+    $seenPage = 'messageddmexam.php';
+    $countQuery = mysql_query("select * from payment_table where unread='yes' and status='no' and type='" . $requestType . "'") or die(mysql_error());
+    $pendingCount = mysql_num_rows($countQuery);
+    $sql = "select * from payment_table where unread='yes' and status='no' and type='" . $requestType . "'";
+    $pager = new PS_Pagination($conn, $sql, 10, 1);
+    $rs = $pager->paginate();
 ?>
 <div id="container">
-<table><tr><td>
-<?php
-    require("header.php");
-?>
-</td></tr><tr><td colspan="3">
-<?php
-    require("menucdeo.php");
-?>
-</td></tr>
-<tr><td>
-<?php
-	 require("sidemenucdeo.php");
-?>
-	
-</td><td>
-	<div id="contentindex5">
-	<?php
-	//Include the PS_Pagination id
-		include('ps_pagination.php');
-	
-	//Connect to mysql db
-	$conn = mysql_connect('localhost','root','');
-	if(!$conn) die("Failed to connect to database!");
-	$status = mysql_select_db('cde', $conn);
-	if(!$status) die("Failed to select database!");
-?>
-
-<form action="" method="post">									
-<?php
-$query = mysql_query("select * from payment_table where unread='yes' and status='no' and type='mexam'");
-$coun = mysql_num_rows($query);
-$r=mysql_fetch_array($query);
-$ty=$r['type'];
-?>		
-										
-<a href="unreaddmexam.php"><i class="icon-check"></i><font size="4px"> Unseen Request [&nbsp;<?php echo $coun?>&nbsp;]</font></a>
-										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-										
-<a href="messageddmexam.php"><i class="icon-envelope-alt"></i><font size="4px"> Seen Request</font></a>
-	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;		
-<?php echo '<a href="sendall.php?id='.$r['type'].'">Send To Finance</a>';?>										
-									<font size="3px">
-<?php
-$sql = "select * from payment_table where unread='yes' and status='no' and type='mexam'";
-	 
-	//Create a PS_Pagination object
-	$pager = new PS_Pagination($conn, $sql, 10, 1);
- 	//The paginate() function returns a mysql result set for the current page
-	$rs = $pager->paginate();									
-$query1 = mysql_query("select * from payment_table where unread='yes' and status='no' and type='mexam'");
-$count = mysql_num_rows($query1);	
-if ($count != '0'){?>
-
-<table cellpadding="1" cellspacing="1" id="resultTable" >
-<tr bgcolor="#CAE8EA">
-<th >No</th>
-<th>Sender<br>UID</th>
-<th>Name<br>Of<br>Marking</th>
-<th>Rank</th>
-<th>Course<br>he/she<br>Marking</th>
-<th>Cr<br>Hr</th>
-<th>Department</th>
-<th>Year</th>
-<th>No_of<br>Exams<br>Marked</th>
-<th>Payment<br>Per_Exam</th>
-<th>Total<br>Payment<br>for_Exams</th>
-<th>Action</th>
-</tr>
-
-
-        <?php
-while($row = mysql_fetch_array($rs)){	
-$id=$row["no"];
- 							 
-	?>
-<tr>
-<div class="post"  id="del<?php echo $id; ?>">
-<td><?php echo $row["no"]; ?></td>
-<td><?php echo $row["c_code"]; ?></td>
-<td><?php echo $row["Instructors_Name"]; ?></td>
-<td><?php echo $row["Rank"]; ?></td>
-<td><?php echo $row["Course_Code"]; ?></td>
-<td><?php echo $row["CrHr"]; ?></td>
-<td><?php echo $row["Department"]; ?></td>
-<td><?php echo $row["Year"]; ?></td>
-<td><?php echo $row["No_of_Exams_Marked"]; ?></td>
-<td><?php echo $row["Payment_per"]; ?></td>
-<td><?php echo $row["Total_Payment"]; ?></td>
-<td><?php echo '<a rel="facebox" href="calculatemexam.php?id='.$row['no'].'">Fill and calculate pay form</a>';?></td>
+    <div id="header"><?php require("header.php"); ?></div>
+    <div id="menu"><?php require("menucdeo.php"); ?></div>
+    <div class="main-row">
+        <div id="left"><?php require("sidemenucdeo.php"); ?></div>
+        <div id="content">
+            <div id="contentindex5">
+                <div class="admin-page-shell">
+                    <div class="admin-page-header">
+                        <div>
+                            <span class="admin-page-kicker">CDE Officer</span>
+                            <h1 class="admin-page-title">Unread Module Exam Requests</h1>
+                            <p class="admin-page-copy">Review unseen module exam marking requests and use the calculation action to complete each payment entry in a standard table layout.</p>
+                        </div>
+                    </div>
+                    <div class="admin-page-panel">
+                        <div class="admin-page-toolbar">
+                            <div class="page-nav-links">
+                                <a class="page-nav-link is-primary" href="unreaddmexam.php">Unseen Requests [<?php echo $pendingCount; ?>]</a>
+                                <a class="page-nav-link" href="<?php echo $seenPage; ?>">Seen Requests</a>
+                                <a class="page-nav-link is-secondary" href="sendall.php?id=<?php echo $requestType; ?>">Send To Finance</a>
+                            </div>
+                            <span class="page-stat-chip"><?php echo $pendingCount; ?> pending module exam requests</span>
+                        </div>
+                        <?php if ($pendingCount != '0') { ?>
+                        <div class="admin-page-table-wrap">
+                            <table class="admin-page-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Sender UID</th>
+                                        <th>Marker Name</th>
+                                        <th>Rank</th>
+                                        <th>Course Code</th>
+                                        <th>Cr Hr</th>
+                                        <th>Department</th>
+                                        <th>Year</th>
+                                        <th>No of Exams Marked</th>
+                                        <th>Payment Per Exam</th>
+                                        <th>Total Payment</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php while ($row = mysql_fetch_array($rs)) { ?>
+                                    <tr>
+                                        <td><?php echo $row["no"]; ?></td>
+                                        <td><?php echo $row["c_code"]; ?></td>
+                                        <td><?php echo $row["Instructors_Name"]; ?></td>
+                                        <td><?php echo $row["Rank"]; ?></td>
+                                        <td><?php echo $row["Course_Code"]; ?></td>
+                                        <td><?php echo $row["CrHr"]; ?></td>
+                                        <td><?php echo $row["Department"]; ?></td>
+                                        <td><?php echo $row["Year"]; ?></td>
+                                        <td><?php echo $row["No_of_Exams_Marked"]; ?></td>
+                                        <td><?php echo $row["Payment_per"]; ?></td>
+                                        <td><?php echo $row["Total_Payment"]; ?></td>
+                                        <td><a class="table-action-link" rel="facebox" href="calculatemexam.php?id=<?php echo $row['no']; ?>">Fill and Calculate Pay Form</a></td>
+                                    </tr>
+                                <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="admin-page-pagination"><?php echo $pager->renderFullNav(); ?></div>
+                        <?php } else { ?>
+                        <div class="admin-page-empty">No new module exam payment requests were found.</div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar"><?php require("officer_sidebar.php"); ?></div>
+    </div>
+    <div id="footer"><?php include("../footer.php"); ?></div>
 </div>
-											
-											
-	<?php }
-	?>
-	</tr></table> 							 
-	<?php
-		echo '<div style="text-align:center">'.$pager->renderFullNav().'</div>';
-	}						
-	else{ ?>
-<div class="alert alert-info"><i class="icon-info-sign"></i> <font size="3px">No New Request found!</div>
-								<?php } ?>
-										
-								</form>		
-                               
-                        <!-- /block -->
-                   
- </div>
-  </td>
-	 	 <td>
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-?>
-<div id="sidebarr">
-<ul>
- <li><a href="updateprofilephoto.php">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
-</div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Social link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </td>
-	 </tr>
-	 <tr><td>
 <?php
-include("../footer.php");
-?>
-</td></tr>
-
-</div>
-</table>
-<?php
+} else {
+    header("location:../index.php");
+    exit;
 }
-else
-header("location:../index.php");
 ?>
 </body>
 </html>

@@ -1,6 +1,12 @@
 <?php
 session_start();
-include("../connection.php");
+include(__DIR__ . '/../connection.php');
+include_once(__DIR__ . '/ps_pagination.php');
+
+function admin_student_h($value)
+{
+    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,207 +16,217 @@ include("../connection.php");
 <title>Administrator page</title>
 <link rel="stylesheet" href="../setting.css">
 <link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
-<style>
-/* inline fallback when stylesheet isn't loaded: keep columns, spacing, and proportions */
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
-}
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
-</style>
 <script src="../javascript/date_time.js"></script>
+<style>
+.studentlist-shell {
+    display: grid;
+    gap: 20px;
+}
+.studentlist-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    color: #45627f;
+}
+.studentlist-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.studentlist-status-badge.is-alert {
+    background: #fff0d7;
+    color: #9a5a06;
+}
+.studentlist-status-badge.is-blocked {
+    background: #fdeaea;
+    color: #a12c2c;
+}
+.studentlist-action-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 16px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffffff;
+    background: #1f6fb2;
+}
+</style>
 </head>
 <body class="student-portal-page light-theme">
 <?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
+if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']) && isset($_SESSION['sln']) && isset($_SESSION['srole'])) {
+    $studentRows = array();
+    $studentPager = null;
+    $studentCount = 0;
+    $blockedRows = array();
+    $blockedCount = 0;
+    $pageError = '';
+
+    if (!($conn instanceof mysqli)) {
+        $pageError = 'Database connection is not available.';
+    } else {
+        $studentCountResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM student WHERE unread='no'");
+        if ($studentCountResult instanceof mysqli_result) {
+            $studentCountRow = mysqli_fetch_assoc($studentCountResult);
+            $studentCount = (int) ($studentCountRow['total'] ?? 0);
+            mysqli_free_result($studentCountResult);
+        }
+
+        $studentSql = "SELECT S_ID, FName, LName, Sex, Email, Phone_No, College, Department FROM student WHERE unread='no' ORDER BY Department ASC, S_ID ASC";
+        $studentPager = new PS_Pagination($conn, $studentSql, 12, 5);
+        $studentResult = $studentPager->paginate();
+        if ($studentResult instanceof mysqli_result) {
+            while ($row = mysqli_fetch_assoc($studentResult)) {
+                $studentRows[] = $row;
+            }
+            mysqli_free_result($studentResult);
+        }
+
+        $blockedSql = "SELECT entrance_exam.S_ID, entrance_exam.status, entrance_exam.account, student.Department, account.status AS account_status FROM entrance_exam LEFT JOIN student ON student.S_ID = entrance_exam.S_ID LEFT JOIN account ON account.UID = entrance_exam.S_ID WHERE entrance_exam.status='unsatisfactory' AND (entrance_exam.account=' ' OR entrance_exam.account='seen') ORDER BY entrance_exam.S_ID ASC";
+        $blockedResult = mysqli_query($conn, $blockedSql);
+        if ($blockedResult instanceof mysqli_result) {
+            while ($row = mysqli_fetch_assoc($blockedResult)) {
+                $blockedRows[] = $row;
+            }
+            $blockedCount = count($blockedRows);
+            mysqli_free_result($blockedResult);
+        }
+    }
 ?>
 <div id="container">
-
-    <!-- Header -->
-    <div id="header">
-         <?php require("header.php"); ?>
-    </div>
-
-    <!-- Menu -->
-    <div id="menu">
-        <?php require("menu.php"); ?>
-    </div>
-
-    <!-- Main row: left | center | right -->
+    <div id="header"><?php require('header.php'); ?></div>
+    <div id="menu"><?php require('menu.php'); ?></div>
     <div class="main-row">
-        <!-- Left Sidebar -->
-        <div id="left">
-            <?php require("sidemenu.php"); ?>
-        </div>
-
-        <!-- Main Content (center) -->
+        <div id="left"><?php require('sidemenu.php'); ?></div>
         <div id="content">
             <div id="contentindex5">
-                <?php
-                    include('ps_pagination.php');
-                    // use centralized mysqli connection from ../connection.php
+                <div class="studentlist-shell">
+                    <div class="admin-page-shell">
+                        <div class="admin-page-header">
+                            <div>
+                                <span class="admin-page-kicker">Admin</span>
+                                <h1 class="admin-page-title">Student Account Requests</h1>
+                                <p class="admin-page-copy">Review students who are ready for account creation, monitor unsatisfactory entrance exam results, and keep the admin account workflow connected to the database correctly.</p>
+                            </div>
+                            <?php if ($studentCount > 0) { ?>
+                            <a href="generatepassword.php" class="admin-page-btn">Create Account For All Students</a>
+                            <?php } ?>
+                        </div>
 
-                ?>
-                <form action="" method="post">
-
-                <?php
-                    $sql = "SELECT * FROM student where unread='no'";
-                        $pager = new PS_Pagination($conn, $sql, 12, 1);
-                    $rs = $pager->paginate();
-
-                        $sql2 = "SELECT * FROM entrance_exam where status='unsatisfactory' and (account=' ' or account='seen')";
-                        $pager2 = new PS_Pagination($conn, $sql2, 12, 1);
-                    $rs2 = $pager2->paginate();
-
-                    $query = mysqli_query($conn, "select * from student where unread='no' ORDER BY Department ASC")or die(mysqli_error($conn));
-                    $coun = mysqli_num_rows($query);
-
-                    $query1 = mysqli_query($conn, "select * from entrance_exam where status='unsatisfactory' and (account=' '  or account='seen') ORDER BY S_ID ASC")or die(mysqli_error($conn));
-                    $coun1 = mysqli_num_rows($query1);
-                $total=$coun+$coun1;
-                if ($total != '0'){
-                    if($coun!=0)
-                    {
-                ?>
-                List of students Create Account for All Students<a href="generatepassword.php"  style="color: blue;background-color:pink; font-size: 20px;text-decoration: none;">Create Account For All Students</a>
-                <table  id="resultTable" width="100%" cellspacing="0" style="margin-left: -20px">
-                <tr>
-                <th>Student ID</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Sex</th>
-                <th>Email</th>
-                <th>PhoneNo</th>
-                <th>College</th>
-                <th>Department</th>
-
-
-                </tr>
-                <?php
-                $i=0;
-                while($row1 = mysqli_fetch_array($rs)){
-                $id=$row1["S_ID"];
-
-                ?>
-
-                <tr>
-                <div class="post"  id="del<?php echo $id; ?>">
-                <td><?php echo $row1["S_ID"]; ?></td>
-                <td><?php echo $row1["FName"]; ?></td>
-                <td><?php echo $row1["LName"]; ?></td>
-                <td><?php echo $row1["Sex"]; ?></td>
-                <td><?php echo $row1["Email"]; ?></td>
-                <td><?php echo $row1["Phone_No"]; ?></td>
-                <td><?php echo $row1["College"]; ?></td>
-                <td><?php echo $row1["Department"]; ?></td>
-
-                </div>
-                                        <?php
-                                        }
-                                        ?>
+                        <?php if ($pageError !== '') { ?>
+                        <div class="admin-page-empty"><?php echo admin_student_h($pageError); ?></div>
+                        <?php } else { ?>
+                        <div class="admin-page-panel">
+                            <div class="studentlist-meta">
+                                <div>Students ready for account creation: <strong><?php echo $studentCount; ?></strong></div>
+                                <div>Blocked-request candidates: <strong><?php echo $blockedCount; ?></strong></div>
+                            </div>
+                            <?php if (!empty($studentRows)) { ?>
+                            <div class="admin-page-table-wrap">
+                                <table class="admin-page-table" cellpadding="0" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Student ID</th>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Sex</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th>College</th>
+                                            <th>Department</th>
                                         </tr>
-                                        </table>
-                                        </form>
-                                        <?php
-                                        echo '<div style="text-align:center">'.$pager->renderFullNav().'</div>';
-                                        }
-                if($coun1!=0)
-                    {
-                ?>
-                List of students Block Account
-                <table  id="resultTable" width="100%" cellspacing="0" style="margin-left: -20px">
-                <tr>
-                <th>Student ID</th>
-                <th>Department</th>
-                <th>Status</th>
-                <th>Status2</th>
-                <th>Action</th>
-                </tr>
-                <?php
-                while($row11 = mysqli_fetch_array($rs2)){
-                $id=$row11["S_ID"];
-                $query0 = mysqli_query($conn, "select * from student where S_ID='$id'")or die(mysqli_error($conn));
-                    $row110 = mysqli_fetch_array($query0);
-                    $dpt=$row110['Department'];
-                ?>
-
-                <tr>
-                <div class="post"  id="del<?php echo $id; ?>">
-                <td><?php echo $row11["S_ID"]; ?></td>
-                <td><?php echo $dpt; ?></td>
-                <td><?php echo $row11["status"]; ?></td>
-                <td style="color: green;font-size: 20px"><?php echo $row11["account"]; ?></td>
-                <td><a href="ACTIONs.php?status=<?php echo $row11['S_ID'];?>"
-                 id="btn" onchange="Block" onclick="return confirm('Are you sure <?php echo $id?>');">
-                 <?php
-                        $select=mysqli_query($conn, "select * from account WHERE UID='$id' ");
-                        $row=mysqli_fetch_object($select);
-                        $status_var=$row->status;
-                    ?>
-                     <input type="button" value="Block" style="background-color: #243cdb;color: #fffbfb;height: 25px;width: 100px; text-decoration: none;"/> </a></td>
-
-
-                </div>
-                                        <?php
-                                        }
-                                        ?>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($studentRows as $row) { ?>
+                                        <tr>
+                                            <td><?php echo admin_student_h($row['S_ID']); ?></td>
+                                            <td><?php echo admin_student_h($row['FName']); ?></td>
+                                            <td><?php echo admin_student_h($row['LName']); ?></td>
+                                            <td><?php echo admin_student_h($row['Sex']); ?></td>
+                                            <td><?php echo admin_student_h($row['Email']); ?></td>
+                                            <td><?php echo admin_student_h($row['Phone_No']); ?></td>
+                                            <td><?php echo admin_student_h($row['College']); ?></td>
+                                            <td><?php echo admin_student_h($row['Department']); ?></td>
                                         </tr>
-                                        </table>
-
-                                        <?php
-                                        echo '<div style="text-align:center">'.$pager->renderFullNav().'</div>';
-                                        }
-                                        }else{ ?>
-                <div class="alert alert-info"><i class="icon-info-sign"></i> <font size="3px">No New Request found!</font></div>
                                         <?php } ?>
-            </div>
-        </div>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php if ($studentPager !== null) { ?>
+                            <div class="admin-page-pagination"><?php echo $studentPager->renderFullNav(); ?></div>
+                            <?php } ?>
+                            <?php } else { ?>
+                            <div class="admin-page-empty">No new students are ready for account creation right now.</div>
+                            <?php } ?>
+                        </div>
 
-        <!-- Right Sidebar -->
-        <div id="sidebar">
-            <div class="sidebar-panel profile-panel">
-                <div class="sidebar-panel-title">User Profile</div>
-                <div class="sidebar-panel-body">
-                    <?php
-                        echo "<b><br><font color=blue>Welcome:</font><font color=#c1110d>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-                    ?>
-                    <div id="sidebarr">
-                        <ul>
-                            <li><a href="updateprofilephoto.php">Change Photo</a></li>
-                            <li><a href="changepass.php">Change password</a></li>
-                        </ul>
+                        <div class="admin-page-panel">
+                            <div class="studentlist-meta">
+                                <div>Students with unsatisfactory entrance exam results</div>
+                                <div>This list is connected to the current `student`, `entrance_exam`, and `account` tables.</div>
+                            </div>
+                            <?php if (!empty($blockedRows)) { ?>
+                            <div class="admin-page-table-wrap">
+                                <table class="admin-page-table" cellpadding="0" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Student ID</th>
+                                            <th>Department</th>
+                                            <th>Exam Status</th>
+                                            <th>Account Flag</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($blockedRows as $row) {
+                                            $accountStatus = (string) ($row['account_status'] ?? '');
+                                            $actionLabel = ($accountStatus === 'no') ? 'Unblock' : 'Block';
+                                        ?>
+                                        <tr>
+                                            <td><?php echo admin_student_h($row['S_ID']); ?></td>
+                                            <td><?php echo admin_student_h($row['Department'] ?? ''); ?></td>
+                                            <td><span class="studentlist-status-badge is-alert"><?php echo admin_student_h($row['status']); ?></span></td>
+                                            <td><span class="studentlist-status-badge is-blocked"><?php echo admin_student_h($row['account']); ?></span></td>
+                                            <td>
+                                                <a class="studentlist-action-link" href="ACTIONs.php?status=<?php echo urlencode((string) $row['S_ID']); ?>" onclick="return confirm('Are you sure you want to <?php echo strtolower($actionLabel); ?> <?php echo admin_student_h($row['S_ID']); ?>?');">
+                                                    <?php echo $actionLabel; ?>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php } else { ?>
+                            <div class="admin-page-empty">No blocked-account requests are waiting right now.</div>
+                            <?php } ?>
+                        </div>
+                        <?php } ?>
                     </div>
                 </div>
             </div>
-            <div class="sidebar-panel social-panel">
-                <div class="sidebar-panel-title">Social link</div>
-                <div class="sidebar-panel-body">
-                    <a href="https://www.facebook.com/"><span><ion-icon name="logo-facebook"></ion-icon></span>Facebook</a>
-                    <a href="https://www.twitter.com/"><span><ion-icon name="logo-twitter"></ion-icon></span>Twitter</a>
-                    <a href="https://www.youtube.com/"><span><ion-icon name="logo-youtube"></ion-icon></span>YouTube</a>
-                    <a href="https://plus.google.com/"><span><ion-icon name="logo-google"></ion-icon></span>Google++</a>
-                </div>
-            </div>
         </div>
+        <div id="sidebar"><?php require('rightsidebar.php'); ?></div>
     </div>
-
-    <!-- Footer -->
-    <div id="footer">
-        <?php include("../footer.php"); ?>
-    </div>
-
+    <div id="footer"><?php include('../footer.php'); ?></div>
 </div>
-<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <?php
+} else {
+    header('location:../index.php');
+    exit;
 }
-else
-header("location:../index.php");
 ?>
 </body>
 </html>

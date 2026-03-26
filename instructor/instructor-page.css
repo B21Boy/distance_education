@@ -1,0 +1,280 @@
+.instructor-page-shell {
+    background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+    border: 1px solid #d6e2f0;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(15, 44, 76, 0.08);
+}
+.instructor-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+.instructor-page-kicker {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #d9e9fb;
+    color: #174a7c;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.instructor-page-title {
+    margin: 0;
+    color: #12395f;
+    font-size: 28px;
+}
+.instructor-page-copy {
+    margin: 10px 0 0;
+    max-width: 760px;
+    color: #4a6480;
+    line-height: 1.6;
+}
+.instructor-page-panel {
+    background: #ffffff;
+    border: 1px solid #dce6f2;
+    border-radius: 16px;
+    padding: 20px;
+}
+.instructor-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.instructor-form-field label {
+    display: block;
+    margin-bottom: 8px;
+    color: #163b60;
+    font-size: 14px;
+    font-weight: 700;
+}
+.instructor-form-field select,
+.instructor-form-field input[type="text"],
+.instructor-form-field input[type="password"],
+.instructor-form-field input[type="email"],
+.instructor-form-field input[type="file"],
+.instructor-form-field textarea {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 44px;
+    padding: 0 14px;
+    border: 1px solid #bfd0e2;
+    border-radius: 10px;
+    background: #f9fbfe;
+    color: #173a5e;
+    box-sizing: border-box;
+}
+.instructor-form-field textarea {
+    min-height: 120px;
+    padding: 12px 14px;
+}
+.instructor-form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+.instructor-btn,
+.instructor-secondary-btn,
+.instructor-inline-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    border: 0;
+    cursor: pointer;
+}
+.instructor-btn {
+    background: #1f6fb2;
+    color: #ffffff;
+}
+.instructor-secondary-btn,
+.instructor-inline-link {
+    background: #edf4fb;
+    color: #18466f;
+}
+.instructor-btn:hover,
+.instructor-secondary-btn:hover,
+.instructor-inline-link:hover {
+    transform: translateY(-1px);
+}
+.instructor-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #e3ebf3;
+    border-radius: 14px;
+}
+.instructor-empty-state,
+.instructor-note-card {
+    padding: 18px 20px;
+    border-radius: 14px;
+    background: #f8fbff;
+    border: 1px dashed #bfd0e2;
+    color: #48637f;
+}
+.instructor-note-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+.instructor-note-card strong {
+    color: #12395f;
+}
+.instructor-message-list {
+    display: grid;
+    gap: 16px;
+}
+.instructor-message-item {
+    padding: 18px 20px;
+    border: 1px solid #dce6f2;
+    border-radius: 16px;
+    background: #ffffff;
+}
+.instructor-message-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    color: #4a6480;
+}
+.instructor-message-meta strong {
+    color: #12395f;
+}
+.instructor-message-body {
+    margin: 0 0 14px;
+    color: #2c445d;
+    line-height: 1.7;
+    white-space: pre-wrap;
+}
+.instructor-schedule-list {
+    display: grid;
+    gap: 16px;
+}
+.instructor-schedule-card {
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #dce6f2;
+    color: #2c445d;
+    line-height: 1.8;
+}
+.instructor-sidebar-welcome {
+    display: grid;
+    gap: 4px;
+    margin-bottom: 12px;
+    color: #163b60;
+}
+.instructor-sidebar-welcome strong {
+    color: #0f2f4e;
+}
+#resultTable {
+    margin-top: 0;
+}
+#resultTable td,
+#resultTable th {
+    white-space: normal;
+}
+#contentindex5 fieldset {
+    margin-left: 0 !important;
+}
+#contentindex5 legend {
+    color: #12395f;
+    font-weight: 700;
+    padding: 0 8px;
+}
+@media (max-width: 720px) {
+    .instructor-page-shell,
+    .instructor-page-panel {
+        padding: 16px;
+    }
+    .instructor-form-grid {
+        grid-template-columns: 1fr;
+    }
+    .instructor-form-actions {
+        flex-direction: column;
+    }
+    .instructor-btn,
+    .instructor-secondary-btn,
+    .instructor-inline-link {
+        width: 100%;
+    }
+}
+.instructor-dashboard-hero {
+    padding: 26px 28px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #12395f 0%, #1e6ea8 100%);
+    color: #ffffff;
+    box-shadow: 0 24px 42px rgba(13, 58, 100, 0.18);
+}
+.instructor-dashboard-hero .instructor-page-kicker {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+.instructor-dashboard-hero .instructor-page-title,
+.instructor-dashboard-hero .instructor-page-copy {
+    color: #ffffff;
+}
+.instructor-dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 22px;
+}
+.instructor-dashboard-card {
+    display: grid;
+    gap: 8px;
+    padding: 20px;
+    border-radius: 16px;
+    text-decoration: none;
+    border: 1px solid #d9e6f2;
+    background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    color: #173a5e;
+    box-shadow: 0 16px 28px rgba(16, 46, 74, 0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.instructor-dashboard-card strong {
+    color: #12395f;
+    font-size: 17px;
+}
+.instructor-dashboard-card span {
+    color: #4a6480;
+    line-height: 1.6;
+}
+.instructor-dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 32px rgba(16, 46, 74, 0.12);
+}
+.instructor-form-note {
+    margin: 0 0 18px;
+    color: #48637f;
+    line-height: 1.6;
+}
+.instructor-form-field select {
+    cursor: pointer;
+    appearance: auto;
+    -webkit-appearance: menulist;
+    -moz-appearance: menulist;
+    padding-right: 36px;
+}
+.instructor-form-field select:disabled {
+    cursor: not-allowed;
+    background: #eef3f8;
+    color: #6a8097;
+}
+.instructor-form-field option {
+    color: #12395f;
+}

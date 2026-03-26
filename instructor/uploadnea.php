@@ -1,63 +1,40 @@
 <?php
-				include('../connection.php');
-				$get=$_GET['id'];
-				
-?> 
-<style type="text/css">
-<!--
-.ed{
-border-style:solid;
-border-width:thin;
-border-color:#00CCFF;
-padding:5px;
-margin-bottom: 4px;
-}
-#button1{
-text-align:center;
-font-family:Arial, Helvetica, sans-serif;
-border-style:solid;
-border-width:thin;
-border-color:#00CCFF;
-padding:5px;
-background-color:#00CCFF;
-height: 34px;
-}
--->
-</style>
-<!--sa input that accept number only-->
-<SCRIPT language=Javascript>
-      <!--
-      function isNumberKey(evt)
-      {
-         var charCode = (evt.which) ? evt.which : event.keyCode
-         if (charCode > 31 && (charCode < 48 || charCode > 57))
-            return false;
+session_start();
+include('../connection.php');
+require_once('page_helpers.php');
 
-         return true;
-      }
-      //-->
-   </SCRIPT>
-   <!--para sa add data sa textbox -->
-	<SCRIPT language="javascript">
-<!--
-
-function addCombo() {
-	var textb = document.getElementById("txtCombo");
-	var combo = document.getElementById("combo");
-	combo.value=combo.value +textb.value + ", ";
-	textb.value = "";
+if (!instructorIsLoggedIn()) {
+    header('location:../index.php');
+    exit;
 }
-//-->
-</SCRIPT>
-	<!--end-->
-<link rel="stylesheet" type="text/css" href="tcal.css" />
-	<script type="text/javascript" src="tcal.js"></script> 
 
-<form action="bbbbbb.php" method="post" enctype="multipart/form-data" name="addroom" onsubmit="return validateForm()">
-<input name="id" type="hidden" class="ed" id="category" value="<?php echo $get; ?>" />
- Please browse file: <br /><br/>
- <input type="file" name="image" class="ed"><br />
- 
-    <input type="submit" name="Submit" value="Upload" id="button1" />
- 
-</form>
+$courseCode = isset($_GET['id']) ? trim((string) $_GET['id']) : '';
+?>
+<?php instructorRenderPopupStyles(); ?>
+<div class="instructor-popup-shell">
+    <h2 class="instructor-popup-title">Upload Module File</h2>
+    <p class="instructor-popup-subtitle">Upload or replace the prepared module file for the selected course.</p>
+    <?php if ($courseCode !== '') { ?>
+        <div class="instructor-popup-card">
+            <form action="bbbbbb.php" method="post" enctype="multipart/form-data">
+                <input name="id" type="hidden" value="<?php echo instructorH($courseCode); ?>">
+                <div class="instructor-popup-grid">
+                    <div class="instructor-popup-field full">
+                        <label for="module-course-id">Course Code</label>
+                        <input type="text" id="module-course-id" value="<?php echo instructorH($courseCode); ?>" readonly>
+                    </div>
+                    <div class="instructor-popup-field full">
+                        <label for="module-upload-file">Module File</label>
+                        <input type="file" name="image" id="module-upload-file" required>
+                    </div>
+                </div>
+                <div class="instructor-popup-actions">
+                    <button type="reset" class="instructor-popup-btn secondary">Reset</button>
+                    <button type="submit" name="Submit" class="instructor-popup-btn">Upload</button>
+                </div>
+            </form>
+        </div>
+    <?php } else { ?>
+        <div class="instructor-popup-empty">The selected course code is missing.</div>
+    <?php } ?>
+</div>

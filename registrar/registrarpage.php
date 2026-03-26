@@ -1,107 +1,113 @@
 <?php
 session_start();
 include("../connection.php");
+require_once("page_helpers.php");
+
+if (!registrarIsLoggedIn()) {
+    header("location:../index.php");
+    exit;
+}
+
+$photo_path = registrarCurrentPhotoPath();
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <script src="../theme.js"></script>
 <meta charset="UTF-8">
-<title>
-Registrar Officer page
-</title>
+<title>Registrar Officer Page</title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
 <script type="text/javascript" src="../javascript/date_time.js"></script>
+<?php registrarRenderStandardStyles(); ?>
 <style>
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
+.registrar-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 24px;
 }
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
+.registrar-overview-item {
+    padding: 20px;
+    border: 1px solid #dbe5f0;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 12px 26px rgba(17, 52, 84, 0.08);
+}
+.registrar-overview-item h2 {
+    margin: 0 0 10px;
+    color: #163b60;
+    font-size: 18px;
+}
+.registrar-overview-item p {
+    margin: 0;
+    color: #4f647d;
+    line-height: 1.7;
+    font-size: 14px;
+}
+.registrar-overview-highlight {
+    margin-top: 24px;
+    padding: 18px 20px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #e8f1ff 0%, #f5f9ff 100%);
+    border: 1px solid #cfe0f5;
+    color: #244765;
+    line-height: 1.7;
+}
+@media (max-width: 760px) {
+    .registrar-overview-grid {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 </head>
 <body class="student-portal-page light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
-    $first_name = htmlspecialchars($_SESSION['sfn'], ENT_QUOTES, 'UTF-8');
-    $last_name = htmlspecialchars($_SESSION['sln'], ENT_QUOTES, 'UTF-8');
-    $photo_value = isset($_SESSION['sphoto']) ? trim($_SESSION['sphoto']) : '';
-    $photo_path = htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8');
-?>
 <div id="container">
-    <div id="header">
-        <?php require("header.php"); ?>
-    </div>
-
-    <div id="menu">
-        <?php require("menuro.php"); ?>
-    </div>
+    <div id="header"><?php require("header.php"); ?></div>
+    <div id="menu"><?php require("menuro.php"); ?></div>
 
     <div class="main-row">
-        <div id="left">
-            <?php require("sidemenuro.php"); ?>
-        </div>
+        <div id="left"><?php require("sidemenuro.php"); ?></div>
 
         <div id="content">
             <div id="contentindex5">
-                <center>Well Come To registrar officer page</center>
-            </div>
-        </div>
+                <div class="registrar-page-card">
+                    <div class="registrar-page-header">
+                        <span class="registrar-page-eyebrow">Registrar Dashboard</span>
+                        <h1 class="registrar-page-title">Welcome to the Registrar Officer Page</h1>
+                        <p class="registrar-page-copy">The registrar office manages student academic records, supports semester-based updates, coordinates grade and ID workflows, and keeps official student information accurate across the system.</p>
+                    </div>
 
-        <div id="sidebar">
-            <div id="siderightindexphoto">
-                <div id="siderightindexphoto1">
-                    User Profile
-                </div>
+                    <div class="registrar-overview-grid">
+                        <div class="registrar-overview-item">
+                            <h2>Student Record Management</h2>
+                            <p>Review student data, import registration information, and keep academic records complete and organized for each department and class year.</p>
+                        </div>
+                        <div class="registrar-overview-item">
+                            <h2>Grade and Report Processing</h2>
+                            <p>Prepare grade reports, confirm approved results, and help maintain clear academic performance records for students and departments.</p>
+                        </div>
+                        <div class="registrar-overview-item">
+                            <h2>Semester and ID Operations</h2>
+                            <p>Support semester progression, update student year and semester status, and generate student IDs for newly approved learners.</p>
+                        </div>
+                        <div class="registrar-overview-item">
+                            <h2>Communication and Calendar Support</h2>
+                            <p>Send notifications, respond to messages, and publish academic calendar information so students and staff stay informed.</p>
+                        </div>
+                    </div>
 
-                <p>
-                    <b><font color="blue">Welcome:</font><font color="#f9160b">(<?php echo $first_name . "&nbsp;&nbsp;&nbsp;" . $last_name; ?>)</font></b>
-                </p>
-                <?php if ($photo_path !== '') { ?>
-                <p><b><img src="<?php echo $photo_path; ?>" width="180" height="160" alt="Registrar profile photo"></b></p>
-                <?php } ?>
-
-                <div id="sidebarr">
-                    <ul>
-                        <li><a href="#.html">Change Photo</a></li>
-                        <li><a href="changepass.php">Change password</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div id="siderightindexadational">
-                <div id="siderightindexadational1">
-                    Another link
-                </div>
-                <div id="siderightindexadational12">
-                    <table>
-                        <tr><td><div id="facebook"></div></td><td><p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a></p></td></tr>
-                        <tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-                        <tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-                        <tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr>
-                    </table>
+                    <div class="registrar-overview-highlight">
+                        Use the navigation menu to manage registrar tasks quickly, including grade preparation, student data registration, notifications, password updates, and other core academic administration work.
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div id="sidebar"><?php registrarRenderSidebar($photo_path); ?></div>
     </div>
 
-    <div id="footer">
-        <?php include("../footer.php"); ?>
-    </div>
+    <div id="footer"><?php include("../footer.php"); ?></div>
 </div>
-
-<?php
-}
-else
-{
-header("location:../index.php");
-exit;
-}
-?>
+<?php registrarRenderIconScripts(); ?>
 </body>
 </html>

@@ -48,80 +48,60 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
 	
 </div><div id="content">
 	<div id="contentindex5">
-
-<a rel="facebox" href="posti.php" style="margin-left: 400px">Post updated information</a>
-		<?php
-		include('ps_pagination.php');
-	$conn = mysql_connect('localhost','root','');
-	if(!$conn) die("Failed to connect to database!");
-	$status = mysql_select_db('cde', $conn);
-	if(!$status) die("Failed to select database!");
-?>
-
-	<fieldset><legend>Notice Bored</legend>
 <?php
-
-	$date=date('Y-m-d');
-	$sql1=mysql_query("SELECT * from postss") or die(mysql_error());	
-	$ro=mysql_num_rows($sql1);
-	if($ro!='0')
-	{
-		
-	$sql="SELECT * from postss where status=' ' ORDER BY dates DESC";
-	$pager = new PS_Pagination($conn,$sql,1,1);
-	$rs = $pager->paginate();
-	while($row=mysql_fetch_array($rs))
-	{
-            echo"<p align='right'><b>Date:</b>"."<u>".$row['dates']."</u>"."</p>";
-            echo"<font face='monotype corsiva' size='7' color='#347098'><center>"."<u>".$row['Title']."</u>"."</center>"."</p>";
-             
-           	
-			echo"<font face='monotype corsiva' size='5' color='#0c395f'><center>".$row['types']."</center>"."</p>"."</font>";
-			echo "<font  size='3' color='#00000b'>".$row['info'];
-           echo"<font size='4' color='#1046a0'><center>".$row['posted_by']."</center>"."</p>";
-
-	}
-	}
-	else
-	{
-		echo '<script type="text/javascript">alert("There No Post Notice!!!");</script>';
-		
-	}
-echo '<div style="text-align:center;font-size:25px;color:red;bgcolor:blue">'.$pager->renderFullNav().'</div>';
+include('ps_pagination.php');
+$sql1 = mysql_query("SELECT * from postss") or die(mysql_error());
+$ro = mysql_num_rows($sql1);
+$pager = null;
+$rs = false;
+if ($ro != '0') {
+    $sql = "SELECT * from postss where status=' ' ORDER BY dates DESC";
+    $pager = new PS_Pagination($conn, $sql, 1, 1);
+    $rs = $pager->paginate();
+}
 ?>
-</fieldset>
+    <div class="admin-page-shell">
+        <div class="admin-page-header">
+            <div>
+                <span class="admin-page-kicker">CDE Officer</span>
+                <h1 class="admin-page-title">Post Updated Information</h1>
+                <p class="admin-page-copy">Manage the current notice board and publish a new announcement through the popup editor.</p>
+            </div>
+        </div>
+        <div class="admin-page-panel">
+            <div class="admin-page-toolbar">
+                <span class="page-stat-chip"><?php echo (int) $ro; ?> notice record<?php echo $ro == 1 ? '' : 's'; ?></span>
+                <a rel="facebox" href="posti.php" class="page-nav-link is-primary">Post Updated Information</a>
+            </div>
+            <?php if ($ro != '0' && $rs) {
+                while ($row = mysql_fetch_array($rs)) {
+            ?>
+            <div class="admin-page-status-card" style="margin-bottom: 18px;">
+                <p style="margin: 0 0 8px; text-align: right;"><strong>Date:</strong> <?php echo htmlspecialchars($row['dates'], ENT_QUOTES, 'UTF-8'); ?></p>
+                <h2 style="margin: 0 0 10px; color: #12395f;"><?php echo htmlspecialchars($row['Title'], ENT_QUOTES, 'UTF-8'); ?></h2>
+                <p style="margin: 0 0 14px; color: #1e5788; font-weight: 700;"><?php echo htmlspecialchars($row['types'], ENT_QUOTES, 'UTF-8'); ?></p>
+                <div style="white-space: pre-wrap; color: #17364e;"><?php echo htmlspecialchars($row['info'], ENT_QUOTES, 'UTF-8'); ?></div>
+                <p style="margin: 14px 0 0; text-align: right; color: #1046a0; font-weight: 700;"><?php echo htmlspecialchars($row['posted_by'], ENT_QUOTES, 'UTF-8'); ?></p>
+            </div>
+            <?php
+                }
+                if ($pager) {
+            ?>
+            <div class="admin-page-pagination"><?php echo $pager->renderFullNav(); ?></div>
+            <?php
+                }
+            } else {
+            ?>
+            <div class="admin-page-empty">No posted notice is available yet.</div>
+            <?php } ?>
+        </div>
+    </div>
 </div></div>
 	 <div id="sidebar">
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
+<?php
+    require("officer_sidebar.php");
 ?>
-<div id="sidebarr">
-<ul>
- <li><a href="updateprofilephoto.php">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
-</div>
 	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Social link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </div>
 	 </div>
 	 <div id="footer">
 <?php

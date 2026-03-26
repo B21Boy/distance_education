@@ -71,6 +71,7 @@ if (isset($_POST["login"])) {
                     header("Location: collage/financestafpage.php");
                     exit();
                 case "acadamic_vice_presid":
+                case "acadamic_vice_presidant":
                     header("Location: vice_presidant/vicepage.php");
                     exit();
                 case "directorat":

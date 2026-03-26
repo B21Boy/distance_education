@@ -2,140 +2,101 @@
 session_start();
 include("../connection.php");
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src="theme.js"></script>
-<title>
-Cde officer page
-</title>
+<script src="../theme.js"></script>
+<meta charset="UTF-8">
+<title>CDE Officer page</title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript\date_time.js"></script>
-<link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
- 
+<script type="text/javascript" src="../javascript/date_time.js"></script>
 </head>
-<body class="light-theme">
+<body class="student-portal-page light-theme">
 <?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
+if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']) && isset($_SESSION['sln']) && isset($_SESSION['srole'])) {
+    $modules = array();
+    $result = mysql_query("SELECT * FROM course where status='yes'");
+    while ($row = mysql_fetch_array($result)) {
+        $senderId = $row['Sender_name'];
+        $senderResult = mysql_query("SELECT * FROM user where UID='$senderId'");
+        $sender = mysql_fetch_array($senderResult);
+        $row['sender_full_name'] = trim($sender['fname'] . ' ' . $sender['lname']);
+        $modules[] = $row;
+    }
 ?>
 <div id="container">
-<table><tr><td>
-<?php
-    require("header.php");
-?>
-</td></tr><tr><td colspan="3">
-<?php
-    require("menucdeo.php");
-?>
-</td></tr>
-<tr><td>
-<?php
-	 require("sidemenucdeo.php");
-?>
-	
-</td><td>
-	<div id="contentindex5">
-
-<div id="content" class="clearfix"> 
-<h2>All Recently Module									
-
-
-<table cellpadding="0" cellspacing="0" id="resultTable" style="margin-left: -20px">
-          <thead>
-         
-            	<tr >
-            					<th  style="border-left: 1px solid #C1DAD7">Sender Name</th>
-								<th  style="border-left: 1px solid #C1DAD7">Module<br>Code </th>
-								<th  style="border-left: 1px solid #C1DAD7">Module<br>Name </th>
-								<th  style="border-left: 1px solid #C1DAD7">Credit Hour</th>
-								<th>Year</th>
-								<th  style="border-left: 1px solid #C1DAD7">department</th> 
-								<th>file name </th>
-              					<th> Download|Upload </th>
-            </tr>
-          </thead>
-          <tbody>
-        
-				<?php
-				include('../connection.php');
-						
-							$result = mysql_query("SELECT * FROM course where status='yes'");
-							while($row = mysql_fetch_array($result))
-								{
-							$iname=$row['Sender_name'];
-							$result1 = mysql_query("SELECT * FROM user where UID='$iname'");
-							$r=mysql_fetch_array($result1);
-							$fn=$r['fname'];
-							$ln=$r['lname'];
-							$fna=$fn.'    '.$ln;
-						 $files=$row['FileName'];
-									echo '<tr class="record">';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$fna.'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row['course_code'].'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row['cname'].'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row['chour'].'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row['ayear'].'</td>';
-									echo '<td><div align="right">'.$row['department'].'</div></td>';
-								    echo '<td style="border-left: 1px solid #C1DAD7;">'.$row['FileName'].'</td>';
-
-echo "<td><div align='center'><a href='../material/module/$files'><img width='30' height='30' src='images/d1.jpg' /></a>".' | '.'<a rel="facebox" href=assign_course_instructorSu.php?id=' . $row["course_code"] .'><img  width="30" height="30" src="images/u2.png" /></a>'.' </div></td>';
-
-					echo '</tr>';
-					
-					
-				  }
-				
-				?> 
-          </tbody>
-       </table>
+    <div id="header"><?php require("header.php"); ?></div>
+    <div id="menu"><?php require("menucdeo.php"); ?></div>
+    <div class="main-row">
+        <div id="left"><?php require("sidemenucdeo.php"); ?></div>
+        <div id="content">
+            <div id="contentindex5">
+                <div class="admin-page-shell">
+                    <div class="admin-page-header">
+                        <div>
+                            <span class="admin-page-kicker">CDE Officer</span>
+                            <h1 class="admin-page-title">All Uploaded Modules</h1>
+                            <p class="admin-page-copy">Review modules that were already uploaded, download files, and reopen assignment actions from a cleaner table layout.</p>
+                        </div>
+                    </div>
+                    <div class="admin-page-panel">
+                        <div class="admin-page-toolbar">
+                            <span class="page-stat-chip"><?php echo count($modules); ?> uploaded modules</span>
+                        </div>
+                        <?php if (!empty($modules)) { ?>
+                        <div class="admin-page-table-wrap">
+                            <table class="admin-page-table">
+                                <thead>
+                                    <tr>
+                                        <th>Sender Name</th>
+                                        <th>Module Code</th>
+                                        <th>Module Name</th>
+                                        <th>Credit Hour</th>
+                                        <th>Year</th>
+                                        <th>Department</th>
+                                        <th>File Name</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($modules as $row) {
+                                    $fileName = $row['FileName'];
+                                    ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['sender_full_name'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['course_code'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['cname'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['chour'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['ayear'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['department'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['FileName'], ENT_QUOTES, 'UTF-8'); ?></td>
+                                        <td>
+                                            <div class="page-nav-links">
+                                                <a class="page-nav-link" href="../material/module/<?php echo htmlspecialchars($fileName, ENT_QUOTES, 'UTF-8'); ?>">Download</a>
+                                                <a class="page-nav-link is-secondary" rel="facebox" href="assign_course_instructorSu.php?id=<?php echo urlencode($row['course_code']); ?>">Assign Upload</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php } else { ?>
+                        <div class="admin-page-empty">No uploaded modules were found.</div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar"><?php require("officer_sidebar.php"); ?></div>
+    </div>
+    <div id="footer"><?php include("../footer.php"); ?></div>
 </div>
-
-
-				</div></td>
-	 <td>
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-?>
-<div id="sidebarr">
-<ul>
- <li><a href="updateprofilephoto.php">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
-</div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Socila link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </td>
-	 </tr>
-	 <tr><td>
 <?php
-include("../footer.php");
-?>
-</td></tr>
-
-</div>
-</table>
-<?php
+} else {
+    header("location:../index.php");
+    exit;
 }
-else
-header("location:../index.php");
 ?>
 </body>
 </html>

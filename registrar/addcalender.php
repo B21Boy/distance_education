@@ -1,27 +1,31 @@
 <?php
+session_start();
 include '../connection.php';
-include("registrarpage.php");
-$semister=$_POST['semister'];
-$date=$_POST['date'];
-$activ=$_POST['activ'];
-$con= mysql_connect('localhost','root','');
-if(!$con)
-{
-die('could not be connect :' .mysql_error());
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: acadamic_calender.php');
+    exit;
 }
 
-$sql="INSERT INTO acadamic_calender VALUES('','$semister','$date','$activ')";
-$result=mysql_query($sql,$con);
-if(!$result)
-{
-die("<script>alert('Error! not registerd!');
-window.location=\'acadamic_calender.php\';</script>" . mysql_error());
+$semister = trim((string) ($_POST['semister'] ?? ''));
+$date = trim((string) ($_POST['date'] ?? ''));
+$activ = trim((string) ($_POST['activ'] ?? ''));
+
+if ($semister === '' || $date === '' || $activ === '') {
+    header('Location: acadamic_calender.php?status=error');
+    exit;
 }
-else
-{
-$x='<script type="text/javascript">alert("Your Information Is Successfully Registerd !!!");
-window.location=\'acadamic_calender.php\';</script>';
-echo $x;
+
+$stmt = mysqli_prepare($conn, "INSERT INTO acadamic_calender (semister, date, activ) VALUES (?, ?, ?)");
+if (!$stmt) {
+    header('Location: acadamic_calender.php?status=error');
+    exit;
 }
-mysql_close($con);
+
+mysqli_stmt_bind_param($stmt, 'sss', $semister, $date, $activ);
+$ok = mysqli_stmt_execute($stmt);
+mysqli_stmt_close($stmt);
+
+header('Location: acadamic_calender.php?status=' . ($ok ? 'success' : 'error'));
+exit;
 ?>

@@ -1,175 +1,89 @@
 <?php
 session_start();
 include("../connection.php");
-$idd=$_SESSION['suid'];
+require_once("page_helpers.php");
+
+if (!instructorIsLoggedIn()) {
+    header("location:../index.php");
+    exit;
+}
+
+$userId = instructorCurrentUserId();
+$photoPath = instructorCurrentPhotoPath();
+$requestData = instructorFetchRejectedCourseResults($conn, $userId);
+$columns = $requestData['columns'];
+$rows = $requestData['rows'];
+$rejectReason = $rows ? trim((string) ($rows[0]['reject'] ?? '')) : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <script src="../theme.js"></script>
 <meta charset="UTF-8">
-<title>
-Instructor page
-</title>
+<title>Instructor page</title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript/date_time.js"></script>
+<link rel="stylesheet" href="instructor-page.css" type="text/css">
 <link rel="stylesheet" href="febe/style.css" type="text/css" media="screen" charset="utf-8">
-<style>
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
-}
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
-</style>
+<script type="text/javascript" src="../javascript/date_time.js"></script>
 </head>
 <body class="student-portal-page light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
-?>
 <div id="container">
-<div id="header">
-<?php
-    require("header.php");
-?>
-</div>
-<div id="menu">
-<?php
-    require("menuins.php");
-?>
-</div>
-<div class="main-row">
-<div id="left">
-<?php
-	 require("sidemenuins.php");
-?>
-	
-</div><div id="content">
-	<div id="contentindex5">
-
-		<?php
-	//Include the PS_Pagination id
-		include('ps_pagination.php');
-	
-	//Connect to mysql db
-	$conn = mysql_connect('localhost','root','');
-	if(!$conn) die("Failed to connect to database!");
-	$status = mysql_select_db('cde', $conn);
-	if(!$status) die("Failed to select database!");
-?>
-<?php	
-$query = "select * from course_result where status='not' and uid='$idd'";
-	$pager = new PS_Pagination($conn, $query, 5, 1);
-	$rs = $pager->paginate();
-
-$result = mysql_query($query);
-$c=mysql_num_rows($result);
-if ($c==0) 
-{
-echo" No new Request";
-}
-else
-{
-	$query1 = "select * from course_result where status='not' and uid='$idd'";
-	$result1 = mysql_query($query1);
-	$r=mysql_fetch_array($result1);
-	$re=$r['reject'];
-	echo'	<table width="100%">
-
-<td>Because of</td><td>'.$re.'</td>
-<td  bgcolor="#003366" width="120px" align="center"><a href="sendallrequest.php"  style="color: #ffffff;font-size: 20px;text-decoration: none;">Send All</a></td></table>';
-	$i = 0;
-	echo '<form action=" " method=post><table cellpadding="1" cellspacing="1" id="resultTable" style=margin-left:-25px;><tr>';	
-	while ($i < mysql_num_fields($result))
-	{
-		$meta = mysql_fetch_field($result, $i);
-		if($meta->name=='status')
-		break;
-		echo '<th>' . $meta->name . '</th>';
-		$i = $i + 1;
-	}
-	echo '<th>Action </th></tr>';
-	
-	$i = 0;
-	while ($row = mysql_fetch_row($result)) 
-	{	
-		echo '<tr>';
-		$count = count($row);
-		$y = 0;
-		while ($y < $count)
-		{
-			$c_row = current($row);
-			if($c_row=='approved' || $c_row=='post'|| $c_row=='posted' || $c_row=='not')
-			break;
-			echo '<td>' . $c_row . '</td>';
-			next($row);
-			$y = $y + 1;
-		}
-	if($row1 = mysql_fetch_array($rs))
-		echo '<td><a rel="facebox" href="calculategradeu.php?id='.$row1["no"].'">Update</a></td></tr>';
-		$i = $i + 1;
-	}
-	echo '</table></form>';
-	
-}
-						
-?>
-							 
-	<?php
-		//echo '<div style="text-align:center">'.$pager->renderFullNav().'</div>';
-				 
-
-                 ?>
-</div></div>
-	 <div id="sidebar">
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-?>
-<div id="sidebarr">
-<ul>
- <li><a href="#.html">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
-</div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Another link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </div>
-	 </div>
-	 <div id="footer">
-<?php
-include("../footer.php");
-?>
+    <div id="header"><?php require("header.php"); ?></div>
+    <div id="menu"><?php require("menuins.php"); ?></div>
+    <div class="main-row">
+        <div id="left"><?php require("sidemenuins.php"); ?></div>
+        <div id="content">
+            <div id="contentindex5">
+                <div class="instructor-page-shell">
+                    <div class="instructor-page-header">
+                        <div>
+                            <span class="instructor-page-kicker">Request</span>
+                            <h1 class="instructor-page-title">Rejected Course Result Requests</h1>
+                            <p class="instructor-page-copy">Review the rejected course result rows and continue with the same update and resend actions already used by the instructor workflow.</p>
+                        </div>
+                    </div>
+                    <div class="instructor-page-panel">
+                        <?php if ($rows) { ?>
+                            <div class="instructor-note-card">
+                                <div>
+                                    <strong>Because of:</strong>
+                                    <span><?php echo instructorH($rejectReason !== '' ? $rejectReason : 'No rejection reason recorded.'); ?></span>
+                                </div>
+                                <a class="instructor-btn" href="sendallrequest.php">Send All</a>
+                            </div>
+                            <div class="instructor-table-wrap">
+                                <table cellpadding="1" cellspacing="1" id="resultTable">
+                                    <thead>
+                                        <tr>
+                                            <?php foreach ($columns as $column) { ?>
+                                                <th><?php echo instructorH($column); ?></th>
+                                            <?php } ?>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($rows as $row) { ?>
+                                            <tr>
+                                                <?php foreach ($columns as $column) { ?>
+                                                    <td><?php echo instructorH($row[$column] ?? ''); ?></td>
+                                                <?php } ?>
+                                                <td><a class="instructor-inline-link" rel="facebox" href="calculategradeu.php?id=<?php echo urlencode((string) ($row['no'] ?? '')); ?>">Update</a></td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php } else { ?>
+                            <div class="instructor-empty-state">No new request.</div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar"><?php instructorRenderSidebar($photoPath); ?></div>
     </div>
+    <div id="footer"><?php include("../footer.php"); ?></div>
 </div>
-<?php
-}
-else
-{
-header("location:../index.php");
-exit;
-}
-?>
+<?php instructorRenderIconScripts(); ?>
 </body>
 </html>

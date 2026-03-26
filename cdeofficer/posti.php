@@ -1,64 +1,87 @@
-
-<form action="postedu.php" method="post">
-<table  cellpadding="5" border="0">
-<tr><td colspan="2" ><center>Post New Information</center></td></tr>
-
-<tr><td>Title:</td><td><input type="text"name="title" size="32" value="ማስታወቂያ" style="width: 300px"></td></tr>
-<tr><td>Type:</td><td><input type="text"name="typ" size="32" value="ለርቀት ትምህርት መርሃ-ግብር ተማሪዎች በሙሉ"  style="width: 300px"></td></tr>
-
-<tr><td><b>Information:</b></td><td>
-<textarea name="infor" id="infor" cols="50" rows="7">
-	
 <?php
-function read_file_docx($filename){
+require("popup_styles.php");
 
-    $striped_content = '';
+function cde_popup_read_docx($filename)
+{
     $content = '';
-
-    if(!$filename || !file_exists($filename)) return false;
+    if (!$filename || !file_exists($filename)) {
+        return false;
+    }
 
     $zip = zip_open($filename);
-
-    if (!$zip || is_numeric($zip)) return false;
+    if (!$zip || is_numeric($zip)) {
+        return false;
+    }
 
     while ($zip_entry = zip_read($zip)) {
-
-        if (zip_entry_open($zip, $zip_entry) == FALSE) continue;
-
-        if (zip_entry_name($zip_entry) != "word/document.xml") continue;
-
+        if (zip_entry_open($zip, $zip_entry) == false) {
+            continue;
+        }
+        if (zip_entry_name($zip_entry) != "word/document.xml") {
+            continue;
+        }
         $content .= zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
-
         zip_entry_close($zip_entry);
-    }// end while
-
+    }
     zip_close($zip);
+
     $content = str_replace('</w:r></w:p></w:tc><w:tc>', " ", $content);
     $content = str_replace('</w:r></w:p>', "\r\n", $content);
-    $striped_content = strip_tags($content);
 
-    return $striped_content;
+    return strip_tags($content);
 }
-$filename = "C:\wamp\www\cde[1]\postu.docx";// or /var/www/html/file.docx
 
-$content = read_file_docx($filename);
-if($content !== false) {
-
-    echo ($content);
+$template_paths = array(
+    dirname(__DIR__) . '/postu.docx',
+    dirname(__DIR__) . '/department/postu.docx'
+);
+$template_content = false;
+foreach ($template_paths as $template_path) {
+    $template_content = cde_popup_read_docx($template_path);
+    if ($template_content !== false) {
+        break;
+    }
 }
-else {
-    echo 'Couldn\'t the file. Please check that file.';
-}
-$date=date('Y-m-d');
-?>	
-	
-</textarea></td></tr>
-<tr><td>Date:</td><td><input type="text" name="date" size="32" value="<?php echo $date;?>" readonly style="width: 300px"></td></tr>
-<tr><td>Expired Date:</td><td><input type="date" name="edate" size="32" id="date"  style="width: 300px"></td></tr>
-<tr><td>Posted By:</td><td><input type="text" name="pb" style="width: 300px"  value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ደብረ ማርቆስ ዩኒቨርስቲ"/></td></tr>
-<tr><td></td><td>
-<input type="submit" value="Post" name="sent" />
-<input type="reset" value="Reset" /> 
-</td></tr></table>
-</form>
-
+$date = date('Y-m-d');
+?>
+<div class="cde-popup-card">
+    <div class="cde-popup-header">
+        <span class="cde-popup-kicker">CDE Officer</span>
+        <h1 class="cde-popup-title">Post Updated Information</h1>
+        <p class="cde-popup-copy">Prepare a new notice and publish it to the announcement board.</p>
+    </div>
+    <form action="postedu.php" method="post" class="cde-popup-form">
+        <div class="cde-popup-grid">
+            <label class="cde-popup-field" for="title">
+                Title
+                <input type="text" name="title" id="title" class="cde-popup-input" value="ማስታወቂያ" required>
+            </label>
+            <label class="cde-popup-field" for="typ">
+                Type
+                <input type="text" name="typ" id="typ" class="cde-popup-input" value="ለርቀት ትምህርት መርሃ-ግብር ተማሪዎች በሙሉ" required>
+            </label>
+        </div>
+        <label class="cde-popup-field" for="infor">
+            Information
+            <textarea name="infor" id="infor" class="cde-popup-textarea"><?php echo $template_content !== false ? htmlspecialchars($template_content, ENT_QUOTES, 'UTF-8') : ''; ?></textarea>
+        </label>
+        <div class="cde-popup-grid">
+            <label class="cde-popup-field" for="date">
+                Date
+                <input type="text" name="date" id="date" class="cde-popup-input" value="<?php echo htmlspecialchars($date, ENT_QUOTES, 'UTF-8'); ?>" readonly>
+            </label>
+            <label class="cde-popup-field" for="edate">
+                Expired Date
+                <input type="date" name="edate" id="edate" class="cde-popup-input" required>
+            </label>
+        </div>
+        <label class="cde-popup-field" for="pb">
+            Posted By
+            <input type="text" name="pb" id="pb" class="cde-popup-input" value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ደብረ ማርቆስ ዩኒቨርስቲ" required>
+        </label>
+        <div class="cde-popup-actions">
+            <button type="submit" value="Post" name="sent" class="cde-popup-btn">Post</button>
+            <button type="reset" class="cde-popup-btn-secondary">Reset</button>
+        </div>
+    </form>
+</div>

@@ -1,158 +1,71 @@
 <?php
 session_start();
 include("../connection.php");
+require_once("page_helpers.php");
+
+if (!instructorIsLoggedIn()) {
+    header("location:../index.php");
+    exit;
+}
+
+$userId = instructorCurrentUserId();
+$photoPath = instructorCurrentPhotoPath();
+$messages = instructorFetchUnreadMessages($conn, $userId);
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <script src="../theme.js"></script>
 <meta charset="UTF-8">
-<title>
-Instructor page
-</title>
+<title>Instructor page</title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
+<link rel="stylesheet" href="instructor-page.css" type="text/css">
 <script type="text/javascript" src="../javascript/date_time.js"></script>
-<style>
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
-}
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
-</style>
 </head>
 <body class="student-portal-page light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
-?>
 <div id="container">
-<div id="header">
-<?php
-    require("header.php");
-?>
-</div>
-<div id="menu">
-<?php
-    require("menuins.php");
-?>
-</div>
-<div class="main-row">
-<div id="left">
-<?php
-	 require("sidemenuins.php");
-?>
-	
-</div><div id="content">
-	<div id="contentindex5">
-
-<?php
-//mag show sang information sang user nga nag login
-$user_id=$_SESSION['suid'];
-
-
-?>
-<!--center side---->
-<p align="center"><font face="Times New Roman" color="black" size="4"> View And Send Message</font></p>
-
-<table width="635" height="600px"  align="center">
-    <tr>
-     <td  valign="top"  width="635">
-<form  method="POST" action="viewnotification.php">
-<table align="center" border="0" cellpadding = "10" WIDTH="" height="60"bgcolor="#EEEEEE">
-<tr>
-<td colspan="3" align="center" bgcolor="white">
-
-
-
-<?php
-	//first fetch whom u have send chats
-	
-		
-$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
-	$result=mysql_query($sql);
-	$count=mysql_num_rows($result);
-	echo '<a  rel="facebox" href="newnotification1.php">'.'<font  size=3 face=Times New Roman>'."New Message"."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"."</font>".'</a>';
-	if($count<1)
-	{
-	echo('<font color="black" size="3" face="Times New Roman">No New Message</font>');
-	}
-	else
-	{
-	while ($row = mysql_fetch_array($result))
-	{
-		$s=$row['M_sender'];
-$result1=mysql_query("select * from account where UID='$s'")or die(mysql_error);
-$row1=mysql_fetch_array($result1);
-$FirstName=$row1['Role'];
-	    echo "<table  width='400' height='100'/>";
-		echo "<hr style='border-top:3px solid #c3c3c3; border-bottom:1px solid white'/>";
-		echo "<br/><font color=black size=3 face=Times New Roman> From &nbsp;&nbsp;$FirstName </br>";
-		echo "<br/> $row[message]<br/>";
-		echo "<br/> $row[date_sended]"."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
-		'<a  rel="facebox" href="viewnotification1.php?M_ID='.$row['M_ID'].'">'."Replay".'</a>';
-		 echo "</table>";
-	}
-	}
-
-?>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-</table>            
-
-<!--end of center side---->
-	</div></div>
-	 <div id="sidebar">
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-?>
-<div id="sidebarr">
-<ul>
- <li><a href="#.html">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
-</div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Another link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </div>
-	 </div>
-	 <div id="footer">
-<?php
-include("../footer.php");
-?>
+    <div id="header"><?php require("header.php"); ?></div>
+    <div id="menu"><?php require("menuins.php"); ?></div>
+    <div class="main-row">
+        <div id="left"><?php require("sidemenuins.php"); ?></div>
+        <div id="content">
+            <div id="contentindex5">
+                <div class="instructor-page-shell">
+                    <div class="instructor-page-header">
+                        <div>
+                            <span class="instructor-page-kicker">Notification</span>
+                            <h1 class="instructor-page-title">View And Send Message</h1>
+                            <p class="instructor-page-copy">Review unread messages and continue with the same reply and compose actions already used in the instructor area.</p>
+                        </div>
+                    </div>
+                    <div class="instructor-page-panel">
+                        <div class="instructor-form-actions">
+                            <a class="instructor-btn" rel="facebox" href="newnotification1.php">New Message</a>
+                        </div>
+                        <?php if ($messages) { ?>
+                            <div class="instructor-message-list">
+                                <?php foreach ($messages as $message) { ?>
+                                    <article class="instructor-message-item">
+                                        <div class="instructor-message-meta">
+                                            <div><strong>From:</strong> <?php echo instructorH($message['sender_label'] ?? ''); ?></div>
+                                            <div><?php echo instructorH($message['date_sended'] ?? ''); ?></div>
+                                        </div>
+                                        <p class="instructor-message-body"><?php echo nl2br(instructorH($message['message'] ?? '')); ?></p>
+                                        <a class="instructor-inline-link" rel="facebox" href="viewnotification1.php?M_ID=<?php echo urlencode((string) ($message['M_ID'] ?? '')); ?>">Reply</a>
+                                    </article>
+                                <?php } ?>
+                            </div>
+                        <?php } else { ?>
+                            <div class="instructor-empty-state">No new message.</div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar"><?php instructorRenderSidebar($photoPath); ?></div>
     </div>
+    <div id="footer"><?php include("../footer.php"); ?></div>
 </div>
-<?php
-}
-else
-{
-header("location:../index.php");
-exit;
-}
-?>
+<?php instructorRenderIconScripts(); ?>
 </body>
-</html> 
+</html>

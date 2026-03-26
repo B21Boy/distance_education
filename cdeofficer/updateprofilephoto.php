@@ -2,93 +2,164 @@
 session_start();
 include("../connection.php");
 ?>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<script src="theme.js"></script>
-<title>
-CDE Officer page
-</title>
+<script src="../theme.js"></script>
+<meta charset="UTF-8">
+<title>CDE Officer page</title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript\date_time.js"></script>
+<script type="text/javascript" src="../javascript/date_time.js"></script>
+<style>
+.profile-photo-shell {
+    background: linear-gradient(180deg, #f8fbff 0%, #eef4fb 100%);
+    border: 1px solid #d6e2f0;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 20px 40px rgba(15, 44, 76, 0.08);
+}
 
+.profile-photo-layout {
+    display: grid;
+    grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.profile-photo-preview {
+    border: 1px solid #dce6f2;
+    border-radius: 18px;
+    background: #ffffff;
+    padding: 20px;
+    text-align: center;
+}
+
+.profile-photo-preview img {
+    width: 100%;
+    max-width: 240px;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 18px;
+    border: 1px solid #d8e3ee;
+    background: #eef4fa;
+}
+
+.profile-photo-preview p {
+    margin: 14px 0 0;
+    color: #4a6480;
+    line-height: 1.6;
+}
+
+.profile-photo-form-panel {
+    background: #ffffff;
+    border: 1px solid #dce6f2;
+    border-radius: 16px;
+    padding: 22px;
+}
+
+.profile-photo-form-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.profile-photo-label {
+    display: grid;
+    gap: 8px;
+    color: #173a5e;
+    font-weight: 700;
+}
+
+.profile-photo-file {
+    border: 1px solid #bfd0e2;
+    border-radius: 12px;
+    padding: 12px;
+    background: #f9fbfe;
+}
+
+.status-message {
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+}
+
+.status-success {
+    background: #e8f7ea;
+    border: 1px solid #7ecb87;
+    color: #1b5e20;
+}
+
+.status-error {
+    background: #fdeaea;
+    border: 1px solid #e38b8b;
+    color: #8a1f1f;
+}
+
+@media (max-width: 860px) {
+    .profile-photo-layout {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 </head>
-<body class="light-theme">
+<body class="student-portal-page light-theme">
 <?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
+if (isset($_SESSION['sun']) && isset($_SESSION['spw']) && isset($_SESSION['sfn']) && isset($_SESSION['sln']) && isset($_SESSION['srole'])) {
+    $photoValue = isset($_SESSION['sphoto']) ? trim((string) $_SESSION['sphoto']) : '';
+    $photoPath = $photoValue !== '' ? htmlspecialchars($photoValue, ENT_QUOTES, 'UTF-8') : '../images/default.png';
+    $statusType = (string) ($_GET['type'] ?? '');
+    $statusMessage = (string) ($_GET['message'] ?? '');
 ?>
 <div id="container">
-<table><tr><td>
-<?php
-    require("header.php");
-?>
-</td></tr><tr><td colspan="3">
-<?php
-    require("menucdeo.php");
-?>
-</td></tr>
-<tr><td>
-<?php
-	 require("sidemenucdeo.php");
-?>
-	
-</td><td>
-	<div id="contentindex5">
-	<form action="updatephoto.php" method="POST" name="form1" enctype="multipart/form-data">
-<table bgcolor="#f9fbf9" cellpadding="5" border="0">
-	
-	<tr><td>User Photo</td><td><input type="file" name="photo" required><br></td></tr>
-<tr><td></td><td><input type="submit" id="submit" name="submit" style="height: 30px; width: 100px;" value="Change">
-<input type="reset" id=id="m" name="validation" style="height: 30px; width: 100px;" value="CANCEL"size="20" >
-</td></tr>
-
-</table>
-</form>
-	 </div></td>
-	 <td>
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#b00404>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>"; 
-?>
-<div id="sidebarr">
-<ul>
- <li><a href="updateprofilephoto.php">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
+    <div id="header"><?php require("header.php"); ?></div>
+    <div id="menu"><?php require("menucdeo.php"); ?></div>
+    <div class="main-row">
+        <div id="left"><?php require("sidemenucdeo.php"); ?></div>
+        <div id="content">
+            <div id="contentindex5">
+                <div class="profile-photo-shell">
+                    <div class="admin-page-header">
+                        <div>
+                            <span class="admin-page-kicker">CDE Officer</span>
+                            <h1 class="admin-page-title">Update Profile Photo</h1>
+                            <p class="admin-page-copy">Upload a new account photo to refresh the image shown in your CDE officer profile card across the system.</p>
+                        </div>
+                    </div>
+                    <?php if ($statusMessage !== '') { ?>
+                    <div class="status-message <?php echo $statusType === 'success' ? 'status-success' : 'status-error'; ?>">
+                        <?php echo htmlspecialchars($statusMessage, ENT_QUOTES, 'UTF-8'); ?>
+                    </div>
+                    <?php } ?>
+                    <div class="profile-photo-layout">
+                        <div class="profile-photo-preview">
+                            <img src="<?php echo $photoPath; ?>" alt="Current profile photo">
+                            <p>Your current profile photo appears here. Upload a new image to replace it.</p>
+                        </div>
+                        <div class="profile-photo-form-panel">
+                            <form action="updatephoto.php" method="POST" enctype="multipart/form-data" class="profile-photo-form-grid">
+                                <label class="profile-photo-label" for="photo">
+                                    Choose New Photo
+                                    <input class="profile-photo-file" type="file" id="photo" name="photo" required>
+                                </label>
+                                <div class="admin-page-form-row">
+                                    <button type="submit" id="submit" name="submit" class="admin-page-btn">Change Photo</button>
+                                    <button type="reset" class="admin-page-btn-secondary">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="sidebar"><?php require("officer_sidebar.php"); ?></div>
+    </div>
+    <div id="footer"><?php include("../footer.php"); ?></div>
 </div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Social link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </td>
-	 </tr>
-	 <tr><td>
 <?php
-include("../footer.php");
-?>
-</td></tr>
-
-</div>
-</table>
-<?php
+} else {
+    header("location:../index.php");
+    exit;
 }
-else
-header("location:../index.php");
 ?>
 </body>
 </html>

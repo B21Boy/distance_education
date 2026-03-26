@@ -1,68 +1,49 @@
 <?php
 session_start();
 include("../connection.php");
-?>
-<?php
-//mag show sang information sang user nga nag login
-$user_id=$_SESSION['suid'];
-$dept=$_SESSION['sdcode'];
-$result=mysql_query("select * from user where UID='$user_id'")or die(mysql_error);
-$row=mysql_fetch_array($result);
-$FirstName=$row['fname'];
-$middleName=$row['lname'];
+require("popup_styles.php");
 
-?>
-<?php
-$date=date("Y-m-d");
-?>
-<form action="newnotificationprocess1.php" method="post" onsubmit='return formValidation()'>
-<table style="border:2px solid black; border-radius:7px;margin-top:6px;box-shadow:4px 1px 3px black;" width="450px" height="200px" align="center">
-<tr bgcolor="" ><td align="center" colspan="4" ><font style="Time New Roman" size='3'>New Message Submit Form</font></td></tr>
-<tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td> <font size="3" face="Times New Roman"> Send By:</td>
-<td><input type="text" name="M_sender" width="172"  value="<?php echo $user_id;?>"ReadOnly>
-</td>
-</tr>
-<tr>
-<td><font size="2" face="Time New Roman">Send To:</td>
-<td>
-<select name="M_Reciever" style="width: 172" required>
-<option value="" selected>Select User Id</option>
-<?php 
-$result=mysql_query("select UID from account where Role='department_head' or Role='registrar' or Role='collage_dean' or Role='financestaff'");
-
-while ($row = mysql_fetch_array($result)){
-?>
-
- <option value="<?php echo $row['UID'];?>"><?php echo $row['UID']; ?>
-    </option>
-<?php
+$user_id = $_SESSION['suid'];
+$date = date("Y-m-d");
+$receivers = array();
+$result = mysql_query("select UID from account where Role='department_head' or Role='registrar' or Role='collage_dean' or Role='financestaff'");
+while ($row = mysql_fetch_array($result)) {
+    $receivers[] = $row['UID'];
 }
-?>        
-</select>
-</td>
-</tr>
- <tr>
-<td> <font size="3" face="Times New Roman"> Message:</td>
-<td>
-<textarea  style="overflow:auto;resize:none" rows="3" cols="19" align="center" name="message" required x-moz-errormessage="Required"autocomplete='off' onkeypress="return letter_validate(event);"></textarea>
-</td>
-</td>
-</tr>
- <tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td> <font size="3" face="Times New Roman"> Date:</td>
-<td>
-<input type="text" name="date_sended" value="<?php echo $date; ?>"ReadOnly>
-</td> 
-</tr>
-<tr>
-<td colspan=2 align=center><br><input type='submit' class="button_example" value="Send" name='submitMain' Onclick="return check(this.form);"/> 
-</form>
-</table>
-
+?>
+<div class="cde-popup-card">
+    <div class="cde-popup-header">
+        <span class="cde-popup-kicker">CDE Officer</span>
+        <h1 class="cde-popup-title">New Message</h1>
+        <p class="cde-popup-copy">Send a new internal message to the relevant office or staff account.</p>
+    </div>
+    <form action="newnotificationprocess1.php" method="post" class="cde-popup-form">
+        <div class="cde-popup-grid">
+            <label class="cde-popup-field" for="M_sender">
+                Send By
+                <input type="text" name="M_sender" id="M_sender" class="cde-popup-input" value="<?php echo htmlspecialchars($user_id, ENT_QUOTES, 'UTF-8'); ?>" readonly>
+            </label>
+            <label class="cde-popup-field" for="M_Reciever">
+                Send To
+                <select name="M_Reciever" id="M_Reciever" class="cde-popup-select" required>
+                    <option value="">Select User Id</option>
+                    <?php foreach ($receivers as $receiver_id) { ?>
+                    <option value="<?php echo htmlspecialchars($receiver_id, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($receiver_id, ENT_QUOTES, 'UTF-8'); ?></option>
+                    <?php } ?>
+                </select>
+            </label>
+        </div>
+        <label class="cde-popup-field" for="message">
+            Message
+            <textarea rows="5" name="message" id="message" class="cde-popup-textarea" required></textarea>
+        </label>
+        <label class="cde-popup-field" for="date_sended">
+            Date
+            <input type="text" name="date_sended" id="date_sended" class="cde-popup-input" value="<?php echo htmlspecialchars($date, ENT_QUOTES, 'UTF-8'); ?>" readonly>
+        </label>
+        <div class="cde-popup-actions">
+            <button type="submit" class="cde-popup-btn" name="submitMain">Send</button>
+            <button type="reset" class="cde-popup-btn-secondary">Clear</button>
+        </div>
+    </form>
+</div>

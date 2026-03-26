@@ -1,94 +1,47 @@
 <?php
 session_start();
 include("../connection.php");
-?>
-<html>
-<head>
-<script src="theme.js"></script>
-<title>
-Administrator page
-</title>
-<link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript\date_time.js"></script>
+require_once("page_helpers.php");
 
-</head>
-<body class="light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
-?>
-<div id="container">
-<table><tr><td>
-<?php
-    require("header.php");
-?>
-</td></tr><tr><td colspan="3">
-<?php
-    require("menu.php");
-?>
-</td></tr>
-<tr><td>
-<?php
-	 require("sidemenu.php");
-?>
-	
-</td><td>
-	<div id="contentindex5">
-	<form action="updatephoto.php" method="POST" name="form1" enctype="multipart/form-data">
-<table bgcolor="#f9fbf9" cellpadding="5" border="0">
-	
-	<tr><td>User Photo</td><td><input type="file" name="photo" required><br></td></tr>
-<tr><td></td><td><input type="submit" id="submit" name="submit" style="height: 30px; width: 100px;" value="Change">
-<input type="reset" id=id="m" name="validation" style="height: 30px; width: 100px;" value="CANCEL"size="20" >
-</td></tr>
+departmentRequireLogin();
 
-</table>
-</form>
-	 </div></td>
-	 <td>
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#b00404>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>"; 
+$photoValue = departmentCurrentPhotoPath();
+$status = (string) ($_GET['status'] ?? '');
+$messages = [
+    'success' => 'Profile photo updated successfully.',
+    'invalid-type' => 'Upload a JPG, PNG, GIF, or WEBP image only.',
+    'too-large' => 'The selected image is too large. Maximum size is 2MB.',
+    'upload' => 'The image could not be uploaded.',
+    'error' => 'The profile photo could not be updated right now.'
+];
+
+departmentRenderPageStart(
+    "Department head page",
+    "Department Head",
+    "Update profile photo",
+    "Upload a new account photo to refresh the image shown in your department profile card across the system."
+);
+echo departmentStatusBanner($status, $messages);
 ?>
-<div id="sidebarr">
-<ul>
- <li><a href="updateprofilephoto.php">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
+<div class="department-card-grid" style="grid-template-columns:minmax(240px,320px) minmax(0,1fr);">
+    <div class="department-card" style="text-align:center;">
+        <img src="<?php echo departmentH($photoValue); ?>" alt="Current profile photo" class="profile-thumb" style="width:min(240px, 100%);height:auto;aspect-ratio:1/1;">
+        <p style="margin-top:14px;">Your current profile photo appears here. Upload a new image to replace it.</p>
+    </div>
+    <div class="department-section">
+        <form action="updatephoto.php" method="POST" enctype="multipart/form-data" class="department-form-grid">
+            <label class="department-form-field" for="photo">
+                <span class="department-label">Choose new photo</span>
+                <input type="file" id="photo" name="photo" required>
+            </label>
+            <p class="department-form-note">JPG, PNG, GIF, and WEBP images up to 2MB are supported.</p>
+            <div class="department-inline-actions">
+                <button type="submit" name="submit" class="department-btn">Change photo</button>
+                <button type="reset" class="department-btn-secondary">Cancel</button>
+            </div>
+        </form>
+    </div>
 </div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Social link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </td>
-	 </tr>
-	 <tr><td>
 <?php
-include("../footer.php");
+departmentRenderPageEnd();
 ?>
-</td></tr>
-
-</div>
-</table>
-<?php
-}
-else
-header("location:../index.php");
-?>
-</body>
-</html>

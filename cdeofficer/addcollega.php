@@ -1,41 +1,32 @@
 <?php
 include("../connection.php");
 session_start();
-
+require("popup_styles.php");
 ?>
-<form action="registercollage.php" method="POST" name="form1" enctype="multipart/form-data">
-<table bgcolor="#f9fbf9" cellpadding="5" border="0">
-<tr><td colspan="2" ><center><h2><b>Collage Registration Form</b></h2></center></td></tr>
-<tr><td>Collage Code:</td><td><input type="text" name="cc" id="cc" style="height: 30px;width: 200px;" required placeholder="Collage code" />
- 	<script type="text/javascript">
-				    var f1 = new LiveValidation('cc');
-				    f1.add(Validate.Presence,{failureMessage: " Please enter collage code "});
-				     f1.add(Validate.Format,{pattern: /^[a-zA-Z0-9]+$/ ,failureMessage: " It allows only String and number"});
-				     f1.add( Validate.Length, {minimum: 2, maximum: 20 } );
-				 </script>
- 	
-				  </td></tr>
-
-<tr><td>Collage Name:</td><td><input type="text" name="cn" id="cn" style="height: 30px;width: 200px;" required="required"  placeholder="Collage name" />
-<script type="text/javascript">
-				    var f1 = new LiveValidation('cn');
-				    f1.add(Validate.Presence,{failureMessage: " Please enter collage name "});
-				     f1.add(Validate.Format,{pattern: /^[a-zA-Z]+$/ ,failureMessage: " It allows only String"});
-				     f1.add( Validate.Length, {minimum: 2, maximum: 20 } );
-				 </script> 	
-				  </td></tr>
-
-<tr><td>Location:</td><td><input type="text" name="loc" id="loc" style="height: 30px;width: 200px;" required="required"  placeholder="enter location" />
-<script type="text/javascript">
-				    var f1 = new LiveValidation('loc');
-				    f1.add(Validate.Presence,{failureMessage: " Please enter Location"});
-				     f1.add(Validate.Format,{pattern: /^[a-zA-Z0-9]+$/ ,failureMessage: " It allows only String and Number"});
-				 </script> 	
-</td></tr>
-
-<tr><td></td><td><input type="submit" id="submit" name="submit" style="height: 30px; width: 100px;" value="REGISTER">
-<input type="reset" id=id="m" name="validation" style="height: 30px; width: 100px;" value="CANCEL"size="20" >
-</td></tr>
-
-</table>
-</form>
+<div class="cde-popup-card">
+    <div class="cde-popup-header">
+        <span class="cde-popup-kicker">CDE Officer</span>
+        <h1 class="cde-popup-title">Add College</h1>
+        <p class="cde-popup-copy">Register a new college by filling in the code, name, and location fields.</p>
+    </div>
+    <form action="registercollage.php" method="POST" name="form1" enctype="multipart/form-data" class="cde-popup-form">
+        <div class="cde-popup-grid">
+            <label class="cde-popup-field" for="cc">
+                College Code
+                <input type="text" name="cc" id="cc" class="cde-popup-input" required placeholder="College code">
+            </label>
+            <label class="cde-popup-field" for="cn">
+                College Name
+                <input type="text" name="cn" id="cn" class="cde-popup-input" required placeholder="College name">
+            </label>
+        </div>
+        <label class="cde-popup-field" for="loc">
+            Location
+            <input type="text" name="loc" id="loc" class="cde-popup-input" required placeholder="Enter location">
+        </label>
+        <div class="cde-popup-actions">
+            <button type="submit" id="submit" name="submit" class="cde-popup-btn">Register</button>
+            <button type="reset" name="validation" class="cde-popup-btn-secondary">Cancel</button>
+        </div>
+    </form>
+</div>

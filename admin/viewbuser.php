@@ -117,31 +117,9 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
 
         <!-- Right Sidebar -->
         <div id="sidebar">
-            <div class="sidebar-panel profile-panel">
-                <div class="sidebar-panel-title">User Profile</div>
-                <div class="sidebar-panel-body">
-                    <?php
-                        echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-                    ?>
-                    <div id="sidebarr">
-                        <ul>
-                            <li><a href="updateprofilephoto.php">Change Photo</a></li>
-                            <li><a href="changepass.php">Change password</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="sidebar-panel social-panel">
-                <div class="sidebar-panel-title">Social link</div>
-                <div class="sidebar-panel-body">
-                    <a href="https://www.facebook.com/"><span><ion-icon name="logo-facebook"></ion-icon></span>Facebook</a>
-                    <a href="https://www.twitter.com/"><span><ion-icon name="logo-twitter"></ion-icon></span>Twitter</a>
-                    <a href="https://www.youtube.com/"><span><ion-icon name="logo-youtube"></ion-icon></span>YouTube</a>
-                    <a href="https://plus.google.com/"><span><ion-icon name="logo-google"></ion-icon></span>Google++</a>
-                </div>
-            </div>
-        </div>
-    </div>
+<?php require("rightsidebar.php"); ?>
+</div>
+
 
     <!-- Footer -->
     <div id="footer">

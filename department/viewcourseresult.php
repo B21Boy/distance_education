@@ -1,165 +1,72 @@
 <?php
 session_start();
 include("../connection.php");
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<script src="../theme.js"></script>
-<meta charset="UTF-8">
-<title>
-Department head page
-</title>
-<link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript/date_time.js"></script>
-<style>
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
-}
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
-</style>
-</head>
-<body class="student-portal-page light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
-    $first_name = htmlspecialchars($_SESSION['sfn'], ENT_QUOTES, 'UTF-8');
-    $last_name = htmlspecialchars($_SESSION['sln'], ENT_QUOTES, 'UTF-8');
-    $photo_value = isset($_SESSION['sphoto']) ? trim($_SESSION['sphoto']) : '';
-    $photo_path = htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8');
-?>
-<div id="container">
-    <div id="header">
-        <?php require("header.php"); ?>
-    </div>
+require_once("page_helpers.php");
+require_once("ps_pagination.php");
 
-    <div id="menu">
-        <?php require("menudepthead.php"); ?>
-    </div>
+departmentRequireLogin();
 
-    <div class="main-row">
-        <div id="left">
-            <?php require("sidemenudepthead.php"); ?>
-<?php
-$dept=$_SESSION['sdc'];
-$result1 = mysql_query("SELECT * FROM department where Dcode='$dept'");
-$row = mysql_fetch_array($result1);
-$dcode=$row['DName'];
-?>
-        </div>
-
-        <div id="content">
-            <div id="contentindex5">
-<?php
-include('ps_pagination.php');
-$conn = mysql_connect('localhost','root','');
-if(!$conn) die("Failed to connect to database!");
-$status = mysql_select_db('cde', $conn);
-if(!$status) die("Failed to select database!");
-
-$query = "select * from course_result where status='approved' and Department='$dcode'";
-$pager = new PS_Pagination($conn, $query, 5, 1);
+$departmentName = departmentCurrentDepartmentName($conn);
+$escapedDepartment = mysqli_real_escape_string($conn, $departmentName);
+$sql = "SELECT * FROM course_result WHERE status = 'approved' AND Department = '{$escapedDepartment}' ORDER BY no DESC";
+$pager = new PS_Pagination($conn, $sql, 5, 5);
 $rs = $pager->paginate();
-$result = mysql_query($query);
-
-if (!$result)
-{
-    $message = 'ERROR:' . mysql_error();
-    return $message;
-}
-else
-{
-    echo'<h3>List Of Students Course Result</h3>';
-    $i = 0;
-    echo '<form action=" " method=post><table cellpadding="1" cellspacing="1" id="resultTable"><tr>';
-    while ($i < mysql_num_fields($result))
-    {
-        $meta = mysql_fetch_field($result, $i);
-        if($meta->name=='status')
-        break;
-        echo '<th>' . $meta->name . '</th>';
-        $i = $i + 1;
-    }
-    echo '</tr>';
-
-    $i = 1;
-    while ($row = mysql_fetch_row($result))
-    {
-        echo '<tr>';
-        $count = count($row);
-        $y = 1;
-        while ($y < $count)
-        {
-            $c_row = current($row);
-            if($c_row=='approved')
-            break;
-            echo '<td>' . $c_row . '</td>';
-            next($row);
-            $y = $y + 1;
+$rows = [];
+$fields = [];
+if ($rs instanceof mysqli_result) {
+    foreach (mysqli_fetch_fields($rs) as $field) {
+        if ($field->name !== 'status') {
+            $fields[] = $field->name;
         }
-        echo '</tr>';
-        $i = $i + 1;
     }
-    echo '</table></form>';
+    while ($row = mysqli_fetch_assoc($rs)) {
+        $rows[] = $row;
+    }
+    mysqli_free_result($rs);
 }
+$countResult = mysqli_query($conn, "SELECT COUNT(*) AS total FROM course_result WHERE status = 'approved' AND Department = '{$escapedDepartment}'");
+$total = 0;
+if ($countResult instanceof mysqli_result) {
+    $countRow = mysqli_fetch_assoc($countResult);
+    $total = (int) ($countRow['total'] ?? 0);
+    mysqli_free_result($countResult);
+}
+
+departmentRenderPageStart(
+    "Department head page",
+    "Department Head",
+    "Approved course results",
+    "View course results that have already been approved for this department."
+);
 ?>
-<?php echo '<div style="text-align:center">'.$pager->renderFullNav().'</div>'; ?>
-            </div>
-        </div>
-
-        <div id="sidebar">
-            <div id="siderightindexphoto">
-                <div id="siderightindexphoto1">
-                    User Profile
-                </div>
-
-                <p>
-                    <b><font color="blue">Welcome:</font><font color="#e70f0a">(<?php echo $first_name . "&nbsp;&nbsp;&nbsp;" . $last_name; ?>)</font></b>
-                </p>
-                <?php if ($photo_path !== '') { ?>
-                <p><b><img src="<?php echo $photo_path; ?>" width="180" height="160" alt="Department head profile photo"></b></p>
-                <?php } ?>
-
-                <div id="sidebarr">
-                    <ul>
-                        <li><a href="#.html">Change Photo</a></li>
-                        <li><a href="changepass.php">Change password</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div id="siderightindexadational">
-                <div id="siderightindexadational1">
-                    Another link
-                </div>
-                <div id="siderightindexadational12">
-                    <table>
-                        <tr><td><div id="facebook"></div></td><td><p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a></p></td></tr>
-                        <tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-                        <tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-                        <tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="footer">
-        <?php include("../footer.php"); ?>
-    </div>
+<div class="department-stat-row">
+    <span class="department-stat-chip">Approved results: <?php echo $total; ?></span>
+    <?php if ($departmentName !== '') { ?>
+    <span class="department-stat-chip"><?php echo departmentH($departmentName); ?></span>
+    <?php } ?>
 </div>
+
+<?php if (!$rows) { ?>
+<div class="department-empty">No approved course results were found for this department.</div>
+<?php } else { ?>
+<div class="department-table-wrap">
+    <table cellpadding="1" cellspacing="1" id="resultTable">
+        <tr>
+            <?php foreach ($fields as $fieldName) { ?>
+            <th><?php echo departmentH($fieldName); ?></th>
+            <?php } ?>
+        </tr>
+        <?php foreach ($rows as $row) { ?>
+        <tr>
+            <?php foreach ($fields as $fieldName) { ?>
+            <td><?php echo departmentH($row[$fieldName] ?? ''); ?></td>
+            <?php } ?>
+        </tr>
+        <?php } ?>
+    </table>
+</div>
+<div class="department-pagination"><?php echo $pager->renderFullNav(); ?></div>
+<?php } ?>
 <?php
-}
-else
-{
-    header("location:../index.php");
-    exit;
-}
+departmentRenderPageEnd();
 ?>
-</body>
-</html>

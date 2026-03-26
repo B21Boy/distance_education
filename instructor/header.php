@@ -1,3 +1,178 @@
+<style>
+body.student-portal-page #container {
+    max-width: 1600px !important;
+    width: calc(100% - 28px) !important;
+    margin: 18px auto !important;
+    padding: 18px !important;
+}
+body.student-portal-page #header,
+body.student-portal-page #menu,
+body.student-portal-page #footer {
+    width: 100% !important;
+    margin-left: 0 !important;
+}
+body.student-portal-page #header {
+    height: auto !important;
+    min-height: 100px;
+    padding: 0 !important;
+}
+body.student-portal-page #menu {
+    margin: 0 0 24px !important;
+    position: relative;
+    z-index: 80;
+    overflow: visible;
+}
+body.student-portal-page #menubar1 {
+    width: 100% !important;
+    margin: 0 !important;
+    min-height: 52px;
+    height: auto !important;
+    border-radius: 16px;
+    position: relative;
+    z-index: 90;
+    overflow: visible;
+}
+body.student-portal-page #menubar1 ul {
+    position: relative;
+    z-index: 91;
+    overflow: visible;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 !important;
+    padding: 10px 18px !important;
+}
+body.student-portal-page #menubar1 ul li {
+    float: none !important;
+    padding: 0 !important;
+}
+body.student-portal-page #menubar1 ul li a {
+    margin: 0 !important;
+    min-height: 38px;
+    line-height: 1.2 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+body.student-portal-page .main-row {
+    position: relative;
+    z-index: 1;
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 28px !important;
+    align-items: flex-start !important;
+}
+body.student-portal-page .main-row > #left {
+    flex: 0 0 290px !important;
+    width: auto !important;
+    min-width: 0 !important;
+}
+body.student-portal-page .main-row > #content {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    height: auto !important;
+}
+body.student-portal-page .main-row > #sidebar {
+    flex: 0 0 300px !important;
+    width: auto !important;
+    min-width: 0 !important;
+}
+body.student-portal-page #content {
+    width: auto !important;
+    height: auto !important;
+    margin-left: 0 !important;
+}
+body.student-portal-page #contentindex5,
+body.student-portal-page #contentindex55 {
+    width: 100% !important;
+}
+body.student-portal-page .sidebar-panel {
+    margin-bottom: 22px;
+    border: 1px solid #d9e4ef;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #f6f9fd 100%);
+    box-shadow: 0 18px 32px rgba(16, 46, 74, 0.08);
+}
+body.student-portal-page .sidebar-panel-title {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #12395f 0%, #245f96 100%);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+body.student-portal-page .sidebar-panel-body {
+    padding: 22px;
+    color: #35516d;
+}
+body.student-portal-page .sidebar-panel-body img {
+    display: block;
+    width: 220px;
+    max-width: 100%;
+    height: 190px;
+    margin: 16px auto 18px;
+    border-radius: 18px;
+    object-fit: cover;
+    border: 1px solid #d6e3ef;
+    background: #edf3f9;
+}
+body.student-portal-page .social-panel .sidebar-panel-body a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 15px;
+    border-radius: 14px;
+    color: #18466f;
+    background: #edf4fb;
+    transition: background-color 0.18s ease, transform 0.18s ease;
+}
+body.student-portal-page .social-panel .sidebar-panel-body a:hover {
+    background: #dbeafb;
+    transform: translateY(-1px);
+}
+@media (max-width: 1100px) {
+    body.student-portal-page #container {
+        width: calc(100% - 20px) !important;
+        padding: 14px !important;
+    }
+    body.student-portal-page .main-row {
+        flex-direction: column !important;
+    }
+    body.student-portal-page .main-row > #left,
+    body.student-portal-page .main-row > #content,
+    body.student-portal-page .main-row > #sidebar {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 1 1 auto !important;
+    }
+}
+@media (max-width: 720px) {
+    body.student-portal-page #container {
+        width: calc(100% - 12px) !important;
+        padding: 10px !important;
+    }
+    body.student-portal-page #menubar1 ul {
+        justify-content: stretch;
+        padding: 10px !important;
+    }
+    body.student-portal-page #menubar1 ul li,
+    body.student-portal-page #menubar1 ul li a {
+        width: 100%;
+    }
+    body.student-portal-page .sidebar-panel-body {
+        padding: 16px;
+    }
+    body.student-portal-page .sidebar-panel-body img {
+        width: 200px;
+        height: 172px;
+    }
+}
+</style>
 <div class="student-header-inner">
     <div class="student-header-media student-header-media-left">
         <img src="../images/Bahir_Dar_University_logo.png" alt="Bahir Dar University logo">

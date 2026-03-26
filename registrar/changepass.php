@@ -1,111 +1,92 @@
 <?php
 session_start();
 include("../connection.php");
+require_once("page_helpers.php");
+
+if (!registrarIsLoggedIn()) {
+    header("location:../index.php");
+    exit;
+}
+
+$photo_path = registrarCurrentPhotoPath();
+$status = isset($_GET['status']) ? trim((string) $_GET['status']) : '';
+$status_message = '';
+$status_class = 'info';
+
+if ($status === 'success') {
+    $status_message = 'Your password was changed successfully.';
+    $status_class = 'success';
+} elseif ($status === 'empty') {
+    $status_message = 'Please fill in all password fields.';
+    $status_class = 'error';
+} elseif ($status === 'old-password') {
+    $status_message = 'The current password you entered is incorrect.';
+    $status_class = 'error';
+} elseif ($status === 'password-mismatch') {
+    $status_message = 'The new password and confirmation password do not match.';
+    $status_class = 'error';
+} elseif ($status === 'same-password') {
+    $status_message = 'Use a different new password from your current password.';
+    $status_class = 'error';
+} elseif ($status === 'error') {
+    $status_message = 'The password could not be changed right now. Please try again.';
+    $status_class = 'error';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <script src="../theme.js"></script>
 <meta charset="UTF-8">
-<title>
-Registrar Officer page
-</title>
+<title>Registrar Officer Page</title>
 <link rel="stylesheet" type="text/css" href="../setting.css">
 <script type="text/javascript" src="../javascript/date_time.js"></script>
-<style>
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
-}
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
-</style>
+<?php registrarRenderStandardStyles(); ?>
 </head>
 <body class="student-portal-page light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
-?>
 <div id="container">
-<div id="header">
-<?php
-    require("header.php");
-?>
-</div>
-<div id="menu">
-<?php
-    require("menuro.php");
-?>
-</div>
+<div id="header"><?php require("header.php"); ?></div>
+<div id="menu"><?php require("menuro.php"); ?></div>
 <div class="main-row">
-<div id="left">
-<?php
-	 require("sidemenuro.php");
-?>
-	
-</div><div id="content">
-	<div id="contentindex5">
-<form action="uaccounta.php" method="POST"  onsubmit='return validate()'>
-<table bgcolor="#f9fbf9" cellpadding="12" border="0">
-<tr><td colspan="2" ><center><h1 style="color: #4b80b4"><b>Change Password
-</b></h1></center></td></tr>
-<tr><td>Old Password:</td><td><input type="password" id="password" name="opass" required="required"  placeholder="old_password" style="height: 30px;" /></td></tr>
-<tr><td>New Password:</td><td><input type="password" id="password" name="npass"required="required"  placeholder="new_password" style="height: 30px;"/></td></tr>
- <tr><td>Confirm Password:</td><td><input type="password" id="password" name="rnpass" required="required"  placeholder="confirm_password" style="height: 30px;"/></td></tr>
- <tr><td><input type="submit" id="btn" name="submit" value="CHANGE"size="20" style="height: 30px;width: 100px;"></td><td>
-<input type="reset" id="btn" name="validate" value="RESET"size="20" style="height: 30px;width: 150px;"></td></tr>
-</table>
-</form>
-
-</div></div>
-	 <div id="sidebar">
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-?>
-<div id="sidebarr">
-<ul>
- <li><a href="#.html">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
-</div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Another link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </div>
-	 </div>
-	 <div id="footer">
-<?php
-include("../footer.php");
-?>
+    <div id="left"><?php require("sidemenuro.php"); ?></div>
+    <div id="content">
+        <div id="contentindex5">
+            <div class="registrar-page-card">
+                <div class="registrar-page-header">
+                    <span class="registrar-page-eyebrow">Security</span>
+                    <h1 class="registrar-page-title">Change Password</h1>
+                    <p class="registrar-page-copy">Update your registrar account password and keep access to the system secure.</p>
+                </div>
+                <?php if ($status_message !== ''): ?>
+                    <div class="registrar-status <?php echo registrarH($status_class); ?>"><?php echo registrarH($status_message); ?></div>
+                <?php endif; ?>
+                <form action="uaccounta.php" method="post" class="registrar-form-grid">
+                    <div class="registrar-form-field full">
+                        <label class="registrar-label" for="changepass-old">Current Password</label>
+                        <input type="password" id="changepass-old" name="opass" class="registrar-input" placeholder="Enter your current password" autocomplete="current-password" required>
+                    </div>
+                    <div class="registrar-form-field">
+                        <label class="registrar-label" for="changepass-new">New Password</label>
+                        <input type="password" id="changepass-new" name="npass" class="registrar-input" placeholder="Enter a new password" autocomplete="new-password" required>
+                    </div>
+                    <div class="registrar-form-field">
+                        <label class="registrar-label" for="changepass-confirm">Confirm Password</label>
+                        <input type="password" id="changepass-confirm" name="rnpass" class="registrar-input" placeholder="Re-enter the new password" autocomplete="new-password" required>
+                    </div>
+                    <div class="registrar-form-field full">
+                        <div class="registrar-actions">
+                            <button type="submit" name="submit" class="registrar-btn">Change Password</button>
+                            <button type="reset" name="validate" class="registrar-btn-secondary">Reset</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+    <div id="sidebar"><?php registrarRenderSidebar($photo_path); ?></div>
 </div>
-<?php
-}
-else
-{
-header("location:../index.php");
-exit;
-}
-?>
+<div id="footer"><?php include("../footer.php"); ?></div>
+</div>
+<?php registrarRenderIconScripts(); ?>
 </body>
 </html>

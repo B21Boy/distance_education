@@ -45,7 +45,7 @@ $menu_items = array(
 		'label' => 'Notification[' . $count . ']',
 		'class' => $count >= 1 ? 'has-alert' : ''
 	),
-	array('href' => '../logout.php', 'label' => 'Log out')
+	array('href' => '../logout.php?redirect=home', 'label' => 'Log out')
 );
 ?>
 <nav id="menubar1" aria-label="Registrar navigation">

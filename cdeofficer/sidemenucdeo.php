@@ -25,22 +25,7 @@ $uploaded_module_count = cdeofficer_safe_count($conn, "SELECT * FROM course WHER
 <div class="student-side-menu-title">Side Link</div>
 <ul class="student-side-nav" style="display:flex;flex-direction:column;gap:10px;margin:0;padding:18px;width:100%;min-width:0;height:auto;background:transparent;border:0;box-sizing:border-box;list-style:none;">
 	<li style="margin:0;width:100%;list-style:none;">
-		<div style="padding:6px 4px 0;color:#114c78;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Add Programs</div>
-		<ul style="display:flex;flex-direction:column;gap:10px;margin:10px 0 0;padding:0;list-style:none;">
-			<li style="margin:0;list-style:none;"><a href="managecollage.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Add College</a></li>
-			<li style="margin:0;list-style:none;"><a href="managedept.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Add Department</a></li>
-		</ul>
-	</li>
-	<li style="margin:0;width:100%;list-style:none;">
 		<a href="viewuploadmodule.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid <?php echo $uploaded_module_count >= 1 ? '#f2d0d0' : '#dce9f1'; ?>;border-radius:14px;background:<?php echo $uploaded_module_count >= 1 ? '#fff4f4' : '#f7fbfd'; ?>;color:<?php echo $uploaded_module_count >= 1 ? '#8d1c1c' : '#17364e'; ?>;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">View Uploded Module[<?php echo htmlspecialchars((string) $uploaded_module_count, ENT_QUOTES, 'UTF-8'); ?>]</a>
-	</li>
-	<li style="margin:0;width:100%;list-style:none;">
-		<div style="padding:6px 4px 0;color:#114c78;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">Post Announcment</div>
-		<ul style="display:flex;flex-direction:column;gap:10px;margin:10px 0 0;padding:0;list-style:none;">
-			<li style="margin:0;list-style:none;"><a href="updateposti.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Post updated Information</a></li>
-			<li style="margin:0;list-style:none;"><a href="updatepost.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Post registration date</a></li>
-			<li style="margin:0;list-style:none;"><a href="updateposta.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Post Application date</a></li>
-		</ul>
 	</li>
 	<li style="margin:0;width:100%;list-style:none;">
 		<div style="padding:6px 4px 0;color:#114c78;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;">View</div>
@@ -53,10 +38,11 @@ $uploaded_module_count = cdeofficer_safe_count($conn, "SELECT * FROM course WHER
 		<a href="recordresult.php" style="display:block;width:100%;padding:10px 22px;line-height:1.2;height:auto;min-height:0;box-sizing:border-box;border:1px solid #dce9f1;border-radius:14px;background:#f7fbfd;color:#17364e;text-decoration:none;font-size:15px;font-weight:bold;white-space:normal;word-break:break-word;">Post Entrance Exam Result</a>
 	</li>
 </ul>
+
+</div>
 <div id="sidedate">
-	<h2>Calendar</h2>
+	<div class="student-side-menu-title">Calendar</div>
 	<?php
 	require("../date.php");
 	?>
-</div>
 </div>

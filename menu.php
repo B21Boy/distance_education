@@ -168,7 +168,7 @@
         <li><a href="appl_accept.php">Application</a></li>
         <li><a href="servicefees.php">Service fees</a></li>
         <li><a href="feedback.php">Feedback</a></li>
-        <li><a href="help.php">new Register</a></li>
+        <li><a href="online register/online.php">online Register</a></li>
         <li><a href="help.php">Help</a></li>
     </ul>
 </nav>

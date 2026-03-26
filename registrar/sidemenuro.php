@@ -20,10 +20,11 @@ $registrar_side_links = array(
 	</li>
 	<?php } ?>
 </ul>
+
+</div>
 <div id="sidedate">
-	<h2>Calendar</h2>
+	<div class="student-side-menu-title">Calendar</div>
 	<?php
 	require("../date.php");
 	?>
-</div>
 </div>

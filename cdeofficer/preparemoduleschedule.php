@@ -51,59 +51,43 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
 	<?php
 	$sql=mysql_query("select * from module_schedule");
 	$c=mysql_num_rows($sql);
-	if($c>='1'){
-	while($row=mysql_fetch_array($sql))
-	{
 	?>
-	<table border="1" width="auto" height="auto" style="margin-left: -15px">
-		<tr>
-			<td>
-				<?php echo$row['information']; ?>
-			</td>
-		</tr>
-		<tr><td><a rel="facebox" href="insertschedule.php" style="margin-left: 400px" ><h4 style="background-color: pink;">Update Module Preparation Schedule</h4></a></td></tr>
-	</table>
-	<?php	
-	}	
-	}
-	else{
-	?>
-<a rel="facebox" href="insertschedule.php" style="margin-left: 400px">Prepare Module Preparation Schedule</a>
+    <div class="admin-page-shell">
+        <div class="admin-page-header">
+            <div>
+                <span class="admin-page-kicker">CDE Officer</span>
+                <h1 class="admin-page-title">Module Preparation Schedule</h1>
+                <p class="admin-page-copy">Review the current schedule text and update it through the popup editor when needed.</p>
+            </div>
+        </div>
+        <div class="admin-page-panel">
+            <div class="admin-page-toolbar">
+                <span class="page-stat-chip"><?php echo (int) $c; ?> saved schedule record<?php echo $c == 1 ? '' : 's'; ?></span>
+                <a rel="facebox" href="insertschedule.php" class="page-nav-link is-primary"><?php echo $c >= 1 ? 'Update Module Preparation Schedule' : 'Prepare Module Preparation Schedule'; ?></a>
+            </div>
+            <?php if ($c >= 1) {
+            while($row=mysql_fetch_array($sql))
+            {
+            ?>
+            <div class="admin-page-status-card" style="white-space: pre-wrap;"><?php echo htmlspecialchars($row['information'], ENT_QUOTES, 'UTF-8'); ?></div>
+            <?php
+            }
+            } else {
+            ?>
+            <div class="admin-page-empty">No module preparation schedule has been posted yet.</div>
+            <?php
+            }
+            ?>
+        </div>
+    </div>
 <?php
-}
 ?>
  </div></div>
 	 <div id="sidebar">
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#db0b0b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>"; 
+<?php
+    require("officer_sidebar.php");
 ?>
-<div id="sidebarr">
-<ul>
- <li><a href="updateprofilephoto.php">Change Photo</a></li>
-	<li><a href="changepass.php">Change password</a></li>
-	 </ul>
-</div>
 	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Social link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </div>
 	 </div>
 	 <div id="footer">
 <?php

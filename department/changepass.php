@@ -1,115 +1,69 @@
 <?php
 session_start();
 include("../connection.php");
+require_once("page_helpers.php");
+
+departmentRequireLogin();
+
+$status = (string) ($_GET['status'] ?? '');
+$messages = [
+    'success' => 'Password changed successfully.',
+    'empty' => 'All password fields are required.',
+    'password-mismatch' => 'The new password and confirmation do not match.',
+    'same-password' => 'The new password must be different from the old password.',
+    'old-password' => 'The current password is incorrect.',
+    'error' => 'The password could not be changed right now.'
+];
+
+departmentRenderPageStart(
+    "Department head page",
+    "Department Head",
+    "Change password",
+    "Update your department account password from a cleaner form layout. Your new password must match the confirmation field."
+);
+echo departmentStatusBanner($status, $messages);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<script src="../theme.js"></script>
-<meta charset="UTF-8">
-<title>
-Department head page
-</title>
-<link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript/date_time.js"></script>
-<style>
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
-}
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
-</style>
-</head>
-<body class="student-portal-page light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
-    $first_name = htmlspecialchars($_SESSION['sfn'], ENT_QUOTES, 'UTF-8');
-    $last_name = htmlspecialchars($_SESSION['sln'], ENT_QUOTES, 'UTF-8');
-    $photo_value = isset($_SESSION['sphoto']) ? trim($_SESSION['sphoto']) : '';
-    $photo_path = htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8');
-?>
-<div id="container">
-    <div id="header">
-        <?php require("header.php"); ?>
-    </div>
-
-    <div id="menu">
-        <?php require("menudepthead.php"); ?>
-    </div>
-
-    <div class="main-row">
-        <div id="left">
-            <?php require("sidemenudepthead.php"); ?>
+<div class="department-section" style="max-width:760px;">
+    <form action="uaccounta.php" method="POST" class="department-form-grid" onsubmit="return validateDepartmentPasswordForm();">
+        <label class="department-form-field" for="opass">
+            <span class="department-label">Current password</span>
+            <input type="password" id="opass" name="opass" required>
+        </label>
+        <label class="department-form-field" for="npass">
+            <span class="department-label">New password</span>
+            <input type="password" id="npass" name="npass" required>
+        </label>
+        <label class="department-form-field" for="rnpass">
+            <span class="department-label">Confirm new password</span>
+            <input type="password" id="rnpass" name="rnpass" required>
+        </label>
+        <p class="department-form-note">Choose a new password that is different from your current one and make sure the confirmation matches exactly.</p>
+        <div class="department-inline-actions">
+            <button type="submit" name="submit" class="department-btn">Change password</button>
+            <button type="reset" class="department-btn-secondary">Reset</button>
         </div>
-
-        <div id="content">
-            <div id="contentindex5">
-                <form action="uaccounta.php" method="POST" onsubmit='return validate()'>
-                    <table bgcolor="#f9fbf9" cellpadding="12" border="0">
-                        <tr><td colspan="2"><center><h1 style="color: #4b80b4"><b>Change Password</b></h1></center></td></tr>
-                        <tr><td>Old Password:</td><td><input type="password" id="password" name="opass" required="required" placeholder="old_password" style="height: 30px;" /></td></tr>
-                        <tr><td>New Password:</td><td><input type="password" id="password" name="npass" required="required" placeholder="new_password" style="height: 30px;"/></td></tr>
-                        <tr><td>Confirm Password:</td><td><input type="password" id="password" name="rnpass" required="required" placeholder="confirm_password" style="height: 30px;"/></td></tr>
-                        <tr><td><input type="submit" id="btn" name="submit" value="CHANGE" size="20" style="height: 30px;width: 100px;"></td><td>
-                        <input type="reset" id="btn" name="validate" value="RESET" size="20" style="height: 30px;width: 150px;"></td></tr>
-                    </table>
-                </form>
-            </div>
-        </div>
-
-        <div id="sidebar">
-            <div id="siderightindexphoto">
-                <div id="siderightindexphoto1">
-                    User Profile
-                </div>
-
-                <p>
-                    <b><font color="blue">Welcome:</font><font color="#f9160b">(<?php echo $first_name . "&nbsp;&nbsp;&nbsp;" . $last_name; ?>)</font></b>
-                </p>
-                <?php if ($photo_path !== '') { ?>
-                <p><b><img src="<?php echo $photo_path; ?>" width="180" height="160" alt="Department head profile photo"></b></p>
-                <?php } ?>
-
-                <div id="sidebarr">
-                    <ul>
-                        <li><a href="#.html">Change Photo</a></li>
-                        <li><a href="changepass.php">Change password</a></li>
-                    </ul>
-                </div>
-            </div>
-
-            <div id="siderightindexadational">
-                <div id="siderightindexadational1">
-                    Another link
-                </div>
-                <div id="siderightindexadational12">
-                    <table>
-                        <tr><td><div id="facebook"></div></td><td><p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a></p></td></tr>
-                        <tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-                        <tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-                        <tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="footer">
-        <?php include("../footer.php"); ?>
-    </div>
+    </form>
 </div>
+<script>
+function validateDepartmentPasswordForm() {
+    var currentPassword = document.getElementById('opass').value;
+    var newPassword = document.getElementById('npass').value;
+    var confirmPassword = document.getElementById('rnpass').value;
+    if (currentPassword.trim() === '' || newPassword.trim() === '' || confirmPassword.trim() === '') {
+        alert('All password fields are required.');
+        return false;
+    }
+    if (newPassword !== confirmPassword) {
+        alert('New password and confirmation do not match.');
+        return false;
+    }
+    if (currentPassword === newPassword) {
+        alert('The new password must be different from the old password.');
+        return false;
+    }
+    return true;
+}
+</script>
 <?php
-}
-else
-{
-    header("location:../index.php");
-    exit;
-}
+departmentRenderPageEnd();
 ?>
-</body>
-</html>

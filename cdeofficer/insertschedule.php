@@ -1,66 +1,58 @@
 <?php
 include("../connection.php");
-$date=date('Y/m/d');
-?>
-<form action="posteschedule.php" method="post">
-<table  cellpadding="5" border="0">
-<tr><td colspan="2" ><center>Post Module schedule</center></td></tr>
+require("popup_styles.php");
 
-<tr><td><b>Information:</b></td><td>
-<textarea name="infor" required  cols="100" rows="50" style="width: 750px" readonly>
-	
-<?php
-function read_file_docx($filename){
-
-    $striped_content = '';
+function cde_popup_read_docx($filename)
+{
     $content = '';
-
-    if(!$filename || !file_exists($filename)) return false;
+    if (!$filename || !file_exists($filename)) {
+        return false;
+    }
 
     $zip = zip_open($filename);
-
-    if (!$zip || is_numeric($zip)) return false;
+    if (!$zip || is_numeric($zip)) {
+        return false;
+    }
 
     while ($zip_entry = zip_read($zip)) {
-
-        if (zip_entry_open($zip, $zip_entry) == FALSE) continue;
-
-        if (zip_entry_name($zip_entry) != "word/document.xml") continue;
-
+        if (zip_entry_open($zip, $zip_entry) == false) {
+            continue;
+        }
+        if (zip_entry_name($zip_entry) != "word/document.xml") {
+            continue;
+        }
         $content .= zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
-
         zip_entry_close($zip_entry);
-    }// end while
-
+    }
     zip_close($zip);
+
     $content = str_replace('</w:r></w:p></w:tc><w:tc>', " ", $content);
     $content = str_replace('</w:r></w:p>', "\r\n", $content);
-    $striped_content = strip_tags($content);
 
-    return $striped_content;
+    return strip_tags($content);
 }
-$filename = "C:\wamp\www\cde[1]\cdeofficer\Land Admin.docx";// or /var/www/html/file.docx
 
-$content = read_file_docx($filename);
-if($content !== false) {
-
-    echo ($content);
-}
-else {
-    echo 'Couldn\'t the file. Please check that file.';
-}
-$date=date('Y-m-d');
-?>	
-	
-	
-</textarea></td></tr>
-<tr><td>Posted By:</td><td><input type="text" style="width: 300px" name="pb"  value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ደብረ ማርቆስ ዩኒቨርስቲ" readonly/></td></tr>
-<tr><td></td><td></td></tr>
-<tr><td></td>
-<td><input type="submit"  name="submit" value="Send" style="height: 40px;width: 120px;"id="m"/>
-<input type="reset"  name="clear" value="Clear" style="height: 40px;width: 120px;"id="m"/> </td>
-
-</tr>
-</table>
-</form>
-
+$template_path = __DIR__ . '/Land Admin.docx';
+$template_content = cde_popup_read_docx($template_path);
+?>
+<div class="cde-popup-card">
+    <div class="cde-popup-header">
+        <span class="cde-popup-kicker">CDE Officer</span>
+        <h1 class="cde-popup-title">Update Module Preparation Schedule</h1>
+        <p class="cde-popup-copy">Review the generated schedule text before posting it to the module schedule board.</p>
+    </div>
+    <form action="posteschedule.php" method="post" class="cde-popup-form">
+        <label class="cde-popup-field" for="infor">
+            Schedule Information
+            <textarea name="infor" id="infor" class="cde-popup-textarea" required readonly><?php echo $template_content !== false ? htmlspecialchars($template_content, ENT_QUOTES, 'UTF-8') : "Template file could not be loaded. Please check cdeofficer/Land Admin.docx."; ?></textarea>
+        </label>
+        <label class="cde-popup-field" for="pb">
+            Posted By
+            <input type="text" id="pb" name="pb" class="cde-popup-input" value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት" readonly>
+        </label>
+        <div class="cde-popup-actions">
+            <button type="submit" name="submit" class="cde-popup-btn">Send</button>
+            <button type="reset" name="clear" class="cde-popup-btn-secondary">Clear</button>
+        </div>
+    </form>
+</div>

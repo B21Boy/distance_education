@@ -1,67 +1,83 @@
 <?php
 session_start();
 include("../connection.php");
-?>
-<?php
-//mag show sang information sang user nga nag login
-$user_id=$_SESSION['suid'];
-$dept=$_SESSION['sdcode'];
-$result=mysql_query("select * from user where UID='$user_id'")or die(mysql_error);
-$row=mysql_fetch_array($result);
-$FirstName=$row['fname'];
-$middleName=$row['lname'];
+require_once("page_helpers.php");
 
-?>
-<?php
-$date=date("Y-m-d");
-?>
-<form action="newnotificationprocess1.php" method="post" onsubmit='return formValidation()'>
-<table style="border:2px solid black; border-radius:7px;margin-top:6px;box-shadow:4px 1px 3px black;" width="450px" height="200px" align="center">
-<tr bgcolor="" ><td align="center" colspan="4" ><font style="Time New Roman" size='3'>New Message Submit Form</font></td></tr>
-<tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td> <font size="3" face="Times New Roman"> Send By:</td>
-<td><input type="text" name="M_sender" width="172"  value="<?php echo $user_id;?>"ReadOnly>
-</td>
-</tr>
-<tr>
-<td><font size="2" face="Time New Roman">Send To:</td>
-<td>
-<select name="M_Reciever" style="width: 172">
-<option value="" selected>Select User Id</option>
-<?php 
-$result=mysql_query("select UID from account where Role='department_head' or Role='instructor' or Role='collage_dean' or Role='cdeofficer'");
-while ($row = mysql_fetch_array($result)){
-?>
- <option value="<?php echo $row['UID'];?>">
-     <?php echo $row['UID']; ?>
-    </option>
-<?php
+$user_id = isset($_SESSION['suid']) ? trim((string) $_SESSION['suid']) : '';
+$date = date("Y-m-d");
+$recipients = [];
+
+$result = mysqli_query($conn, "SELECT UID FROM account WHERE Role IN ('department_head', 'instructor', 'collage_dean', 'cdeofficer') ORDER BY UID ASC");
+if ($result instanceof mysqli_result) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $uid = trim((string) ($row['UID'] ?? ''));
+        if ($uid !== '') {
+            $recipients[] = $uid;
+        }
+    }
+    mysqli_free_result($result);
 }
-?>        
-</select>
-</td>
-</tr>
- <tr>
-<td> <font size="3" face="Times New Roman"> Message:</td>
-<td>
-<textarea  style="overflow:auto;resize:none" rows="3" cols="19" align="center" name="message" required x-moz-errormessage="Required"autocomplete='off' onkeypress="return letter_validate(event);"></textarea>
-</td>
-</td>
-</tr>
- <tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td> <font size="3" face="Times New Roman"> Date:</td>
-<td>
-<input type="text" name="date_sended" value="<?php echo $date; ?>"ReadOnly>
-</td> 
-</tr>
-<tr>
-<td colspan=2 align=center><br><input type='submit' class="button_example" value="Send" name='submitMain' Onclick="return check(this.form);"/> 
-</form>
-</table>
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New Registrar Message</title>
+<?php registrarRenderStandardStyles(); ?>
+<style>
+body {
+    margin: 0;
+    padding: 14px;
+    background: transparent;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.registrar-popup-card {
+    width: min(100%, 620px);
+    margin: 0 auto;
+}
+</style>
+</head>
+<body>
+<div class="registrar-page-card registrar-popup-card">
+    <div class="registrar-page-header">
+        <span class="registrar-page-eyebrow">Compose Message</span>
+        <h1 class="registrar-page-title">New Notification</h1>
+        <p class="registrar-page-copy">Send a message from the registrar office to academic leaders and instructors in a clear, standard format.</p>
+    </div>
 
+    <form action="newnotificationprocess1.php" method="post" class="registrar-form-grid">
+        <div class="registrar-form-field">
+            <label class="registrar-label" for="message-sender">Send By</label>
+            <input type="text" id="message-sender" name="M_sender" class="registrar-input" value="<?php echo registrarH($user_id); ?>" readonly>
+        </div>
+
+        <div class="registrar-form-field">
+            <label class="registrar-label" for="message-date">Date</label>
+            <input type="text" id="message-date" name="date_sended" class="registrar-input" value="<?php echo registrarH($date); ?>" readonly>
+        </div>
+
+        <div class="registrar-form-field full">
+            <label class="registrar-label" for="message-recipient">Send To</label>
+            <select name="M_Reciever" id="message-recipient" class="registrar-select" required>
+                <option value="">Select user ID</option>
+                <?php foreach ($recipients as $recipient): ?>
+                    <option value="<?php echo registrarH($recipient); ?>"><?php echo registrarH($recipient); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+
+        <div class="registrar-form-field full">
+            <label class="registrar-label" for="message-body">Message</label>
+            <textarea id="message-body" name="message" class="registrar-textarea" rows="5" placeholder="Write the message you want to send" required></textarea>
+        </div>
+
+        <div class="registrar-form-field full">
+            <div class="registrar-actions">
+                <button type="submit" name="submitMain" class="registrar-btn">Send Message</button>
+                <button type="reset" class="registrar-btn-secondary">Clear</button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>

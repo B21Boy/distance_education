@@ -13,7 +13,6 @@ Student page
 <link rel="stylesheet" type="text/css" href="../setting.css">
 <script type="text/javascript" src="../javascript\date_time.js"></script>
 <style>
-/* inline fallback when stylesheet isn't loaded: keep columns, spacing, and proportions */
 .main-row {
     display: flex !important;
     flex-direction: row !important;
@@ -23,8 +22,6 @@ Student page
 .main-row > #left { flex: 0 0 300px !important; }
 .main-row > #content { flex: 1 1 auto !important; }
 .main-row > #sidebar { flex: 0 0 260px !important; }
-
-/* Make footer stick to bottom */
 html, body {
     height: 100%;
     margin: 0;
@@ -44,77 +41,66 @@ html, body {
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {
+    $photo_value = isset($_SESSION['sphoto']) ? trim($_SESSION['sphoto']) : '';
+    $photo_path = $photo_value !== '' ? htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8') : '../images/default.png';
 ?>
 <div id="container">
 
-    <!-- Header -->
     <div id="header">
          <?php require("header.php"); ?>
     </div>
 
-    <!-- Menu -->
     <div id="menu">
         <?php require("menustud.php"); ?>
     </div>
 
-    <!-- Main row: left | center | right -->
     <div class="main-row">
-        <!-- Left Sidebar -->
         <div id="left">
             <?php require("sidemenustud.php"); ?>
         </div>
 
-        <!-- Main Content (center) -->
         <div id="content">
             <div id="contentindex5">
-	<form action="updatephoto.php" method="POST" name="form1" enctype="multipart/form-data">
+    <form action="updatephoto.php" method="POST" name="form1" enctype="multipart/form-data">
 <table bgcolor="#f9fbf9" cellpadding="5" border="0">
-	
-	<tr><td>User Photo</td><td><input type="file" name="photo" required><br></td></tr>
+    
+    <tr><td>User Photo</td><td><input type="file" name="photo" required><br></td></tr>
 <tr><td></td><td><input type="submit" id="submit" name="submit" style="height: 30px; width: 100px;" value="Change">
-<input type="reset" id=id="m" name="validation" style="height: 30px; width: 100px;" value="CANCEL"size="20" >
+<input type="reset" id="m" name="validation" style="height: 30px; width: 100px;" value="CANCEL" size="20" >
 </td></tr>
 
 </table>
 </form>
-	 </div>
+     </div>
         </div>
 
-        <!-- Right Sidebar -->
         <div id="sidebar">
-            <div id="siderightindexphoto">
-                <div id="siderightindexphoto1">
-                    User Profile
-                </div>
-
-
-                <?php
-                echo "<b><br><font color=blue>Welcome:</font><font color=#b00404>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-                ?>
-                <div id="sidebarr">
-                    <ul>
-                        <li><a href="updateprofilephoto.php">Change Photo</a></li>
-                        <li><a href="changepass.php">Change password</a></li>
-                    </ul>
+            <div class="sidebar-panel profile-panel">
+                <div class="sidebar-panel-title">User Profile</div>
+                <div class="sidebar-panel-body">
+                    <?php
+                    echo "<b><br><font color=blue>Welcome:</font><font color=#c1110d>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$photo_path."'width=180px height=160px alt='Student profile photo'></b>";
+                    ?>
+                    <div id="sidebarr">
+                        <ul>
+                            <li><a href="updateprofilephoto.php">Change Photo</a></li>
+                            <li><a href="changepass.php">Change password</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div id="siderightindexadational">
-                <div id="siderightindexadational1">
-                    Social link
-                </div>
-                <div id="siderightindexadational12">
-                    <table>
-                        <tr><td><div id="facebook"></div></td><td>
-                        <p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-                        <tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-                        <tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-                        <tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
+            <div class="sidebar-panel social-panel">
+                <div class="sidebar-panel-title">Social link</div>
+                <div class="sidebar-panel-body">
+                    <a href="https://www.facebook.com/"><span><ion-icon name="logo-facebook"></ion-icon></span>Facebook</a>
+                    <a href="https://www.twitter.com/"><span><ion-icon name="logo-twitter"></ion-icon></span>Twitter</a>
+                    <a href="https://www.youtube.com/"><span><ion-icon name="logo-youtube"></ion-icon></span>YouTube</a>
+                    <a href="https://plus.google.com/"><span><ion-icon name="logo-google"></ion-icon></span>Google++</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
     <div id="footer">
         <?php include("../footer.php"); ?>
     </div>

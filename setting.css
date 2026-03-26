@@ -920,6 +920,9 @@ body.student-portal-page #menubar1 {
 	border-radius: 0 0 18px 18px;
 	background: linear-gradient(135deg, #0d4d7a, #1d7fa4) !important;
 	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+	overflow: visible !important;
+	position: relative;
+	z-index: 30;
 }
 
 body.student-portal-page #menubar1 ul {
@@ -931,14 +934,17 @@ body.student-portal-page #menubar1 ul {
 	margin: 0;
 	padding: 0;
 	list-style: none;
+	overflow: visible !important;
 }
 
 body.student-portal-page #menubar1 ul li {
 	float: none !important;
 	padding: 0 !important;
+	position: relative;
 }
 
-body.student-portal-page #menubar1 ul li a {
+body.student-portal-page #menubar1 ul li a,
+body.student-portal-page #menubar1 ul li .menu-dropdown-toggle {
 	margin: 0 !important;
 	padding: 10px 18px !important;
 	height: auto !important;
@@ -953,14 +959,31 @@ body.student-portal-page #menubar1 ul li a {
 	transition: background-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
 }
 
+body.student-portal-page #menubar1 ul li .menu-dropdown-toggle {
+	border: 0;
+	cursor: pointer;
+}
+
+body.student-portal-page #menubar1 ul li .menu-dropdown-toggle::after {
+	content: "▾";
+	display: inline-block;
+	margin-left: 8px;
+	font-size: 11px;
+}
+
 body.student-portal-page #menubar1 ul li a:hover,
-body.student-portal-page #menubar1 ul li a:focus {
+body.student-portal-page #menubar1 ul li a:focus,
+body.student-portal-page #menubar1 ul li .menu-dropdown-toggle:hover,
+body.student-portal-page #menubar1 ul li .menu-dropdown-toggle:focus,
+body.student-portal-page #menubar1 ul li.menu-dropdown:hover > .menu-dropdown-toggle,
+body.student-portal-page #menubar1 ul li.menu-dropdown:focus-within > .menu-dropdown-toggle {
 	background: #ffffff !important;
 	color: #0f4f79 !important;
 	transform: translateY(-1px);
 }
 
-body.student-portal-page #menubar1 ul li a.active {
+body.student-portal-page #menubar1 ul li a.active,
+body.student-portal-page #menubar1 ul li .menu-dropdown-toggle.active {
 	background: #ffffff !important;
 	color: #0f4f79 !important;
 }
@@ -973,6 +996,86 @@ body.student-portal-page #menubar1 ul li a.has-alert {
 body.student-portal-page #menubar1 ul li a.has-alert.active {
 	background: #fff1a8 !important;
 	color: #523400 !important;
+}
+
+body.student-portal-page #menubar1 ul li.menu-dropdown {
+	position: relative;
+	padding-bottom: 4px !important;
+}
+
+body.student-portal-page #menubar1 ul li .menu-dropdown-menu {
+	position: absolute;
+	top: calc(100% + 4px);
+	left: 50%;
+	display: grid !important;
+	gap: 8px;
+	min-width: 260px;
+	margin: 0;
+	padding: 14px;
+	list-style: none;
+	background: rgba(255, 255, 255, 0.98);
+	border: 1px solid #d8e5f2;
+	border-radius: 18px;
+	box-shadow: 0 20px 40px rgba(15, 51, 84, 0.18);
+	transform: translate(-50%, 8px);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+	z-index: 40;
+}
+
+body.student-portal-page #menubar1 ul li.menu-dropdown::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 0;
+	width: 100%;
+	height: 10px;
+}
+
+body.student-portal-page #menubar1 ul li .menu-dropdown-menu::before {
+	content: "";
+	position: absolute;
+	top: -7px;
+	left: 50%;
+	width: 14px;
+	height: 14px;
+	background: rgba(255, 255, 255, 0.98);
+	border-top: 1px solid #d8e5f2;
+	border-left: 1px solid #d8e5f2;
+	transform: translateX(-50%) rotate(45deg);
+}
+
+body.student-portal-page #menubar1 ul li.menu-dropdown:hover > .menu-dropdown-menu,
+body.student-portal-page #menubar1 ul li.menu-dropdown:focus-within > .menu-dropdown-menu,
+body.student-portal-page #menubar1 ul li.menu-dropdown.is-open > .menu-dropdown-menu {
+	transform: translate(-50%, 0);
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+body.student-portal-page #menubar1 ul li .menu-dropdown-menu li {
+	width: 100%;
+}
+
+body.student-portal-page #menubar1 ul li .menu-dropdown-menu a {
+	display: block;
+	width: 100%;
+	padding: 12px 14px !important;
+	border-radius: 12px;
+	background: #f4f8fd;
+	color: #12395f !important;
+	white-space: normal;
+}
+
+body.student-portal-page #menubar1 ul li .menu-dropdown-menu a:hover,
+body.student-portal-page #menubar1 ul li .menu-dropdown-menu a:focus,
+body.student-portal-page #menubar1 ul li .menu-dropdown-menu a.active {
+	background: #dbeafb !important;
+	color: #0f4f79 !important;
+	transform: none;
 }
 
 .student-header-inner {
@@ -1847,6 +1950,34 @@ body.student-portal-page #sidebar1.student-side-panel > .student-side-nav > li >
 		padding: 16px;
 	}
 
+	body.student-portal-page #menubar1 ul li.menu-dropdown {
+		width: 100%;
+	}
+
+	body.student-portal-page #menubar1 ul li .menu-dropdown-toggle {
+		width: 100%;
+	}
+
+	body.student-portal-page #menubar1 ul li .menu-dropdown-menu {
+		position: static;
+		left: auto;
+		min-width: 0;
+		width: 100%;
+		margin-top: 8px;
+		transform: none;
+		opacity: 1;
+		visibility: visible;
+		pointer-events: auto;
+	}
+
+	body.student-portal-page #menubar1 ul li.menu-dropdown::after {
+		display: none;
+	}
+
+	body.student-portal-page #menubar1 ul li .menu-dropdown-menu::before {
+		display: none;
+	}
+
 	.student-quick-grid {
 		grid-template-columns: 1fr;
 	}
@@ -1856,6 +1987,4 @@ body.student-portal-page #sidebar1.student-side-panel > .student-side-nav > li >
 		padding: 18px !important;
 	}
 }
-
-
 

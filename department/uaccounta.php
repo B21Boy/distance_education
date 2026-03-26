@@ -1,58 +1,72 @@
 <?php
 session_start();
 include("../connection.php");
- $dd=$_SESSION['suid'];
-if(isset($_POST['submit']))
-			  {
-function encryptIt( $q ) 
-{
-$cryptKey='qJB0rGtIn5UB1xG03efyCp';
-$qEncoded= base64_encode( mcrypt_encrypt( MCRYPT_RIJNDAEL_256, md5( $cryptKey ), $q, MCRYPT_MODE_CBC, md5( md5( $cryptKey ) ) ) );
-return( $qEncoded );
+
+if (!isset($_SESSION['suid'])) {
+    header("location: ../index.php");
+    exit;
 }
-			  $opass=encryptIt($_POST['opass']);
-			  $npass=$_POST['npass'];
-			  $rnpass=$_POST['rnpass'];
-			  $npa=encryptIt($npass);
-			  $rnpa=encryptIt($rnpass);
-			  if(empty($opass)||empty($npass)||empty($rnpass)){
-			echo"invalid password";
-			}
-	 $sql="select * from account WHERE UID='$dd'";
-	     $result = mysql_query($sql);
-       $records = mysql_num_rows($result);
-       $myrow = mysql_fetch_array($result);
-       $staa=$myrow['Password'];
-			  $ps=$staa;
-			  if($npass==$rnpass)
-			  {
-			  	if($ps==$opass){
-			  		    	if($rnpass==$ps){
-echo '<script type="text/javascript">alert("the old password not used as the new password!");
-window.location=\'changepass.php\';</script>';
-				}
-				else
-				 {
-		$sql="update account set Password='$npa' WHERE UID='$dd'";
-			  
-			 if( mysql_query($sql)){
-echo '<script type="text/javascript">alert("password changed sucessfull!");
-window.location=\'changepass.php\';</script>';
-			  }
-			  }}
-			  else{
-echo '<script type="text/javascript">alert("old password is incorrect");
-window.location=\'changepass.php\';</script>';
-			  }
-			    if(!$sql){
-			  	echo '<script type="text/javascript">alert("old password is incorrect");
-window.location=\'changepass.php\';</script>';
-			  }
-			  }
-			  else{
-echo '<script type="text/javascript">alert("password not mached");
-window.location=\'changepass.php\';</script>';
-			  }
+
+if (!isset($_POST['submit'])) {
+    header("location: changepass.php");
+    exit;
 }
-echo mysql_error();
+
+$userId = trim((string) $_SESSION['suid']);
+$oldPassword = trim((string) ($_POST['opass'] ?? ''));
+$newPassword = trim((string) ($_POST['npass'] ?? ''));
+$confirmPassword = trim((string) ($_POST['rnpass'] ?? ''));
+
+if ($oldPassword === '' || $newPassword === '' || $confirmPassword === '') {
+    header("location: changepass.php?status=empty");
+    exit;
+}
+
+if ($newPassword !== $confirmPassword) {
+    header("location: changepass.php?status=password-mismatch");
+    exit;
+}
+
+if ($oldPassword === $newPassword) {
+    header("location: changepass.php?status=same-password");
+    exit;
+}
+
+$stmt = mysqli_prepare($conn, "SELECT Password FROM account WHERE UID = ? LIMIT 1");
+if (!$stmt) {
+    header("location: changepass.php?status=error");
+    exit;
+}
+
+mysqli_stmt_bind_param($stmt, 's', $userId);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$row = $result instanceof mysqli_result ? mysqli_fetch_assoc($result) : null;
+if ($result instanceof mysqli_result) {
+    mysqli_free_result($result);
+}
+mysqli_stmt_close($stmt);
+
+$currentPassword = isset($row['Password']) ? trim((string) $row['Password']) : '';
+if ($currentPassword === '' || $currentPassword !== $oldPassword) {
+    header("location: changepass.php?status=old-password");
+    exit;
+}
+
+$updateStmt = mysqli_prepare($conn, "UPDATE account SET Password = ? WHERE UID = ?");
+if (!$updateStmt) {
+    header("location: changepass.php?status=error");
+    exit;
+}
+
+mysqli_stmt_bind_param($updateStmt, 'ss', $newPassword, $userId);
+$updated = mysqli_stmt_execute($updateStmt);
+mysqli_stmt_close($updateStmt);
+
+if ($updated) {
+    $_SESSION['spw'] = $newPassword;
+}
+
+header("location: changepass.php?status=" . ($updated ? 'success' : 'error'));
+exit;
 ?>

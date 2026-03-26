@@ -1,66 +1,56 @@
+<?php
+session_start();
+include('../connection.php');
+require_once('page_helpers.php');
 
-  		<?php
-		
-class assignment{
-			var $con;
-			var $query;
-			var $res;
-			var $destination;
-			var $asno;
-			var $asv;
-			var $ccode;
-			var $cname;
-			var $dept;
-			var $scyear;
-			var $sem;
-			var $sdate;
-			var $fileName;
-			var $tmpName;
-			var $fileSize;
-			var $fileType;
-function connects()
-{
-			$this->con=mysql_connect("localhost","root","");
-			mysql_select_db("cde");
+if (!instructorIsLoggedIn()) {
+    header('location:../index.php');
+    exit;
 }
-function query()
-{
-				$this->destination = "assignment\\" . $_FILES["file"]["name"];//****************upload page******//
-				$this->uid=$_POST['uid'];
-				$this->asno=$_POST['asno'];
-				$this->asv=$_POST['asv'];
-				$this->ccode=$_POST['cc']; 
-				$this->cname=$_POST['cn'];				
-				$this->dept=$_POST['dc'];	 
-				$this->scyear=$_POST['scy'];	
-				$this->sem=$_POST['sem'];	 
-				$this->sdate=$_POST['date'];		 
-				$this->fileName=$_FILES['file']['name'];
-				$this->tmpName=$_FILES['file']['tmp_name'];
-				$this->fileSize=$_FILES['file']['size'];
-				$this->fileType=$_FILES['file']['type'];
-				
-$this->query="insert into assignment values(' ','$this->uid','$this->asno','$this->asv','$this->ccode','$this->cname','$this->dept','$this->scyear','$this->sem','$this->sdate','$this->fileName','$this->tmpName','$this->fileSize','$this->fileType','inst','no')";
-				$this->res=mysql_query($this->query,$this->con);
-    }
-function display()
-{
-			if(mysql_affected_rows()==1)
-			{
-$x='<script type="text/javascript">alert("Successfully Uploded !!!");
-window.location=\'uploadmodule.php\';</script>';
-echo $x;
-			}
-			else
-			{
-die("<script>alert('Error! not Uploded!');
-window.location=\'uploadmodule.php\';</script>" . mysql_error());	   	
-			}
-			}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('location:uploadmodule.php');
+    exit;
 }
-$as=new assignment();
-$as->connects();
-$as->query();
-$as->display();
-?>
- 
+
+$uid = trim((string) ($_POST['uid'] ?? ''));
+$asno = trim((string) ($_POST['asno'] ?? ''));
+$asv = trim((string) ($_POST['asv'] ?? ''));
+$ccode = trim((string) ($_POST['cc'] ?? ''));
+$cname = trim((string) ($_POST['cn'] ?? ''));
+$dept = trim((string) ($_POST['dc'] ?? ''));
+$scyear = trim((string) ($_POST['scy'] ?? ''));
+$sem = trim((string) ($_POST['sem'] ?? ''));
+$sdate = trim((string) ($_POST['date'] ?? ''));
+
+if ($uid === '' || $asno === '' || $asv === '' || $ccode === '' || $cname === '' || $dept === '' || $scyear === '' || $sem === '' || $sdate === '' || !isset($_FILES['file'])) {
+    exit("<script>alert('Error! missing assignment data.');window.location='uploadmodule.php';</script>");
+}
+
+$fileName = trim((string) ($_FILES['file']['name'] ?? ''));
+$tmpName = trim((string) ($_FILES['file']['tmp_name'] ?? ''));
+$fileSize = (string) ($_FILES['file']['size'] ?? '0');
+$fileType = trim((string) ($_FILES['file']['type'] ?? ''));
+
+if ($fileName === '' || $tmpName === '') {
+    exit("<script>alert('Error! file not selected.');window.location='uploadmodule.php';</script>");
+}
+
+$sql = "INSERT INTO assignment VALUES ('', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'inst', 'no')";
+$stmt = mysqli_prepare($conn, $sql);
+
+if (!$stmt) {
+    exit("<script>alert('Error! not uploaded!');window.location='uploadmodule.php';</script>");
+}
+
+mysqli_stmt_bind_param($stmt, 'sssssssssssss', $uid, $asno, $asv, $ccode, $cname, $dept, $scyear, $sem, $sdate, $fileName, $tmpName, $fileSize, $fileType);
+$ok = mysqli_stmt_execute($stmt);
+mysqli_stmt_close($stmt);
+
+if ($ok) {
+    echo "<script>alert('Successfully Uploaded !!!');window.location='uploadmodule.php';</script>";
+    exit;
+}
+
+$error = mysqli_error($conn);
+exit("<script>alert('Error! not uploaded!');window.location='uploadmodule.php';</script>" . instructorH($error));

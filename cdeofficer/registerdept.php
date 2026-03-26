@@ -1,17 +1,12 @@
 <?php
 include '../connection.php';
 //include("cdeofficerpage.php");
-$id=$_POST['dc'];
-$name=$_POST['dn'];
-$no=$_POST['loc'];
-$an=$_POST['cc'];
-$con= mysql_connect('localhost','root','');
-if(!$con)
-{
-die('could not be connect :' .mysql_error());
-}
+$id=mysql_real_escape_string($_POST['dc']);
+$name=mysql_real_escape_string($_POST['dn']);
+$no=mysql_real_escape_string($_POST['loc']);
+$an=mysql_real_escape_string($_POST['cc']);
 $sql="INSERT INTO department VALUES('$id','$name','$no','$an')";
-$result=mysql_query($sql,$con);
+$result=mysql_query($sql);
 if(!$result)
 {
 $x='<script type="text/javascript">alert("Error! not registerd!");
@@ -24,5 +19,4 @@ $x='<script type="text/javascript">alert("Successfully Registerd !!!");
 window.location=\'managedept.php\';</script>';
 echo $x;
 }
-mysql_close($con);
 ?>
