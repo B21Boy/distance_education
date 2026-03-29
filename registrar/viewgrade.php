@@ -11,7 +11,7 @@ if (!registrarIsLoggedIn()) {
 $photo_path = registrarCurrentPhotoPath();
 $departments = registrarFetchDepartments($conn);
 $class_years = ['1st', '2nd', '3rd', '4th', '5th'];
-$semesters = ['I', 'II', 'III'];
+$semesters = ['I', 'II',];
 $sections = ['A', 'B', 'C', 'D', 'E', 'F'];
 ?>
 <!DOCTYPE html>
@@ -38,7 +38,7 @@ $sections = ['A', 'B', 'C', 'D', 'E', 'F'];
                     <h1 class="registrar-page-title">Prepare Grade Report</h1>
                     <p class="registrar-page-copy">Select the department, class year, semester, and section to review approved student grades and generate the report.</p>
                 </div>
-                <form action="viewgradeall.php" method="post" class="registrar-form-grid">
+                <form action="viewgradeall.php" method="post" class="registrar-form-grid" id="viewgrade-search-form">
                     <div class="registrar-form-field">
                         <label class="registrar-label" for="viewgrade-department">Department</label>
                         <select name="dpt" id="viewgrade-department" class="registrar-select" required>
@@ -89,5 +89,75 @@ $sections = ['A', 'B', 'C', 'D', 'E', 'F'];
 <div id="footer"><?php include("../footer.php"); ?></div>
 </div>
 <?php registrarRenderIconScripts(); ?>
+<script>
+(function () {
+    var form = document.getElementById('viewgrade-search-form');
+    if (!form) {
+        return;
+    }
+
+    function encodeForm(formElement) {
+        var pairs = [];
+        var elements = formElement.elements;
+
+        for (var i = 0; i < elements.length; i += 1) {
+            var field = elements[i];
+            if (!field.name || field.disabled) {
+                continue;
+            }
+
+            var type = (field.type || '').toLowerCase();
+            if ((type === 'checkbox' || type === 'radio') && !field.checked) {
+                continue;
+            }
+
+            if (type === 'select-multiple') {
+                for (var j = 0; j < field.options.length; j += 1) {
+                    if (field.options[j].selected) {
+                        pairs.push(encodeURIComponent(field.name) + '=' + encodeURIComponent(field.options[j].value));
+                    }
+                }
+                continue;
+            }
+
+            pairs.push(encodeURIComponent(field.name) + '=' + encodeURIComponent(field.value));
+        }
+
+        return pairs.join('&');
+    }
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        try {
+            window.sessionStorage.setItem('registrar_viewgrade_autoprint', '1');
+        } catch (error) {
+            // Ignore browsers that block sessionStorage.
+        }
+
+        var request = new XMLHttpRequest();
+        try {
+            request.open('POST', form.action, false);
+            request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+            request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            request.send(encodeForm(form));
+        } catch (error) {
+            HTMLFormElement.prototype.submit.call(form);
+            return;
+        }
+
+        if (request.status >= 200 && request.status < 300 && request.responseText) {
+            document.open();
+            document.write(request.responseText);
+            document.close();
+            window.focus();
+            window.print();
+            return;
+        }
+
+        HTMLFormElement.prototype.submit.call(form);
+    });
+})();
+</script>
 </body>
 </html>

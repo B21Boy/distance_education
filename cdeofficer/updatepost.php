@@ -28,6 +28,19 @@ CDE Officer page
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {
+    function cde_notice_text(string $value): string
+    {
+        return htmlspecialchars(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_QUOTES, 'UTF-8');
+    }
+
+    $records = array();
+    $result = mysqli_query($conn, "SELECT * FROM postss WHERE status='register' ORDER BY dates DESC, no DESC");
+    if ($result instanceof mysqli_result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $records[] = $row;
+        }
+        mysqli_free_result($result);
+    }
 ?>
 <div id="container">
 <div id="header">
@@ -43,64 +56,50 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
 <div class="main-row">
 <div id="left">
 <?php
-	 require("sidemenucdeo.php");
+     require("sidemenucdeo.php");
 ?>
-	
+
 </div><div id="content">
-	<div id="contentindex5">
-
-
-		<?php
-		include('ps_pagination.php');
-	$conn = mysql_connect('localhost','root','');
-	if(!$conn) die("Failed to connect to database!");
-	$status = mysql_select_db('cde', $conn);
-	if(!$status) die("Failed to select database!");
-?>
-
-	<fieldset><legend>Notice Bored</legend>
-<?php
-
-	$date=date('Y-m-d');
-	$sql1=mysql_query("SELECT * from postss where status='register' ORDER BY dates ASC") or die(mysql_error());	
-	$ro=mysql_num_rows($sql1);
-	
-		$sql="SELECT * from postss where status='register' ORDER BY dates DESC";
-	$pager = new PS_Pagination($conn,$sql,1,10);
-	$rs = $pager->paginate();
-	if($ro!='0')
-	{
-	while($row=mysql_fetch_array($rs))
-	{
-            echo"<p align='right'><b>Date:</b>"."<u>".$row['dates']."</u>"."</p>";
-            echo"<font face='monotype corsiva' size='7' color='#347098'><center>"."<u>".$row['Title']."</u>"."</center>"."</p>";
-             
-           	
-			echo"<font face='monotype corsiva' size='5' color='#0c395f'><center>".$row['types']."</center>"."</p>"."</font>";
-			echo "<font  size='3' color='#00000b'>".$row['info'];
-           echo"<font size='4' color='#1046a0'><center>".$row['posted_by']."</center>"."</p>";
-echo '<div align="right"><a style=font-size:30px rel="facebox" href="updatepostreg.php?id='.$row['no'].'">Update Registration Date</a></div>';	
-
-	}
-	}
-	else
-	{
-		echo "There No Post Notice!!!";
-		?>
-		<a rel="facebox" href="post.php" style="margin-left: 400px">Post Registration Date</a>
-	<?php	
-	}
-echo '<div style="text-align:center;font-size:25px;color:red;bgcolor:blue">'.$pager->renderFullNav().'</div>';
-?>
-</fieldset>
-</div></div>
-	 <div id="sidebar">
+    <div id="contentindex5">
+        <div class="admin-page-shell">
+            <div class="admin-page-header">
+                <div>
+                    <span class="admin-page-kicker">CDE Officer</span>
+                    <h1 class="admin-page-title">Update Registration Post</h1>
+                    <p class="admin-page-copy">Read registration-date notices from the database and update the current posted records from this page.</p>
+                </div>
+            </div>
+            <div class="admin-page-panel">
+                <div class="admin-page-toolbar">
+                    <span class="page-stat-chip"><?php echo count($records); ?> registration notice<?php echo count($records) === 1 ? '' : 's'; ?></span>
+                    <a rel="facebox" href="post.php" class="page-nav-link is-primary">Post Registration Date</a>
+                </div>
+                <?php if (!empty($records)) { ?>
+                    <?php foreach ($records as $row) { ?>
+                    <div class="admin-page-status-card" style="margin-bottom: 18px;">
+                        <p style="margin: 0 0 8px; text-align: right;"><strong>Date:</strong> <?php echo htmlspecialchars((string) $row['dates'], ENT_QUOTES, 'UTF-8'); ?></p>
+                        <h2 style="margin: 0 0 10px; color: #12395f;"><?php echo cde_notice_text((string) $row['Title']); ?></h2>
+                        <p style="margin: 0 0 10px; color: #1e5788; font-weight: 700;"><?php echo cde_notice_text((string) $row['types']); ?></p>
+                        <div style="white-space: pre-wrap; color: #17364e;"><?php echo cde_notice_text((string) $row['info']); ?></div>
+                        <p style="margin: 14px 0 0; text-align: right; color: #1046a0; font-weight: 700;"><?php echo cde_notice_text((string) $row['posted_by']); ?></p>
+                        <div style="margin-top: 14px; text-align: right;">
+                            <a rel="facebox" href="updatepostreg.php?id=<?php echo urlencode((string) $row['no']); ?>" class="page-nav-link is-primary">Update Registration Date</a>
+                        </div>
+                    </div>
+                    <?php } ?>
+                <?php } else { ?>
+                <div class="admin-page-empty">No registration-date notice is available yet.</div>
+                <?php } ?>
+            </div>
+        </div>
+    </div></div>
+     <div id="sidebar">
 <?php
     require("officer_sidebar.php");
 ?>
-	 </div>
-	 </div>
-	 <div id="footer">
+     </div>
+     </div>
+     <div id="footer">
 <?php
 include("../footer.php");
 ?>

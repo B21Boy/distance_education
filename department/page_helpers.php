@@ -1,11 +1,47 @@
 <?php
 if (!isset($conn) || !($conn instanceof mysqli)) {
-    require_once("../connection.php");
+    require_once(__DIR__ . "/../connection.php");
 }
 
 function departmentIsLoggedIn(): bool
 {
     return isset($_SESSION['sun'], $_SESSION['spw'], $_SESSION['sfn'], $_SESSION['sln'], $_SESSION['srole']);
+}
+
+function departmentSyncDepartmentSession(): void
+{
+    if (!empty($_SESSION['sdc']) || empty($_SESSION['suid'])) {
+        return;
+    }
+
+    global $conn;
+    if (!isset($conn) || !($conn instanceof mysqli)) {
+        require_once(__DIR__ . "/../connection.php");
+    }
+
+    if (!isset($conn) || !($conn instanceof mysqli)) {
+        return;
+    }
+
+    $userId = trim((string) $_SESSION['suid']);
+    if ($userId === '') {
+        return;
+    }
+
+    $stmt = mysqli_prepare($conn, "SELECT d_code, c_code FROM user WHERE UID = ? LIMIT 1");
+    if (!$stmt) {
+        return;
+    }
+
+    mysqli_stmt_bind_param($stmt, 's', $userId);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_bind_result($stmt, $departmentCode, $collegeCode);
+    if (mysqli_stmt_fetch($stmt)) {
+        $_SESSION['sdc'] = trim((string) ($departmentCode ?? ''));
+        $_SESSION['sdcode'] = trim((string) ($departmentCode ?? ''));
+        $_SESSION['sccode'] = trim((string) ($collegeCode ?? ''));
+    }
+    mysqli_stmt_close($stmt);
 }
 
 function departmentRequireLogin(): void
@@ -14,6 +50,8 @@ function departmentRequireLogin(): void
         header("location:../index.php");
         exit;
     }
+
+    departmentSyncDepartmentSession();
 }
 
 function departmentH($value): string
@@ -121,6 +159,63 @@ function departmentFetchPaymentRows(mysqli $conn, string $userId, string $type):
     return $rows;
 }
 
+function departmentFetchCourses(mysqli $conn): array
+{
+    $departmentCode = departmentCurrentDepartmentCode();
+    $departmentName = departmentCurrentDepartmentName($conn);
+    $userId = departmentCurrentUserId();
+
+    $conditions = [];
+    $params = [];
+    $types = '';
+
+    if ($departmentName !== '') {
+        $conditions[] = 'department = ?';
+        $params[] = $departmentName;
+        $types .= 's';
+    }
+
+    if ($departmentCode !== '' && $departmentCode !== $departmentName) {
+        $conditions[] = 'department = ?';
+        $params[] = $departmentCode;
+        $types .= 's';
+    }
+
+    if ($userId !== '') {
+        $conditions[] = 'Sender_name = ?';
+        $params[] = $userId;
+        $types .= 's';
+    }
+
+    if (!$conditions) {
+        return [];
+    }
+
+    $sql = "SELECT DISTINCT course_code, cname, chour, ayear, department
+            FROM course
+            WHERE " . implode(' OR ', $conditions) . "
+            ORDER BY course_code ASC";
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        return [];
+    }
+
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    $rows = [];
+    if ($result instanceof mysqli_result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $rows[] = $row;
+        }
+        mysqli_free_result($result);
+    }
+
+    mysqli_stmt_close($stmt);
+    return $rows;
+}
+
 function departmentStatusBanner(string $status, array $messages): string
 {
     if ($status === '' || !isset($messages[$status])) {
@@ -205,6 +300,41 @@ body.student-portal-page .department-side-menu-panel {
     overflow: hidden;
     background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%) !important;
 }
+body.student-portal-page #sidebar1.department-side-menu-panel {
+    height: auto !important;
+    overflow: visible !important;
+}
+body.student-portal-page #sidebar1.department-side-menu-panel > .student-side-nav > li {
+    display: grid;
+    gap: 12px;
+}
+body.student-portal-page #sidebar1.department-side-menu-panel ul ul {
+    position: static !important;
+    left: auto !important;
+    width: 100% !important;
+    margin: 12px 0 0 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    z-index: auto !important;
+}
+body.student-portal-page #sidebar1.department-side-menu-panel li:hover > ul {
+    position: static !important;
+    left: auto !important;
+    width: 100% !important;
+    margin: 12px 0 0 !important;
+    transform: none !important;
+}
+body.student-portal-page #sidebar1.department-side-menu-panel li + li {
+    margin-top: 6px !important;
+}
+body.student-portal-page #sidebar1.department-side-menu-panel li:hover > a {
+    background: #eaf4ff !important;
+    color: #17364e !important;
+}
+body.student-portal-page #sidebar1.department-side-menu-panel li:hover > div {
+    color: inherit !important;
+}
 body.student-portal-page #contentindex5 {
     width: 100% !important;
     margin: 0 !important;
@@ -222,124 +352,114 @@ body.student-portal-page .department-page-shell {
     box-shadow: 0 24px 50px rgba(18, 53, 94, 0.10);
 }
 body.student-portal-page .sidebar-panel {
-    margin-bottom: 24px;
-    border: 1px solid #dbe6f2;
-    border-radius: 24px;
+    margin-bottom: 22px;
     overflow: hidden;
-    background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
-    box-shadow: 0 22px 44px rgba(14, 49, 86, 0.12);
+    border: 1px solid #d9e4ef;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #f6f9fd 100%);
+    box-shadow: 0 18px 32px rgba(16, 46, 74, 0.08);
 }
 body.student-portal-page .sidebar-panel:last-child {
     margin-bottom: 0;
 }
 body.student-portal-page .sidebar-panel-title {
-    padding: 18px 22px;
-    background: linear-gradient(135deg, #114677 0%, #1e6ea5 100%);
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #12395f 0%, #245f96 100%);
     color: #ffffff;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 body.student-portal-page .sidebar-panel-body {
-    padding: 18px 20px;
+    padding: 22px;
+    color: #35516d;
 }
 body.student-portal-page .sidebar-profile-card {
     display: grid;
-    grid-template-columns: 150px minmax(0, 1fr);
-    gap: 18px;
-    align-items: center;
-}
-body.student-portal-page .sidebar-profile-content {
-    display: grid;
-    gap: 10px;
+    gap: 16px;
+    text-align: center;
 }
 body.student-portal-page .sidebar-profile-kicker {
-    margin: 0;
-    color: #2a6596;
-    font-size: 13px;
-    font-weight: 800;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #deebfb;
+    color: #1e5788;
+    font-size: 12px;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 body.student-portal-page .sidebar-profile-name {
     margin: 0;
-    display: grid;
-    gap: 4px;
+    line-height: 1.7;
+    font-size: 16px;
+    color: #163b60;
 }
 body.student-portal-page .sidebar-profile-name strong {
-    color: #153a61;
-    font-size: 21px;
+    color: #0f2f4e;
 }
 body.student-portal-page .sidebar-profile-name span {
-    color: #6a8199;
-    font-size: 14px;
+    color: #b01d1d;
     font-weight: 700;
 }
 body.student-portal-page .sidebar-profile-role {
-    margin: 0;
-    color: #50677f;
+    margin: -8px 0 0;
+    color: #668097;
     font-size: 14px;
-    line-height: 1.6;
 }
 body.student-portal-page .profile-thumb {
-    width: 150px;
-    max-width: 150px;
-    height: 150px;
+    display: block;
+    width: 220px;
+    height: 190px;
+    margin: 0 auto;
     object-fit: cover;
-    border-radius: 22px;
-    border: 1px solid #dbe6f2;
-    background: #eef4fb;
-    justify-self: center;
-    margin: 0;
+    border-radius: 18px;
+    border: 1px solid #d6e3ef;
+    background: #edf3f9;
 }
 body.student-portal-page .sidebar-action-list,
 body.student-portal-page .sidebar-social-links {
-    margin: 16px 0 0;
-    padding: 0;
-    list-style: none;
     display: grid;
     gap: 12px;
-}
-body.student-portal-page .sidebar-action-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-body.student-portal-page .sidebar-social-links {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 body.student-portal-page .sidebar-action-list a,
 body.student-portal-page .sidebar-social-links a {
     display: flex;
     align-items: center;
-    gap: 14px;
-    min-height: 48px;
-    padding: 12px 14px;
-    border: 1px solid #d9e5f1;
-    border-radius: 16px;
-    background: #f8fbff;
-    color: #173f67;
-    font-size: 14px;
-    font-weight: 700;
+    gap: 12px;
+    padding: 13px 15px;
+    border-radius: 14px;
     text-decoration: none;
-    transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+    font-size: 15px;
+    font-weight: 700;
+    color: #18466f;
+    background: #edf4fb;
+    transition: background-color 0.18s ease, transform 0.18s ease;
 }
 body.student-portal-page .sidebar-action-list a:hover,
 body.student-portal-page .sidebar-social-links a:hover {
+    background: #dbeafb;
     transform: translateY(-1px);
-    background: #edf5ff;
-    border-color: #b9cee7;
 }
 body.student-portal-page .sidebar-social-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     color: #ffffff;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.02em;
+    text-transform: uppercase;
     flex-shrink: 0;
 }
 body.student-portal-page .department-calendar-panel #sidedate {
@@ -644,13 +764,9 @@ body.student-portal-page .department-pagination a:hover {
         grid-column: 1 / -1;
         padding-right: 0 !important;
     }
-    body.student-portal-page .sidebar-profile-card {
-        grid-template-columns: 130px minmax(0, 1fr);
-    }
     body.student-portal-page .profile-thumb {
-        width: 130px;
-        max-width: 130px;
-        height: 130px;
+        width: 190px;
+        height: 170px;
     }
 }
 @media (max-width: 860px) {
@@ -669,15 +785,9 @@ body.student-portal-page .department-pagination a:hover {
         grid-template-columns: 1fr;
         margin: 12px 5px 16px !important;
     }
-    body.student-portal-page .sidebar-profile-card,
-    body.student-portal-page .sidebar-action-list,
-    body.student-portal-page .sidebar-social-links {
-        grid-template-columns: 1fr;
-    }
     body.student-portal-page .profile-thumb {
-        width: 150px;
-        max-width: 150px;
-        height: 150px;
+        width: 180px;
+        height: 160px;
     }
     body.student-portal-page .department-page-shell {
         padding: 22px 18px;

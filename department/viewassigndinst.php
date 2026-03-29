@@ -1,148 +1,143 @@
-
 <?php
 session_start();
 include("../connection.php");
-?>
-<html>
-<head>
-<script src="theme.js"></script>
-<title>
-Department head page
-</title>
-<link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript\date_time.js"></script>
-</head>
-<body class="light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
-?>
-<div id="container">
+require_once("page_helpers.php");
 
-<table><tr><td>
-<?php
-    require("header.php");
-?>
-</td></tr><tr><td colspan="3">
-<?php
-    require("menudepthead.php");
-?>
-</td></tr>
-<tr><td>
-<?php
-	 require("sidemenudepthead.php");
-?>
-	
-</td><td>
-	<div id="contentindex5">
+departmentRequireLogin();
 
+$departmentCode = trim((string) ($_GET['id'] ?? departmentCurrentDepartmentCode()));
+$currentDepartmentCode = departmentCurrentDepartmentCode();
+$departmentName = '';
+$assignments = [];
 
-	<?php
-	//Include the PS_Pagination id
-		include('ps_pagination.php');
-	
-	//Connect to mysql db
-	$conn = mysql_connect('localhost','root','');
-	if(!$conn) die("Failed to connect to database!");
-	$status = mysql_select_db('cde', $conn);
-	if(!$status) die("Failed to select database!");
-	
-	$dept=$_GET['id'];
-	$result1 = mysql_query("SELECT * FROM department where Dcode='$dept'");
-$row = mysql_fetch_array($result1);
-$dcode=$row['DName'];
-?>
-<br/>
-<table cellpadding="1" cellspacing="1" id="resultTable" >
-						<thead>
-							<tr>
-								<th  style="border-left: 1px solid #C1DAD7">course<br>code </th>
-								<th  style="border-left: 1px solid #C1DAD7">course<br>Title </th>
-								<th  style="border-left: 1px solid #C1DAD7">instructor<br>name</th>
-								<th  style="border-left: 1px solid #C1DAD7">department</th> 
-								<th>section</th>
-								<th>Student<br>class<br>year</th>
-								<th>semister</th>
-								<th>Credit<br>Hour</th>
-								<th>Year</th>
-								<th>Update</th>
-							</tr>
-						</thead>
-						<tbody>
-						<?php
-							
-							$result =mysql_query("SELECT * FROM course where department='$dcode'");
-							while($row = mysql_fetch_array($result))
-								{
-									$cc=$row['course_code'];
-									$result1 = mysql_query("SELECT * FROM assign_instructor where corse_code='$cc'");
-							       while($row1 = mysql_fetch_array($result1))
-						          {
-							
-									echo '<tr class="record">';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row1['corse_code'].'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row1['cname'].'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row1['Iname'].'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row1['department'].'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row1['section'].'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row1['Student_class_year'].'</td>';
-									echo '<td style="border-left: 1px solid #C1DAD7;">'.$row1['semister'].'</td>';
-							
-									echo '<td><div align="right">'.$row['chour'].'</div></td>';
-									echo '<td><div align="right">'.$row['ayear'].'</div></td>';
-echo '<td><div align="center"><a rel="facebox" href="assign_course_instructorSu.php?id='.$row1['corse_code'].'">Update</a></div></td>';
-									echo '</tr>';
-								}
-								}
-				
-							?> 
-						</tbody>
-					</table>
-					</div></td>
-	 <td>
-	 <div id="siderightindexphoto">
-	 <div id="siderightindexphoto1">
-	 User Profile
-	 </div>
-	 
-		
-	 <?php
-echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-?>
-<div id="sidebarr">
-<ul>
- <li><a href="#.html">Change Photo</a></li>
-<li><a href="changepass.php">Change password</a></li>
-	 </ul>
-</div>
-	 </div>
-	 <div id="siderightindexadational">
-	 <div id="siderightindexadational1">
-	 Another link 
-	 </div>
-	 <div id="siderightindexadational12">
-	 <table>
-	 <tr><td><div id="facebook"></div></td><td>
-	<p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-	<tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-	<tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-	<tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-	</div>
-	 </div>
-	  </td>
-	 </tr>
-	 <tr><td>
-<?php
-include("../footer.php");
-?>
-</td></tr>
-
-</div>
-</table>
-<?php
+if ($departmentCode !== '') {
+    $departmentStmt = mysqli_prepare($conn, "SELECT DName FROM department WHERE Dcode = ? LIMIT 1");
+    if ($departmentStmt) {
+        mysqli_stmt_bind_param($departmentStmt, 's', $departmentCode);
+        mysqli_stmt_execute($departmentStmt);
+        mysqli_stmt_bind_result($departmentStmt, $resolvedDepartmentName);
+        if (mysqli_stmt_fetch($departmentStmt)) {
+            $departmentName = trim((string) $resolvedDepartmentName);
+        }
+        mysqli_stmt_close($departmentStmt);
+    }
 }
-else
-header("location:../index.php");
+
+if ($departmentName === '' && $currentDepartmentCode !== '') {
+    $departmentName = departmentCurrentDepartmentName($conn);
+}
+
+if ($departmentName !== '' || $departmentCode !== '') {
+    $filters = [];
+    $params = [];
+    $types = '';
+
+    if ($departmentName !== '') {
+        $filters[] = '(ai.department = ? OR c.department = ?)';
+        $params[] = $departmentName;
+        $params[] = $departmentName;
+        $types .= 'ss';
+    }
+
+    if ($departmentCode !== '' && $departmentCode !== $departmentName) {
+        $filters[] = 'c.department = ?';
+        $params[] = $departmentCode;
+        $types .= 's';
+    }
+
+    $sql = "SELECT ai.no, ai.corse_code, ai.cname, ai.Iname, ai.department, ai.section,
+                   ai.Student_class_year, ai.semister, ai.chour, ai.ayear,
+                   COALESCE(c.chour, ai.chour) AS course_chour,
+                   COALESCE(c.ayear, ai.ayear) AS course_ayear
+            FROM assign_instructor ai
+            LEFT JOIN course c ON c.course_code = ai.corse_code";
+    if ($filters) {
+        $sql .= " WHERE " . implode(' OR ', $filters);
+    }
+    $sql .= " ORDER BY ai.corse_code ASC";
+
+    $stmt = mysqli_prepare($conn, $sql);
+    if ($stmt) {
+        if ($types !== '') {
+            mysqli_stmt_bind_param($stmt, $types, ...$params);
+        }
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if ($result instanceof mysqli_result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $assignments[] = $row;
+            }
+            mysqli_free_result($result);
+        }
+        mysqli_stmt_close($stmt);
+    }
+}
+
+$actions = '';
+if ($currentDepartmentCode !== '') {
+    $actions = '<a href="manageinst.php" class="department-link-btn">Back to assign instructor</a>';
+}
+
+departmentRenderPageStart(
+    "Department head page",
+    "Department Head",
+    "View assigned instructor",
+    "Review the instructors already assigned to your department courses and open the update popup when you need to change the assignment.",
+    $actions
+);
 ?>
-</body>
-</html>
+<div class="department-stat-row">
+    <span class="department-stat-chip">Assigned courses: <?php echo count($assignments); ?></span>
+    <?php if ($departmentName !== '') { ?>
+    <span class="department-stat-chip"><?php echo departmentH($departmentName); ?></span>
+    <?php } ?>
+    <?php if ($departmentCode !== '') { ?>
+    <span class="department-stat-chip">Department code: <?php echo departmentH($departmentCode); ?></span>
+    <?php } ?>
+</div>
+
+<?php if (!$assignments) { ?>
+<div class="department-empty">No assigned instructor record was found for this department yet.</div>
+<?php } else { ?>
+<div class="department-table-wrap">
+    <table cellpadding="1" cellspacing="1" id="resultTable">
+        <thead>
+            <tr>
+                <th style="border-left: 1px solid #C1DAD7">Course code</th>
+                <th style="border-left: 1px solid #C1DAD7">Course title</th>
+                <th style="border-left: 1px solid #C1DAD7">Instructor name</th>
+                <th style="border-left: 1px solid #C1DAD7">Department</th>
+                <th>Section</th>
+                <th>Student class year</th>
+                <th>Semester</th>
+                <th>Credit hour</th>
+                <th>Academic year</th>
+                <th>Update</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($assignments as $assignment) { ?>
+            <tr class="record">
+                <td style="border-left: 1px solid #C1DAD7;"><?php echo departmentH($assignment['corse_code']); ?></td>
+                <td style="border-left: 1px solid #C1DAD7;"><?php echo departmentH($assignment['cname']); ?></td>
+                <td style="border-left: 1px solid #C1DAD7;"><?php echo departmentH($assignment['Iname']); ?></td>
+                <td style="border-left: 1px solid #C1DAD7;"><?php echo departmentH($assignment['department']); ?></td>
+                <td style="border-left: 1px solid #C1DAD7;"><?php echo departmentH($assignment['section']); ?></td>
+                <td style="border-left: 1px solid #C1DAD7;"><?php echo departmentH($assignment['Student_class_year']); ?></td>
+                <td style="border-left: 1px solid #C1DAD7;"><?php echo departmentH($assignment['semister']); ?></td>
+                <td style="border-left: 1px solid #C1DAD7;"><?php echo departmentH($assignment['course_chour']); ?></td>
+                <td style="border-left: 1px solid #C1DAD7;"><?php echo departmentH($assignment['course_ayear']); ?></td>
+                <td>
+                    <div align="center">
+                        <a rel="facebox" href="assign_course_instructorSu.php?id=<?php echo rawurlencode((string) $assignment['corse_code']); ?>">Update</a>
+                    </div>
+                </td>
+            </tr>
+            <?php } ?>
+        </tbody>
+    </table>
+</div>
+<?php } ?>
+<?php
+departmentRenderPageEnd();
+?>

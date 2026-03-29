@@ -1,117 +1,61 @@
 <?php
 session_start();
-include("../connection.php");
+require_once("../connection.php");
+require_once(__DIR__ . "/page_helpers.php");
+
+studentRequireLogin();
+
+$status = trim((string) ($_GET['status'] ?? ''));
+$statusMessages = array(
+    'success' => array('class' => 'success', 'message' => 'Your profile photo was updated successfully.'),
+    'invalid' => array('class' => 'error', 'message' => 'Please upload a valid JPG, PNG, GIF, or WEBP image under 2 MB.'),
+    'failed' => array('class' => 'error', 'message' => 'The profile photo could not be updated. Please try again.'),
+    'missing' => array('class' => 'info', 'message' => 'Choose an image file before submitting the form.')
+);
+
+$currentPhoto = studentCurrentPhotoPath();
+
+studentRenderPageStart(
+    "Update profile photo",
+    "Profile Settings",
+    "Change Profile Photo",
+    "Upload a new profile image for your student account. The image is stored in the student photo folder and the account photo path is updated in the database."
+);
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<script src="theme.js"></script>
-<meta charset="UTF-8">
-<title>
-Student page
-</title>
-<link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript\date_time.js"></script>
-<style>
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
-}
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
-html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-#container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-#footer {
-    margin-top: auto;
-}
-</style>
-</head>
-<body class="student-portal-page light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
-    $photo_value = isset($_SESSION['sphoto']) ? trim($_SESSION['sphoto']) : '';
-    $photo_path = $photo_value !== '' ? htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8') : '../images/default.png';
-?>
-<div id="container">
-
-    <div id="header">
-         <?php require("header.php"); ?>
+<?php if (isset($statusMessages[$status])) { ?>
+    <div class="student-status-banner <?php echo studentH($statusMessages[$status]['class']); ?>">
+        <?php echo studentH($statusMessages[$status]['message']); ?>
     </div>
+<?php } ?>
 
-    <div id="menu">
-        <?php require("menustud.php"); ?>
-    </div>
-
-    <div class="main-row">
-        <div id="left">
-            <?php require("sidemenustud.php"); ?>
-        </div>
-
-        <div id="content">
-            <div id="contentindex5">
-    <form action="updatephoto.php" method="POST" name="form1" enctype="multipart/form-data">
-<table bgcolor="#f9fbf9" cellpadding="5" border="0">
-    
-    <tr><td>User Photo</td><td><input type="file" name="photo" required><br></td></tr>
-<tr><td></td><td><input type="submit" id="submit" name="submit" style="height: 30px; width: 100px;" value="Change">
-<input type="reset" id="m" name="validation" style="height: 30px; width: 100px;" value="CANCEL" size="20" >
-</td></tr>
-
-</table>
-</form>
-     </div>
-        </div>
-
-        <div id="sidebar">
-            <div class="sidebar-panel profile-panel">
-                <div class="sidebar-panel-title">User Profile</div>
-                <div class="sidebar-panel-body">
-                    <?php
-                    echo "<b><br><font color=blue>Welcome:</font><font color=#c1110d>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$photo_path."'width=180px height=160px alt='Student profile photo'></b>";
-                    ?>
-                    <div id="sidebarr">
-                        <ul>
-                            <li><a href="updateprofilephoto.php">Change Photo</a></li>
-                            <li><a href="changepass.php">Change password</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="sidebar-panel social-panel">
-                <div class="sidebar-panel-title">Social link</div>
-                <div class="sidebar-panel-body">
-                    <a href="https://www.facebook.com/"><span><ion-icon name="logo-facebook"></ion-icon></span>Facebook</a>
-                    <a href="https://www.twitter.com/"><span><ion-icon name="logo-twitter"></ion-icon></span>Twitter</a>
-                    <a href="https://www.youtube.com/"><span><ion-icon name="logo-youtube"></ion-icon></span>YouTube</a>
-                    <a href="https://plus.google.com/"><span><ion-icon name="logo-google"></ion-icon></span>Google++</a>
-                </div>
-            </div>
+<div class="student-inline-card-grid">
+    <div class="student-inline-card">
+        <h3>Current Photo</h3>
+        <div class="student-sidebar-profile" style="margin-bottom:0;">
+            <img src="<?php echo studentH($currentPhoto); ?>" alt="Current student profile photo" class="profile-thumb">
+            <p class="student-form-note">Recommended formats: JPG, PNG, GIF, or WEBP. Maximum size: 2 MB.</p>
         </div>
     </div>
-
-    <div id="footer">
-        <?php include("../footer.php"); ?>
-    </div>
-
 </div>
-<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+<fieldset>
+    <legend>Upload New Photo</legend>
+    <form action="updatephoto.php" method="post" enctype="multipart/form-data" class="student-form-grid two-col">
+        <div class="student-form-field full">
+            <label class="student-label" for="student-photo-upload">Profile Photo</label>
+            <input type="file" id="student-photo-upload" name="photo" accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp" required>
+            <p class="student-form-note">Use a clear image so your student profile remains identifiable across the portal.</p>
+        </div>
+        <div class="student-form-field">
+            <label class="student-label">&nbsp;</label>
+            <input type="submit" name="submit" value="Update Photo">
+        </div>
+        <div class="student-form-field">
+            <label class="student-label">&nbsp;</label>
+            <input type="reset" value="Reset Form">
+        </div>
+    </form>
+</fieldset>
 <?php
-}
-else
-header("location:../index.php");
+studentRenderPageEnd();
 ?>
-</body>
-</html>

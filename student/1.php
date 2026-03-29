@@ -1,27 +1,32 @@
 <?php
-include '../connection.php';
 session_start();
- $n=$_POST['faname'];
-$e=$_POST['em'];
-$content=$_POST['feedback'];
+require_once("../connection.php");
 
-$con= mysql_connect('localhost','root','');
-if(!$con)
-{
-die('could not be connect :' .mysql_error());
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: feedback.php");
+    exit;
 }
 
-$sql="INSERT INTO feed_back(name,email,role,Comment,date) VALUES('$n','$e','student','$content',Now())";
-$result=mysql_query($sql,$con);
-if(!$result)
-{
-die("<script>alert('Error! your feedback is not sended!');
-window.location=\'feedback.php\';</script>" . mysql_error());
-}
-else
+$name = trim((string) ($_POST['faname'] ?? ''));
+$email = trim((string) ($_POST['em'] ?? ''));
+$comment = trim((string) ($_POST['feedback'] ?? ''));
+$role = 'student';
 
-$x='<script type="text/javascript">alert("Your Information Is Successfully sended !!!");
-window.location=\'feedback.php\';</script>';
-echo $x;
-mysql_close($con);
+if ($name === '' || $email === '' || $comment === '' || strlen($comment) < 10 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    header("Location: feedback.php?status=invalid");
+    exit;
+}
+
+$stmt = mysqli_prepare($conn, "INSERT INTO feed_back (name, email, role, Comment, date) VALUES (?, ?, ?, ?, NOW())");
+if (!$stmt) {
+    header("Location: feedback.php?status=error");
+    exit;
+}
+
+mysqli_stmt_bind_param($stmt, 'ssss', $name, $email, $role, $comment);
+$saved = mysqli_stmt_execute($stmt);
+mysqli_stmt_close($stmt);
+
+header("Location: feedback.php?status=" . ($saved ? 'success' : 'error'));
+exit;
 ?>

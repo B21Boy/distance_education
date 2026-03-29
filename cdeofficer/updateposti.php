@@ -28,6 +28,10 @@ CDE Officer page
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {
+    function cde_general_notice_text(string $value): string
+    {
+        return htmlspecialchars(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_QUOTES, 'UTF-8');
+    }
 ?>
 <div id="container">
 <div id="header">
@@ -78,10 +82,10 @@ if ($ro != '0') {
             ?>
             <div class="admin-page-status-card" style="margin-bottom: 18px;">
                 <p style="margin: 0 0 8px; text-align: right;"><strong>Date:</strong> <?php echo htmlspecialchars($row['dates'], ENT_QUOTES, 'UTF-8'); ?></p>
-                <h2 style="margin: 0 0 10px; color: #12395f;"><?php echo htmlspecialchars($row['Title'], ENT_QUOTES, 'UTF-8'); ?></h2>
-                <p style="margin: 0 0 14px; color: #1e5788; font-weight: 700;"><?php echo htmlspecialchars($row['types'], ENT_QUOTES, 'UTF-8'); ?></p>
-                <div style="white-space: pre-wrap; color: #17364e;"><?php echo htmlspecialchars($row['info'], ENT_QUOTES, 'UTF-8'); ?></div>
-                <p style="margin: 14px 0 0; text-align: right; color: #1046a0; font-weight: 700;"><?php echo htmlspecialchars($row['posted_by'], ENT_QUOTES, 'UTF-8'); ?></p>
+                <h2 style="margin: 0 0 10px; color: #12395f;"><?php echo cde_general_notice_text((string) $row['Title']); ?></h2>
+                <p style="margin: 0 0 14px; color: #1e5788; font-weight: 700;"><?php echo cde_general_notice_text((string) $row['types']); ?></p>
+                <div style="white-space: pre-wrap; color: #17364e;"><?php echo cde_general_notice_text((string) $row['info']); ?></div>
+                <p style="margin: 14px 0 0; text-align: right; color: #1046a0; font-weight: 700;"><?php echo cde_general_notice_text((string) $row['posted_by']); ?></p>
             </div>
             <?php
                 }

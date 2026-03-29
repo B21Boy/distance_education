@@ -33,6 +33,11 @@ if (empty($username) || empty($phone_number)) {
 // Generate unique tx_ref
 $tx_ref = 'reg_' . time() . '_' . rand(1000, 9999);
 
+function appendQueryParam($url, $key, $value) {
+    $separator = strpos($url, '?') === false ? '?' : '&';
+    return $url . $separator . urlencode($key) . '=' . urlencode($value);
+}
+
 // Prepare Chapa payload
 $payload = [
     'amount' => $semester_fee,
@@ -42,8 +47,8 @@ $payload = [
     'last_name' => 'User',
     'phone_number' => $phone_number,
     'tx_ref' => $tx_ref,
-    'callback_url' => $config['chapa']['callback_url'] . '?tx_ref=' . $tx_ref,
-    'return_url' => $config['chapa']['return_url'] . '?tx_ref=' . $tx_ref,
+    'callback_url' => appendQueryParam($config['chapa']['callback_url'], 'tx_ref', $tx_ref),
+    'return_url' => appendQueryParam($config['chapa']['return_url'], 'tx_ref', $tx_ref),
     'customization' => [
         'title' => 'Dept Reg',
         'description' => 'Payment for ' . $department_name . ' semester fee'

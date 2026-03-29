@@ -44,9 +44,10 @@ function read_file_docx($filename){
     $content = str_replace('</w:r></w:p>', "\r\n", $content);
     $striped_content = strip_tags($content);
 
-    return $striped_content;
+    return $striped_content; 
 }
-$filename = "C:\wamp\www\cde[1]\posta.docx";// or /var/www/html/file.docx
+
+ $filename = "C:\wamp\www\cde[1]\posta.docx";// or /var/www/html/file.docx
 
 $content = read_file_docx($filename);
 if($content !== false) {
@@ -63,7 +64,7 @@ $date=date('Y-m-d');
 	
 	
 </textarea></td></tr>
-<tr><td>Posted By:</td><td><input type="text" style="width: 300px" name="pb"  value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ደብረ ማርቆስ ዩኒቨርስቲ" readonly/></td></tr>
+<tr><td>Posted By:</td><td><input type="text" style="width: 300px" name="pb"  value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ባህር ዳር  ዩኒቨርስቲ" readonly/></td></tr>
 <tr><td></td><td><input type="hidden" style="width: 300px" name="st"  value="apply" readonly/></td></tr>
 <tr><td></td>
 <td><input type="submit"  name="submit" value="Send" style="height: 40px;width: 120px;"id="m"/>

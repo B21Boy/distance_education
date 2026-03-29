@@ -1,48 +1,90 @@
 <?php
-$include_path = '../connection.php';
-include($include_path);
-if(isset($_GET['status']))
-{
-$status1=$_GET['status'];
-$select=mysqli_query($conn, "select * from account where UID='$status1'");
-while($row=mysqli_fetch_object($select))
-{
-$status_var=$row->status;
-if($status_var=='no')
-{
-$status_state='yes';
-}
-else 
-{
-$status_state='no';
-}
-$update=mysqli_query($conn, "update account set status='$status_state' where UID='$status1' ");
-$affected = mysqli_affected_rows($conn);
-if($affected >= 1)
-{
-		if(!empty($_SERVER["HTTP_CLIENT_IP"])){
-$ipaddress=$http_client_ip;
-}elseif(!empty($_SERVER["HTTP_X_FORWARDED_FOR"])){
-$ipaddress=$http_x_forwarded_for;	
-}else{
-	$ipaddress=$_SERVER['REMOTE_ADDR'];
-}
 session_start();
-		$time = time();
-	$actual_time = date('d M Y @ H:i:s', $time);
-	$user=$_SESSION['user'];
-	$status='yes';
-	$da=date('y-m-d');
-mysqli_query($conn, "INSERT INTO logfile (logid,username,role,status,start_time,activity_type,activity_performed,date,ip_address,end)  VALUES(' ','$user','system admin','$status','$actual_time','unblock user',concat('uid[','$status1','] ',' status[','$status_state','] '),'$da','$ipaddress','')") or die (mysqli_error($conn));
-header("Location:addaccountb.php");
-}
-else
+include(__DIR__ . '/../connection.php');
+
+function admin_vbu_redirect($type, $message)
 {
-header("Location:viewbuser.php");
-echo mysqli_error($conn);
+    header('Location: viewbuser.php?type=' . urlencode($type) . '&message=' . urlencode($message));
+    exit;
 }
+
+function admin_vbu_client_ip()
+{
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        return (string) $_SERVER['HTTP_CLIENT_IP'];
+    }
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        return (string) $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
+
+    return isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
 }
-?>
-<?php
+
+if (!isset($_SESSION['sun'], $_SESSION['spw'], $_SESSION['sfn'], $_SESSION['sln'], $_SESSION['srole'])) {
+    header('location:../index.php');
+    exit;
+}
+
+if (!($conn instanceof mysqli)) {
+    admin_vbu_redirect('error', 'Database connection is not available.');
+}
+
+$uid = trim((string) ($_GET['status'] ?? ''));
+if ($uid === '') {
+    admin_vbu_redirect('error', 'Blocked user id is missing.');
+}
+
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+try {
+    $conn->set_charset('utf8mb4');
+
+    $selectStmt = $conn->prepare('SELECT status FROM account WHERE UID = ? LIMIT 1');
+    $selectStmt->bind_param('s', $uid);
+    $selectStmt->execute();
+    $result = $selectStmt->get_result();
+    $row = $result->fetch_assoc();
+    $selectStmt->close();
+
+    if (!is_array($row)) {
+        admin_vbu_redirect('error', 'The selected account was not found.');
+    }
+
+    $currentStatus = trim((string) ($row['status'] ?? ''));
+    $nextStatus = $currentStatus === 'no' ? 'yes' : 'no';
+    $activityType = $nextStatus === 'yes' ? 'unblock user' : 'block user';
+
+    $conn->begin_transaction();
+
+    $updateStmt = $conn->prepare('UPDATE account SET status = ? WHERE UID = ?');
+    $updateStmt->bind_param('ss', $nextStatus, $uid);
+    $updateStmt->execute();
+    $updateStmt->close();
+
+    $actor = isset($_SESSION['suid']) && $_SESSION['suid'] !== '' ? (string) $_SESSION['suid'] : 'Admin';
+    $roleLabel = 'system admin';
+    $logStatus = 'yes';
+    $startTime = date('d M Y @ H:i:s');
+    $activityPerformed = sprintf('uid[%s] status[%s]', $uid, $nextStatus);
+    $activityDate = date('Y-m-d');
+    $ipAddress = admin_vbu_client_ip();
+    $endTime = '';
+
+    $logStmt = $conn->prepare('INSERT INTO logfile (username, role, status, start_time, activity_type, activity_performed, date, ip_address, end) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    $logStmt->bind_param('sssssssss', $actor, $roleLabel, $logStatus, $startTime, $activityType, $activityPerformed, $activityDate, $ipAddress, $endTime);
+    $logStmt->execute();
+    $logStmt->close();
+
+    $conn->commit();
+    admin_vbu_redirect('success', $nextStatus === 'yes' ? 'User account unblocked successfully.' : 'User account blocked successfully.');
+} catch (Throwable $e) {
+    try {
+        $conn->rollback();
+    } catch (Throwable $rollbackError) {
+    }
+
+    $errorMessage = trim($e->getMessage());
+    error_log('admin/ACTIONVBU.php failed: ' . $errorMessage);
+    admin_vbu_redirect('error', 'Unable to update the blocked user record.');
 }
 ?>

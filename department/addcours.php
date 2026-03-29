@@ -1,80 +1,204 @@
-  	<?php
-include("../connection.php");
-?>	
-  		<?php
-		
-class Module{
-			var $con;
-			var $query;
-			var $res;
-			var $destination;
-			var $ccode;
-			var  $cname;
-			var  $ch;
-			var $ayear;
-			var $dept;
-			var $year;
-			var $sem;
-			var $fileName;
-			var $tmpName;
-			var $fileSize;
-			var $fileType;
-			
-function connects()
-{
-			$this->con=mysql_connect("localhost","root","");
-			mysql_select_db("cde");
-}
-function query()
-{
+<?php
+session_start();
+mysqli_report(MYSQLI_REPORT_OFF);
+require_once(__DIR__ . "/../connection.php");
+require_once(__DIR__ . "/page_helpers.php");
 
-				$this->ccode=$_POST['cd'];
-				$this->cname=$_POST['cn'];	
-				$this->ch=$_POST['ch'];
-				$this->ayear=$_POST['ayear'];	 
-				$this->dept=$_POST['dc'];
-$this->query="insert into course(course_code,cname,chour,ayear,department) values('$this->ccode','$this->cname','$this->ch','$this->ayear','$this->dept')";
-				$this->res=mysql_query($this->query,$this->con);
+departmentRequireLogin();
+
+function departmentCourseRedirect(string $status): void
+{
+    header("Location: managecourse.php?status=" . rawurlencode($status));
+    exit;
+}
+
+function departmentClientIp(): string
+{
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        return (string) $_SERVER['HTTP_CLIENT_IP'];
     }
-function display()
-{
-			if(mysql_affected_rows()==1)
-			{
-if(!empty($_SERVER["HTTP_CLIENT_IP"])){
-		$ipaddress=$http_client_ip;
-		}elseif(!empty($_SERVER["HTTP_X_FORWARDED_FOR"])){
-		$ipaddress=$http_x_forwarded_for;	
-		}else{
-			$ipaddress=$_SERVER['REMOTE_ADDR'];
-		}
-		session_start();
-		
-		$uid=$_SESSION['suid'];	
-				$result=mysql_query("select*from account where UID='$uid'");
-				$row=mysql_fetch_array($result);
-				$role=$row['Role'];
-				
-				$time = time();
-			$actual_time = date('d M Y @ H:i:s', $time);
-			$user=$_SESSION['suid'];
-			$status='yes';
-			$logid=2;
-			$da=date('y-m-d');
-mysql_query("INSERT INTO logfile (logid,username,role,status,start_time,activity_type,activity_performed,date,ip_address,end)  VALUES(' ','depthead','Department_Head','$status','$actual_time','Add course',concat('uid[','$uid','] ','role[','$role','] ','status[','$status','] '),'$da','$ipaddress','')");
-
-$x='<script type="text/javascript">alert("Successfully Registerd !!!");
-window.location=\'managecourse.php\';</script>';
-echo $x;
-			}
-			else
-			{
-die("<script>alert('Error! not registerd!');
-window.location=\'managecourse.php\';</script>" . mysql_error());	   	
-			}
-			}
+    if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $forwardedIps = explode(',', (string) $_SERVER['HTTP_X_FORWARDED_FOR']);
+        return trim((string) ($forwardedIps[0] ?? ''));
+    }
+    return isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
 }
-$Mod=new Module();
-$Mod->connects();
-$Mod->query();
-$Mod->display();
-?>
+
+function departmentCourseHasColumn(mysqli $conn, string $columnName): bool
+{
+    $safeColumn = mysqli_real_escape_string($conn, $columnName);
+    $result = mysqli_query($conn, "SHOW COLUMNS FROM course LIKE '{$safeColumn}'");
+    if (!$result instanceof mysqli_result) {
+        return false;
+    }
+
+    $hasColumn = mysqli_num_rows($result) > 0;
+    mysqli_free_result($result);
+    return $hasColumn;
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    departmentCourseRedirect('');
+}
+try {
+    $courseCode = strtoupper(trim((string) ($_POST['cd'] ?? '')));
+    $courseName = trim((string) ($_POST['cn'] ?? ''));
+    $creditHour = trim((string) ($_POST['ch'] ?? ''));
+    $academicYear = trim((string) ($_POST['ayear'] ?? ''));
+    $departmentName = trim((string) ($_POST['dc'] ?? ''));
+    $userId = departmentCurrentUserId();
+    $canonicalDepartmentName = departmentCurrentDepartmentName($conn);
+
+    if ($canonicalDepartmentName !== '') {
+        $departmentName = $canonicalDepartmentName;
+    } elseif ($departmentName === '') {
+        $departmentName = departmentCurrentDepartmentCode();
+    }
+
+    if ($courseCode === '' || $courseName === '' || $creditHour === '' || $academicYear === '' || $departmentName === '') {
+        departmentCourseRedirect('empty');
+    }
+
+    if (!preg_match('/^[A-Z0-9-]+$/', $courseCode)) {
+        departmentCourseRedirect('invalid-code');
+    }
+
+    if (!is_numeric($creditHour) || (int) $creditHour <= 0) {
+        departmentCourseRedirect('invalid-credit');
+    }
+
+    if (!preg_match('/^\d{4}$/', $academicYear)) {
+        departmentCourseRedirect('invalid-year');
+    }
+
+    $duplicateStmt = mysqli_prepare($conn, "SELECT 1 FROM course WHERE course_code = ? OR cname = ? LIMIT 1");
+    if (!$duplicateStmt) {
+        departmentCourseRedirect('error');
+    }
+
+    mysqli_stmt_bind_param($duplicateStmt, 'ss', $courseCode, $courseName);
+    $duplicateExecuted = mysqli_stmt_execute($duplicateStmt);
+    $alreadyExists = false;
+    if ($duplicateExecuted) {
+        mysqli_stmt_store_result($duplicateStmt);
+        $alreadyExists = mysqli_stmt_num_rows($duplicateStmt) > 0;
+    }
+    mysqli_stmt_close($duplicateStmt);
+
+    if ($alreadyExists) {
+        departmentCourseRedirect('exists');
+    }
+
+    $courseColumns = [
+        'Sender_name' => $userId !== '' ? $userId : 'depthead',
+        'course_code' => $courseCode,
+        'cname' => $courseName,
+        'chour' => (int) $creditHour,
+        's_c_year' => '',
+        'semister' => '',
+        'ayear' => (int) $academicYear,
+        'department' => $departmentName,
+        'FileName' => '',
+        'status' => 'yes',
+        'unread' => ''
+    ];
+
+    if (departmentCourseHasColumn($conn, 'other_department_takes')) {
+        $courseColumns['other_department_takes'] = '';
+    }
+
+    $orderedColumnNames = [];
+    $orderedValues = [];
+    foreach ($courseColumns as $columnName => $columnValue) {
+        if ($columnName === 'other_department_takes' || departmentCourseHasColumn($conn, $columnName)) {
+            $orderedColumnNames[] = $columnName;
+            $orderedValues[] = $columnValue;
+        }
+    }
+
+    if (!$orderedColumnNames) {
+        departmentCourseRedirect('error');
+    }
+
+    $placeholders = implode(', ', array_fill(0, count($orderedColumnNames), '?'));
+    $columnSql = implode(', ', $orderedColumnNames);
+    $insertStmt = mysqli_prepare($conn, "INSERT INTO course ({$columnSql}) VALUES ({$placeholders})");
+    if (!$insertStmt) {
+        departmentCourseRedirect('error');
+    }
+
+    $bindTypes = '';
+    $bindValues = [];
+    foreach ($orderedValues as $value) {
+        if (is_int($value)) {
+            $bindTypes .= 'i';
+        } else {
+            $bindTypes .= 's';
+        }
+        $bindValues[] = $value;
+    }
+
+    mysqli_stmt_bind_param($insertStmt, $bindTypes, ...$bindValues);
+    $saved = mysqli_stmt_execute($insertStmt);
+    $insertError = mysqli_stmt_error($insertStmt);
+    mysqli_stmt_close($insertStmt);
+
+    if (!$saved) {
+        if (stripos($insertError, 'duplicate') !== false) {
+            departmentCourseRedirect('exists');
+        }
+        departmentCourseRedirect('error');
+    }
+
+    $role = '';
+    if ($userId !== '') {
+        $roleStmt = mysqli_prepare($conn, "SELECT Role FROM account WHERE UID = ? LIMIT 1");
+        if ($roleStmt) {
+            mysqli_stmt_bind_param($roleStmt, 's', $userId);
+            if (mysqli_stmt_execute($roleStmt)) {
+                mysqli_stmt_bind_result($roleStmt, $roleValue);
+                if (mysqli_stmt_fetch($roleStmt)) {
+                    $role = (string) $roleValue;
+                }
+            }
+            mysqli_stmt_close($roleStmt);
+        }
+    }
+
+    $status = 'yes';
+    $actualTime = date('d M Y @ H:i:s');
+    $activityPerformed = "uid[{$userId}] role[{$role}] status[{$status}]";
+    $activityType = 'Add course';
+    $dateValue = date('y-m-d');
+    $ipAddress = departmentClientIp();
+    $username = 'depthead';
+    $defaultRole = 'Department_Head';
+    $endValue = '';
+
+    $logStmt = mysqli_prepare(
+        $conn,
+        "INSERT INTO logfile (username, role, status, start_time, activity_type, activity_performed, date, ip_address, end)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    );
+    if ($logStmt) {
+        mysqli_stmt_bind_param(
+            $logStmt,
+            'sssssssss',
+            $username,
+            $defaultRole,
+            $status,
+            $actualTime,
+            $activityType,
+            $activityPerformed,
+            $dateValue,
+            $ipAddress,
+            $endValue
+        );
+        @mysqli_stmt_execute($logStmt);
+        mysqli_stmt_close($logStmt);
+    }
+
+    departmentCourseRedirect('success');
+} catch (Throwable $e) {
+    departmentCourseRedirect('error');
+}

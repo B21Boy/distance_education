@@ -40,6 +40,12 @@ $current_page = basename(isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : ''
 $menu_items = array(
 	array('href' => 'viewgrade.php', 'label' => 'Prepare Grade Report'),
 	array('href' => 'registerstudentdata.php', 'label' => 'Import Studnet Data'),
+	
+	array(
+		'href' => 'applicantstudent.php',
+		'label' => 'Applicant student[' . $count . ']',
+		'class' => $count >= 1 ? 'has-alert' : ''
+	),
 	array(
 		'href' => 'usernotification.php',
 		'label' => 'Notification[' . $count . ']',

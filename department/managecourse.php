@@ -7,18 +7,17 @@ departmentRequireLogin();
 
 $departmentCode = departmentCurrentDepartmentCode();
 $departmentName = departmentCurrentDepartmentName($conn);
-$courses = [];
-
-if ($departmentName !== '') {
-    $escapedDepartment = mysqli_real_escape_string($conn, $departmentName);
-    $result = mysqli_query($conn, "SELECT course_code, cname, chour, ayear, department FROM course WHERE department = '{$escapedDepartment}' ORDER BY course_code ASC");
-    if ($result instanceof mysqli_result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $courses[] = $row;
-        }
-        mysqli_free_result($result);
-    }
-}
+$status = (string) ($_GET['status'] ?? '');
+$messages = [
+    'success' => 'Course registered successfully.',
+    'empty' => 'All course fields are required.',
+    'invalid-code' => 'Course code must use only letters, numbers, or hyphen.',
+    'invalid-credit' => 'Credit hour must be a valid positive number.',
+    'invalid-year' => 'Academic year must be a valid 4-digit year.',
+    'exists' => 'That course code or course title is already registered.',
+    'error' => 'The course could not be registered right now.'
+];
+$courses = departmentFetchCourses($conn);
 
 $actions = '<a rel="facebox" href="addcourse.php" class="department-btn">Add course</a>';
 
@@ -30,6 +29,7 @@ departmentRenderPageStart(
     $actions
 );
 ?>
+<?php echo departmentStatusBanner($status, $messages); ?>
 <div class="department-stat-row">
     <span class="department-stat-chip">Courses found: <?php echo count($courses); ?></span>
     <?php if ($departmentCode !== '') { ?>

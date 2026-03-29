@@ -3,9 +3,15 @@ include("../connection.php");
 require("popup_styles.php");
 
 $colleges = array();
-$d_program = mysql_query("SELECT * FROM collage");
-while ($getDprog = mysql_fetch_array($d_program)) {
-    $colleges[] = $getDprog['Ccode'];
+$d_program = mysqli_query($conn, "SELECT Ccode FROM collage ORDER BY Ccode ASC");
+if ($d_program instanceof mysqli_result) {
+    while ($getDprog = mysqli_fetch_assoc($d_program)) {
+        $collegeCode = isset($getDprog['Ccode']) ? trim((string) $getDprog['Ccode']) : '';
+        if ($collegeCode !== '') {
+            $colleges[] = $collegeCode;
+        }
+    }
+    mysqli_free_result($d_program);
 }
 ?>
 <div class="cde-popup-card">

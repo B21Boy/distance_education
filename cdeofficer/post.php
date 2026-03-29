@@ -61,7 +61,7 @@ $date=date('Y-m-d');
 	
 	
 </textarea></td></tr>
-<tr><td>Posted By:</td><td><input type="text" style="width: 300px" name="pb"  value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ደብረ ማርቆስ ዩኒቨርስቲ" readonly/></td></tr>
+<tr><td>Posted By:</td><td><input type="text" style="width: 300px" name="pb"  value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ባህር ዳር  ዩኒቨርስቲ" readonly/></td></tr>
 <tr><td></td><td><input type="hidden" style="width: 300px" name="st"  value="register" readonly/></td></tr>
 <tr><td></td>
 <td><input type="submit"  name="submit" value="Send" style="height: 40px;width: 120px;"id="m"/>

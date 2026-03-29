@@ -1,34 +1,41 @@
 <?php
 include '../connection.php';
-$no=$_POST['no'];
-$title=$_POST['title'];
-$taype=$_POST['typ'];
-$date=$_POST['date'];
-$exdate=$_POST['exd'];
-$sdate=$_POST['sd'];
-$edate=$_POST['ed'];
-$infor=$_POST['infor'];
-$pbay=$_POST['pb'];
-$st=$_POST['st'];
-$con= mysql_connect('localhost','root','');
-if(!$con)
+
+function updateposted_redirect(string $message): void
 {
-die('could not be connect :' .mysql_error());
+    echo '<script type="text/javascript">alert(' . json_encode($message) . ');window.location=\'updatepost.php\';</script>';
+    exit;
 }
-$sql="update postss set dates='$date',Ex_date='$exdate',start_date='$sdate',end_date='$edate',info='$infor' where no='$no'";
-$result=mysql_query($sql,$con);
-if(!$result)
-{
-$x='<script type="text/javascript">alert("Error! not updated!");
-window.location=\'updatepost.php\';</script>';
-echo $x;
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    updateposted_redirect('Invalid request.');
 }
-else
-{
-$x='<script type="text/javascript">alert("Succssfully updated!!!");
-window.location=\'updatepost.php\';</script>';
-echo $x;
+
+$no = isset($_POST['no']) ? trim((string) $_POST['no']) : '';
+$date = isset($_POST['date']) ? trim((string) $_POST['date']) : '';
+$exdate = isset($_POST['exd']) ? trim((string) $_POST['exd']) : '';
+$sdate = isset($_POST['sd']) ? trim((string) $_POST['sd']) : '';
+$edate = isset($_POST['ed']) ? trim((string) $_POST['ed']) : '';
+$infor = isset($_POST['infor']) ? trim((string) $_POST['infor']) : '';
+
+if ($no === '' || $date === '' || $exdate === '' || $sdate === '' || $edate === '' || $infor === '') {
+    updateposted_redirect('All update fields are required.');
 }
-mysql_close($con);
+
+$stmt = mysqli_prepare($conn, "UPDATE postss SET dates = ?, Ex_date = ?, start_date = ?, end_date = ?, info = ? WHERE no = ?");
+if (!$stmt) {
+    updateposted_redirect('Unable to prepare the update.');
+}
+
+mysqli_stmt_bind_param($stmt, "sssssi", $date, $exdate, $sdate, $edate, $infor, $no);
+$saved = mysqli_stmt_execute($stmt);
+$errorMessage = mysqli_error($conn);
+mysqli_stmt_close($stmt);
+
+if (!$saved) {
+    updateposted_redirect('Notice was not updated. ' . $errorMessage);
+}
+
+updateposted_redirect('Successfully Updated.');
 ?>
 

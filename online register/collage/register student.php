@@ -29,12 +29,34 @@ function chapaVerifyStatus($tx_ref, $secretKey) {
     return $data['data']['status'];
 }
 
+function parseRawQueryParams() {
+    $query = $_SERVER['QUERY_STRING'] ?? '';
+    if (strpos($query, '&amp;') !== false) {
+        $query = str_replace('&amp;', '&', $query);
+    }
+
+    $params = [];
+    parse_str($query, $params);
+    return $params;
+}
+
 $tx_ref = trim($_GET['tx_ref'] ?? '');
+$status = trim($_GET['status'] ?? '');
+if (empty($tx_ref) || $status === '') {
+    $rawParams = parseRawQueryParams();
+    if (empty($tx_ref) && !empty($rawParams['tx_ref'])) {
+        $tx_ref = trim($rawParams['tx_ref']);
+    }
+    if ($status === '' && isset($rawParams['status'])) {
+        $status = trim($rawParams['status']);
+    }
+}
+
 $paymentRecord = null;
 $message = '';
 $message_class = '';
 $allowRegistration = false;
-$isCompletedRedirect = (trim($_GET['status'] ?? '') === 'completed');
+$isCompletedRedirect = ($status === 'completed');
 
 if ($tx_ref) {
     $stmt = $conn->prepare('SELECT status, department_code, department_name, phone_number FROM applicant_payments WHERE tx_ref = ?');
@@ -47,25 +69,14 @@ if ($tx_ref) {
     if (!$paymentRecord) {
         $message = 'Payment record not found. Please complete payment first.';
         $message_class = 'error';
-    } elseif ($paymentRecord['status'] === 'success') {
-        $allowRegistration = true;
-    } elseif ($isCompletedRedirect) {
-        // In local/test this block should allow registration to avoid callback unreliability.
-        $isTestEnv = strpos($otpConfig['chapa']['secret_key'], 'TEST') !== false;
-        if ($isTestEnv) {
+    } else {
+        if ($paymentRecord['status'] === 'success') {
             $allowRegistration = true;
-            $message = 'Test mode: payment redirect completed; registration is now allowed.';
-            $message_class = 'success';
-            $stmt = $conn->prepare('UPDATE applicant_payments SET status = ? WHERE tx_ref = ?');
-            $success = 'success';
-            $stmt->bind_param('ss', $success, $tx_ref);
-            $stmt->execute();
-            $stmt->close();
         } else {
-            $chapaStatus = chapaVerifyStatus($tx_ref, $otpConfig['chapa']['secret_key']);
-            if ($chapaStatus === 'success') {
+            $isTestEnv = strpos($otpConfig['chapa']['secret_key'], 'TEST') !== false;
+            if ($isTestEnv && $isCompletedRedirect) {
                 $allowRegistration = true;
-                $message = 'Payment confirmed via Chapa verify API. Registration is now allowed.';
+                $message = 'Test mode: payment redirect completed; registration is now allowed.';
                 $message_class = 'success';
                 $stmt = $conn->prepare('UPDATE applicant_payments SET status = ? WHERE tx_ref = ?');
                 $success = 'success';
@@ -73,15 +84,23 @@ if ($tx_ref) {
                 $stmt->execute();
                 $stmt->close();
             } else {
-                $message = 'Payment still not successful. Please complete payment again or retry.';
-                $message_class = 'error';
-                $allowRegistration = false;
+                $chapaStatus = chapaVerifyStatus($tx_ref, $otpConfig['chapa']['secret_key']);
+                if ($chapaStatus === 'success') {
+                    $allowRegistration = true;
+                    $message = 'Payment confirmed via Chapa verify API. Registration is now allowed.';
+                    $message_class = 'success';
+                    $stmt = $conn->prepare('UPDATE applicant_payments SET status = ? WHERE tx_ref = ?');
+                    $success = 'success';
+                    $stmt->bind_param('ss', $success, $tx_ref);
+                    $stmt->execute();
+                    $stmt->close();
+                } else {
+                    $message = 'Payment is not yet successful. Please check your payment or try again.';
+                    $message_class = 'error';
+                    $allowRegistration = false;
+                }
             }
         }
-    } else {
-        $message = 'Payment is not marked successful yet. Please wait for confirmation or retry.';
-        $message_class = 'error';
-        $allowRegistration = false;
     }
 }
 
@@ -104,25 +123,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = trim($_POST['Date'] ?? date('Y-m-d'));
     $unread = 'yes';
     $status = 'active';
+    $document_path = '';
 
-    if (!$sid || !$fname || !$lname || !$email || !$phone || !$college || !$department) {
-        $message = 'Please complete required fields: ID, First name, Last name, Email, Phone, College, Department.';
-        $message_class = 'error';
-    } else {
-        $stmt = $conn->prepare('INSERT INTO student (S_ID, FName, mname, LName, Sex, Email, Phone_No, College, Department, year, section, semister, program, Location, Education_level, Date, unread, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        $stmt->bind_param('ssssssssssssssssss', $sid, $fname, $mname, $lname, $sex, $email, $phone, $college, $department, $year, $section, $semester, $program, $location, $education_level, $date, $unread, $status);
+    $uploadedDocument = $_FILES['document_file'] ?? null;
+    $allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+    $maxFileSize = 5 * 1024 * 1024; // 5 MB
 
-        if ($stmt->execute()) {
-            $message = 'Student registered successfully.';
-            $message_class = 'success';
-            // Clear form values on success
-            $sid = $fname = $mname = $lname = $sex = $email = $phone = $college = $department = $year = $section = $semester = $program = $location = $education_level = $date = '';
-        } else {
-            $message = 'Student registration failed: ' . $stmt->error;
+    if ($uploadedDocument && $uploadedDocument['error'] !== UPLOAD_ERR_NO_FILE) {
+        if ($uploadedDocument['error'] !== UPLOAD_ERR_OK) {
+            $message = 'Document upload failed. Please try again.';
             $message_class = 'error';
-        }
+        } else {
+            $mimeType = mime_content_type($uploadedDocument['tmp_name']);
+            $fileSize = (int) $uploadedDocument['size'];
+            $extension = strtolower(pathinfo($uploadedDocument['name'], PATHINFO_EXTENSION));
+            $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
 
-        $stmt->close();
+            if (!in_array($mimeType, $allowedMimeTypes, true) || !in_array($extension, $allowedExtensions, true)) {
+                $message = 'Invalid document format. Please upload PDF, JPG, JPEG, or PNG only.';
+                $message_class = 'error';
+                $uploadedDocument = null;
+            } elseif ($fileSize > $maxFileSize) {
+                $message = 'File is too large. Maximum allowed size is 5 MB.';
+                $message_class = 'error';
+                $uploadedDocument = null;
+            } else {
+                $uploadDir = __DIR__ . '/uploads/student_documents';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($uploadedDocument['name']));
+                $uniqueName = time() . '_' . preg_replace('/\s+/', '_', $safeName);
+                $destination = $uploadDir . '/' . $uniqueName;
+
+                if (move_uploaded_file($uploadedDocument['tmp_name'], $destination)) {
+                    $document_path = 'online register/collage/uploads/student_documents/' . $uniqueName;
+                } else {
+                    $message = 'Unable to save the uploaded document. Please try again.';
+                    $message_class = 'error';
+                    $uploadedDocument = null;
+                }
+            }
+        }
+    }
+
+    if (!$message) {
+        if (!$sid || !$fname || !$lname || !$email || !$phone || !$college || !$department) {
+            $message = 'Please complete required fields: ID, First name, Last name, Email, Phone, College, Department.';
+            $message_class = 'error';
+        } elseif (!preg_match('/^[A-Za-z0-9]{4,20}$/', $sid)) {
+            $message = 'Student ID must be 4-20 characters long and contain only letters and numbers.';
+            $message_class = 'error';
+        } elseif (!DateTime::createFromFormat('Y-m-d', $date) || DateTime::createFromFormat('Y-m-d', $date)->format('Y-m-d') !== $date) {
+            $message = 'Invalid date format. Please use YYYY-MM-DD.';
+            $message_class = 'error';
+        } else {
+            $stmt = $conn->prepare('INSERT INTO student (S_ID, FName, mname, LName, Sex, Email, Phone_No, College, Department, year, section, semister, program, Location, Education_level, Date, unread, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            $stmt->bind_param('ssssssssssssssssss', $sid, $fname, $mname, $lname, $sex, $email, $phone, $college, $department, $year, $section, $semester, $program, $location, $education_level, $date, $unread, $status);
+
+            if ($stmt->execute()) {
+                $message = 'Student registered successfully.';
+                if ($document_path) {
+                    $message .= ' Document uploaded successfully.';
+                }
+                $message_class = 'success';
+                $sid = $fname = $mname = $lname = $sex = $email = $phone = $college = $department = $year = $section = $semester = $program = $location = $education_level = $date = '';
+            } else {
+                $message = 'Student registration failed: ' . $stmt->error;
+                $message_class = 'error';
+            }
+
+            $stmt->close();
+        }
     }
 }
 
@@ -138,19 +211,180 @@ $defaultPhone = $paymentRecord['phone_number'] ?? '';
 <title>Student Registration</title>
 <link rel="stylesheet" href="../online.css">
 <style>
-.container { max-width: 900px; margin: 32px auto; padding: 20px; background: #fff; border: 1px solid #ddd; border-radius: 12px; }
-.form-row { display: grid; grid-template-columns: repeat(auto-fit,minmax(240px,1fr)); gap: 16px; margin-bottom: 16px; }
-.form-row label { display: block; font-weight: 600; margin-bottom: 5px; }
-.form-row input, .form-row select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
-.alert { padding: 12px; border-radius: 8px; margin-bottom: 20px; }
-.alert.error { background:#fdd; border:1px solid #f99; }
-.alert.success { background:#dfd; border:1px solid #9f9; }
+:root {
+    color-scheme: light;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #102a43;
+    background: #eef4fb;
+}
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #e8f1ff 0%, #f7fbff 100%);
+    line-height: 1.6;
+}
+.container {
+    max-width: 1040px;
+    margin: 36px auto 48px;
+    padding: 32px 32px 28px;
+    background: rgba(255,255,255,0.98);
+    border: 1px solid rgba(32, 84, 179, 0.08);
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(29, 79, 173, 0.08);
+}
+.page-title {
+    margin: 0 0 10px;
+    font-size: clamp(2rem, 2.4vw, 2.5rem);
+    letter-spacing: -0.04em;
+}
+.page-copy {
+    margin: 0 0 28px;
+    max-width: 760px;
+    color: #445f7d;
+    font-size: 1rem;
+}
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 18px;
+    margin-bottom: 18px;
+}
+.form-row > div {
+    min-width: 0;
+}
+label {
+    display: block;
+    margin-bottom: 10px;
+    color: #334e68;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+input,
+select {
+    width: 100%;
+    padding: 16px 18px;
+    border: 1px solid #cbd7e9;
+    border-radius: 16px;
+    background: #f8fbff;
+    color: #102a43;
+    font-size: 1rem;
+    transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s ease;
+}
+input:focus,
+select:focus {
+    border-color: #4c8dff;
+    box-shadow: 0 0 0 4px rgba(76, 141, 255, 0.14);
+    outline: none;
+    transform: translateY(-1px);
+}
+button[type="submit"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: none;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #2d6cff 0%, #2fc8ff 100%);
+    color: #ffffff;
+    padding: 16px 28px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+}
+button[type="submit"]:hover,
+button[type="submit"]:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 32px rgba(45, 108, 255, 0.18);
+    opacity: 0.98;
+}
+.alert {
+    padding: 18px 20px;
+    border-radius: 18px;
+    margin-bottom: 24px;
+    font-size: 0.975rem;
+}
+.alert.error {
+    background: #ffe3e3;
+    border: 1px solid #f5b3b3;
+    color: #7f1e1e;
+}
+.alert.success {
+    background: #e6f9eb;
+    border: 1px solid #97d5a4;
+    color: #1f5d2f;
+}
+a.secondary-link {
+    color: #2d6cff;
+    font-weight: 600;
+    text-decoration: none;
+}
+a.secondary-link:hover {
+    text-decoration: underline;
+}
+.progress-footer {
+    margin-top: 34px;
+    padding: 20px 24px;
+    background: rgba(45, 108, 255, 0.05);
+    border-radius: 22px;
+}
+.progress-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+.form-actions {
+    margin-top: 22px;
+}
+.step-item {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: #ffffff;
+    font-weight: 700;
+    background: #cbd7e9;
+}
+.step-item.completed {
+    background: #2d6cff;
+}
+.step-item.current {
+    background: #15b5ff;
+}
+.connector {
+    flex: 1;
+    height: 4px;
+    border-radius: 999px;
+    background: #d8e5fb;
+}
+.connector.active {
+    background: linear-gradient(90deg, #2d6cff 0%, #15b5ff 100%);
+}
+@media (max-width: 660px) {
+    .container {
+        margin: 24px 16px 32px;
+        padding: 24px;
+    }
+    .page-copy {
+        font-size: 0.98rem;
+    }
+}
 </style>
 </head>
 <body class="student-portal-page">
 <div class="container">
-    <h1>Student Registration</h1>
-    <p>After successful payment, complete student details and submit to register.</p>
+    <h1 class="page-title">Student Registration</h1>
+    <p class="page-copy">After successful payment, complete the form below to finish student registration. All required fields are marked with *</p>
+    <div class="page-copy" style="font-size:0.94rem; padding: 16px 0 0; color:#506d85;">
+        <strong>High-level flow:</strong> required fields are checked first, document uploads are validated for type and size, and registration is saved only when the form passes basic validation.
+    </div>
 
     <?php if ($message) : ?>
         <div class="alert <?php echo htmlspecialchars($message_class); ?>"><?php echo htmlspecialchars($message); ?></div>
@@ -160,7 +394,7 @@ $defaultPhone = $paymentRecord['phone_number'] ?? '';
         <p>Error: no successful payment found for this transaction reference.</p>
         <p><a href="departmentlist.php">Go back and try again</a></p>
     <?php else: ?>
-        <form method="post" action="">
+        <form method="post" action="" enctype="multipart/form-data">
             <div class="form-row">
                 <div>
                     <label for="S_ID">Student ID *</label>
@@ -197,6 +431,11 @@ $defaultPhone = $paymentRecord['phone_number'] ?? '';
                 <div>
                     <label for="Phone_No">Phone *</label>
                     <input type="text" id="Phone_No" name="Phone_No" value="<?php echo htmlspecialchars($phone ?? $defaultPhone); ?>" required>
+                </div>
+                <div>
+                    <label for="document_file">Upload Document</label>
+                    <input type="file" id="document_file" name="document_file" accept=".pdf,image/png,image/jpeg">
+                    <small style="display:block; margin-top:6px; color:#617d98;">PDF, JPG, JPEG, PNG. Max 5MB.</small>
                 </div>
                 <div>
                     <label for="College">College *</label>
@@ -242,13 +481,13 @@ $defaultPhone = $paymentRecord['phone_number'] ?? '';
                 </div>
             </div>
 
-            <div style="margin-top:18px;">
+            <div class="form-actions">
                 <button type="submit">Register Student</button>
             </div>
         </form>
     <?php endif; ?>
 
-    <p style="margin-top: 20px;"><a href="departmentlist.php">Back to college & department</a></p>
+    <p style="margin-top: 20px;"><a class="secondary-link" href="departmentlist.php">Back to college & department</a></p>
 </div>
 
 <footer class="progress-footer">

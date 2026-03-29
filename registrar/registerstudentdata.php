@@ -12,6 +12,61 @@ $photo_path = registrarCurrentPhotoPath();
 $upload_message = '';
 $upload_message_class = 'error';
 
+function registrarNormalizeCsvText(string $value): string
+{
+    $value = trim($value);
+    if ($value === '') {
+        return '';
+    }
+
+    if (!preg_match('//u', $value)) {
+        if (function_exists('iconv')) {
+            $converted = @iconv('Windows-1252', 'UTF-8//IGNORE', $value);
+            if (is_string($converted) && $converted !== '') {
+                $value = $converted;
+            } else {
+                $converted = @iconv('ISO-8859-1', 'UTF-8//IGNORE', $value);
+                if (is_string($converted) && $converted !== '') {
+                    $value = $converted;
+                }
+            }
+        }
+
+        if (!preg_match('//u', $value) && function_exists('mb_convert_encoding')) {
+            $value = mb_convert_encoding($value, 'UTF-8', 'Windows-1252,ISO-8859-1,UTF-8');
+        }
+    }
+
+    $value = str_replace("\xC2\xA0", ' ', $value);
+    $value = preg_replace('/\s+/u', ' ', $value);
+    $value = preg_replace('/[\x00-\x1F\x7F]/u', '', $value);
+
+    return trim($value);
+}
+
+function registrarNormalizeCsvDate(string $value): string
+{
+    $value = registrarNormalizeCsvText($value);
+    if ($value === '') {
+        return date('Y-m-d');
+    }
+
+    $formats = array('Y-m-d', 'm/d/Y', 'n/j/Y', 'd/m/Y', 'j/n/Y', 'm-d-Y', 'n-j-Y');
+    foreach ($formats as $format) {
+        $date = DateTime::createFromFormat($format, $value);
+        if ($date instanceof DateTime) {
+            return $date->format('Y-m-d');
+        }
+    }
+
+    $timestamp = strtotime($value);
+    if ($timestamp !== false) {
+        return date('Y-m-d', $timestamp);
+    }
+
+    return date('Y-m-d');
+}
+
 if (isset($_POST['submit'])) {
     $file = $_FILES['file'] ?? null;
 
@@ -28,7 +83,28 @@ if (isset($_POST['submit'])) {
             if ($handle === false) {
                 $upload_message = 'The selected file could not be opened.';
             } else {
-                $sql = "INSERT INTO student (S_ID, FName, mname, LName, Sex, Email, Phone_No, College, Department, year, section, semister, program, Location, Education_level, Date, unread, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $sql = "INSERT INTO student
+                            (S_ID, FName, mname, LName, Sex, Email, Phone_No, College, Department, year, section, semister, program, Location, Education_level, Date, unread, status)
+                        VALUES
+                            (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE
+                            FName = VALUES(FName),
+                            mname = VALUES(mname),
+                            LName = VALUES(LName),
+                            Sex = VALUES(Sex),
+                            Email = VALUES(Email),
+                            Phone_No = VALUES(Phone_No),
+                            College = VALUES(College),
+                            Department = VALUES(Department),
+                            year = VALUES(year),
+                            section = VALUES(section),
+                            semister = VALUES(semister),
+                            program = VALUES(program),
+                            Location = VALUES(Location),
+                            Education_level = VALUES(Education_level),
+                            Date = VALUES(Date),
+                            unread = VALUES(unread),
+                            status = VALUES(status)";
                 $stmt = mysqli_prepare($conn, $sql);
 
                 if (!$stmt) {
@@ -37,92 +113,97 @@ if (isset($_POST['submit'])) {
                 } else {
                     $result = true;
                     $row_number = 0;
-                    $imported_rows = 0;
+                    $processed_rows = 0;
 
-                    while (($data = fgetcsv($handle)) !== false) {
-                        $row_number++;
-                        if (!is_array($data) || count($data) < 13) {
-                            continue;
-                        }
+                    try {
+                        while (($data = fgetcsv($handle)) !== false) {
+                            $row_number++;
+                            if (!is_array($data) || count($data) < 13) {
+                                continue;
+                            }
 
-                        $id = trim((string) ($data[0] ?? ''));
-                        if ($id === '' || strcasecmp($id, 'S_ID') === 0) {
-                            continue;
-                        }
+                            $id = registrarNormalizeCsvText((string) ($data[0] ?? ''));
+                            if ($id === '' || strcasecmp($id, 'S_ID') === 0) {
+                                continue;
+                            }
 
-                        $fname = trim((string) ($data[1] ?? ''));
-                        $mname = trim((string) ($data[2] ?? ''));
-                        $lname = trim((string) ($data[3] ?? ''));
-                        $sex = trim((string) ($data[4] ?? ''));
-                        $email = trim((string) ($data[5] ?? ''));
-                        $pno = trim((string) ($data[6] ?? ''));
-                        $coll = trim((string) ($data[7] ?? ''));
-                        $dept = trim((string) ($data[8] ?? ''));
-                        $year = trim((string) ($data[9] ?? ''));
-                        $sem = trim((string) ($data[10] ?? ''));
-                        $program = trim((string) ($data[11] ?? ''));
-                        $date = trim((string) ($data[12] ?? ''));
+                            $fname = registrarNormalizeCsvText((string) ($data[1] ?? ''));
+                            $mname = registrarNormalizeCsvText((string) ($data[2] ?? ''));
+                            $lname = registrarNormalizeCsvText((string) ($data[3] ?? ''));
+                            $sex = registrarNormalizeCsvText((string) ($data[4] ?? ''));
+                            $email = registrarNormalizeCsvText((string) ($data[5] ?? ''));
+                            $pno = registrarNormalizeCsvText((string) ($data[6] ?? ''));
+                            $coll = registrarNormalizeCsvText((string) ($data[7] ?? ''));
+                            $dept = registrarNormalizeCsvText((string) ($data[8] ?? ''));
+                            $year = registrarNormalizeCsvText((string) ($data[9] ?? ''));
+                            $sem = registrarNormalizeCsvText((string) ($data[10] ?? ''));
+                            $program = registrarNormalizeCsvText((string) ($data[11] ?? ''));
+                            $date = registrarNormalizeCsvDate((string) ($data[12] ?? ''));
 
-                        $section = trim((string) ($data[13] ?? ''));
-                        $location = trim((string) ($data[14] ?? ''));
-                        $education_level = trim((string) ($data[15] ?? ''));
-                        $unread = trim((string) ($data[16] ?? ''));
-                        $status = trim((string) ($data[17] ?? ''));
+                            $section = registrarNormalizeCsvText((string) ($data[13] ?? ''));
+                            $location = registrarNormalizeCsvText((string) ($data[14] ?? ''));
+                            $education_level = registrarNormalizeCsvText((string) ($data[15] ?? ''));
+                            $unread = registrarNormalizeCsvText((string) ($data[16] ?? ''));
+                            $status = registrarNormalizeCsvText((string) ($data[17] ?? ''));
 
-                        if ($section === '') {
-                            $section = ' ';
-                        }
-                        if ($location === '') {
-                            $location = ' ';
-                        }
-                        if ($education_level === '') {
-                            $education_level = ' ';
-                        }
-                        if ($unread === '') {
-                            $unread = ' ';
-                        }
-                        if ($status === '') {
-                            $status = ' ';
-                        }
+                            if ($section === '') {
+                                $section = ' ';
+                            }
+                            if ($location === '') {
+                                $location = ' ';
+                            }
+                            if ($education_level === '') {
+                                $education_level = ' ';
+                            }
+                            if ($unread === '') {
+                                $unread = 'yes';
+                            }
+                            if ($status === '') {
+                                $status = 'active';
+                            }
 
-                        mysqli_stmt_bind_param(
-                            $stmt,
-                            'ssssssssssssssssss',
-                            $id,
-                            $fname,
-                            $mname,
-                            $lname,
-                            $sex,
-                            $email,
-                            $pno,
-                            $coll,
-                            $dept,
-                            $year,
-                            $section,
-                            $sem,
-                            $program,
-                            $location,
-                            $education_level,
-                            $date,
-                            $unread,
-                            $status
-                        );
+                            mysqli_stmt_bind_param(
+                                $stmt,
+                                'ssssssssssssssssss',
+                                $id,
+                                $fname,
+                                $mname,
+                                $lname,
+                                $sex,
+                                $email,
+                                $pno,
+                                $coll,
+                                $dept,
+                                $year,
+                                $section,
+                                $sem,
+                                $program,
+                                $location,
+                                $education_level,
+                                $date,
+                                $unread,
+                                $status
+                            );
 
-                        if (!mysqli_stmt_execute($stmt)) {
-                            $result = false;
-                            $upload_message = 'CSV import stopped on row ' . $row_number . ': ' . mysqli_stmt_error($stmt);
-                            break;
+                            if (!mysqli_stmt_execute($stmt)) {
+                                $result = false;
+                                $upload_message = 'CSV import stopped on row ' . $row_number . ': ' . mysqli_stmt_error($stmt);
+                                break;
+                            }
+
+                            $processed_rows++;
                         }
-
-                        $imported_rows++;
+                    } catch (Throwable $exception) {
+                        $result = false;
+                        $upload_message = 'CSV import stopped on row ' . $row_number . ': ' . $exception->getMessage();
                     }
 
                     fclose($handle);
                     mysqli_stmt_close($stmt);
 
                     if ($result && $upload_message === '') {
-                        if ($imported_rows > 0) {
-                            $upload_message = 'Student records were registered successfully. Imported rows: ' . $imported_rows . '.';
+                        if ($processed_rows > 0) {
+                            $upload_message = 'Student records were registered successfully. Processed rows: ' . $processed_rows . '. Existing student IDs were updated when matched.';
                             $upload_message_class = 'success';
                         } else {
                             $upload_message = 'No student rows were imported. Please check the CSV column order.';

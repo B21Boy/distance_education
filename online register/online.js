@@ -13,11 +13,8 @@ const otpInput = document.getElementById("otp-code");
 const sendOtpButton = document.getElementById("send-otp-btn");
 const verifyOtpButton = document.getElementById("verify-otp-btn");
 const passwordHint = document.getElementById("password-hint");
+const otpDebug = document.getElementById("otp-debug");
 const formStatus = document.getElementById("form-status");
-const detailsSummaryItem = document.getElementById("details-summary-item");
-const otpSentSummaryItem = document.getElementById("otp-sent-summary-item");
-const phoneSummaryItem = document.getElementById("phone-summary-item");
-const selectionSummaryItem = document.getElementById("selection-summary-item");
 const processStep1 = document.getElementById("process-step-1");
 const processStep2 = document.getElementById("process-step-2");
 const processStep3 = document.getElementById("process-step-3");
@@ -32,6 +29,10 @@ let isSendingOtp = false;
 let isVerifyingOtp = false;
 
 function setStatus(message, state) {
+    if (!formStatus) {
+        return;
+    }
+
     formStatus.textContent = message;
     formStatus.className = `status-box ${state}`;
 }
@@ -45,6 +46,21 @@ function setVerificationState(verified, phoneNumber = "") {
     phoneVerified = verified;
     phoneVerifiedInput.value = verified ? "1" : "0";
     verifiedPhoneNumberInput.value = phoneNumber;
+}
+
+function setOtpDebug(message) {
+    if (!otpDebug) {
+        return;
+    }
+
+    if (!message) {
+        otpDebug.textContent = "";
+        otpDebug.classList.add("hidden");
+        return;
+    }
+
+    otpDebug.textContent = message;
+    otpDebug.classList.remove("hidden");
 }
 
 function sanitizePhoneNumber(value) {
@@ -152,46 +168,21 @@ function readAndValidateForm() {
 }
 
 function updateSummary() {
-    const detailsValid = Boolean(
-        usernameInput.value.trim() &&
-        isValidPhoneNumber(normalizePhoneNumber(phoneInput.value)) &&
-        validatePasswordMatch()
-    );
-
-    setChecklistItem(
-        detailsSummaryItem,
-        detailsValid ? "User name, matching password, and phone number are valid." : "Form details are not valid yet.",
-        detailsValid
-    );
-    setChecklistItem(
-        otpSentSummaryItem,
-        otpSent ? "OTP has been sent to the phone number." : "OTP has not been sent yet.",
-        otpSent
-    );
-    setChecklistItem(
-        phoneSummaryItem,
-        phoneVerified ? `Phone number ${verifiedPhoneNumberInput.value} verified successfully with OTP.` : "Phone number is not verified yet.",
-        phoneVerified
-    );
-    setChecklistItem(
-        selectionSummaryItem,
-        phoneVerified ? "Ready to select college and department." : "College and department not selected yet.",
-        phoneVerified
-    );
-
     updateProcessSteps();
 }
 
 function updateProcessSteps() {
-    const hasAccountInfo = usernameInput.value.trim().length > 0 && validatePasswordMatch();
-    const hasOtpSent = otpSent;
-    const hasPhoneVerified = phoneVerified;
+    const hasStep1 = usernameInput.value.trim().length > 0 && isValidPhoneNumber(normalizePhoneNumber(phoneInput.value));
+    const hasStep2 = validatePasswordMatch();
+    const hasStep3 = otpSent;
+    const hasStep4 = phoneVerified;
 
-    processStep1.className = hasAccountInfo ? "process-item success" : "process-item pending";
-    processStep2.className = hasOtpSent || hasPhoneVerified ? "process-item success" : "process-item pending";
-    processStep3.className = hasPhoneVerified ? "process-item success" : "process-item pending";
+    processStep1.className = hasStep1 ? "process-item success" : "process-item pending";
+    processStep2.className = hasStep2 ? "process-item success" : "process-item pending";
+    processStep3.className = hasStep3 ? "process-item success" : "process-item pending";
+    processStep4.className = hasStep4 ? "process-item success" : "process-item pending";
 
-    updateFooterProgress(hasAccountInfo, hasPhoneVerified);
+    updateFooterProgress(hasStep1, hasStep2);
 }
 
 function updateFooterProgress(step1Complete, step2Complete) {
@@ -268,6 +259,10 @@ function resetOtpState(showMessage) {
     sendOtpButton.disabled = false;
     isSendingOtp = false;
     isVerifyingOtp = false;
+
+    if (otpDebug) {
+        setOtpDebug("");
+    }
 
     if (showMessage) {
         setStatus("Form data changed. Send a new OTP for the updated phone number and details.", "pending");
@@ -365,6 +360,7 @@ sendOtpButton.addEventListener("click", async () => {
         otpInput.disabled = false;
         verifyOtpButton.disabled = false;
         setStatus(`${response.message}${getDebugMessage(response)}`, "success");
+        setOtpDebug(response.debugOtp ? `OTP: ${response.debugOtp}` : "");
         updateSummary();
     } catch (error) {
         otpSent = false;

@@ -45,6 +45,7 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
 {
     $photo_value = isset($_SESSION['sphoto']) ? trim($_SESSION['sphoto']) : '';
     $photo_path = $photo_value !== '' ? htmlspecialchars($photo_value, ENT_QUOTES, 'UTF-8') : '../images/default.png';
+    $pageView = isset($_GET['view']) ? trim((string) $_GET['view']) : '';
 ?>
 <div id="container">
     <div id="header">
@@ -62,7 +63,13 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
 
         <div id="content">
             <div id="contentindex5">
-                <?php require("index.php"); ?>
+                <?php
+                    if ($pageView === 'worked_fee') {
+                        require("worked_fee_dashboard.php");
+                    } else {
+                        require("index.php");
+                    }
+                ?>
             </div>
         </div>
 

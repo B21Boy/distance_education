@@ -1,89 +1,186 @@
 <?php
 session_start();
-require('../connection.php');
-$dept=$_SESSION['sdc'];
-$result1 = mysql_query("SELECT * FROM department where Dcode='$dept'");
-$row = mysql_fetch_array($result1);
-$dcode=$row['DName'];
+require_once(__DIR__ . "/../connection.php");
+
+$departmentCode = isset($_SESSION['sdc']) ? trim((string) $_SESSION['sdc']) : '';
+$departmentName = '';
+
+if ($departmentCode !== '') {
+    $stmt = mysqli_prepare($conn, "SELECT DName FROM department WHERE Dcode = ? LIMIT 1");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 's', $departmentCode);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_bind_result($stmt, $departmentNameResult);
+        if (mysqli_stmt_fetch($stmt)) {
+            $departmentName = trim((string) $departmentNameResult);
+        }
+        mysqli_stmt_close($stmt);
+    }
+}
+
+$departmentValue = $departmentName !== '' ? $departmentName : $departmentCode;
+$startYear = 2010;
+$endYear = max((int) date('Y') + 5, $startYear);
 ?>
-<style type="text/css">
-.ed{
-border-style:solid;
-border-width:thin;
-border-color:#00CCFF;
-padding:5px;
-margin-bottom: 4px;
+<style>
+.department-popup-panel {
+    width: min(100%, 680px);
+    padding: 14px;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
 }
-#button1{
-text-align:center;
-font-family:Arial, Helvetica, sans-serif;
-border-style:solid;
-border-width:thin;
-border-color:#00CCFF;
-padding:5px;
-background-color:#508abb;
-color: white;
-height: 34px;
-width: 100px;
+.department-popup-card {
+    border: 1px solid #d6e3ef;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
+    box-shadow: 0 18px 34px rgba(18, 53, 94, 0.10);
+    overflow: hidden;
 }
-
+.department-popup-header {
+    padding: 18px 22px 10px;
+    border-bottom: 1px solid #e1ebf5;
+}
+.department-popup-kicker {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: #deebfb;
+    color: #1b588a;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.department-popup-header h2 {
+    margin: 12px 0 6px;
+    color: #163b60;
+    font-size: 27px;
+    line-height: 1.15;
+}
+.department-popup-header p {
+    margin: 0;
+    color: #53708a;
+    font-size: 14px;
+    line-height: 1.6;
+}
+.department-popup-form {
+    padding: 22px;
+}
+.department-popup-grid {
+    display: grid;
+    gap: 16px;
+}
+.department-popup-grid.two-col {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.department-popup-field {
+    display: grid;
+    gap: 8px;
+}
+.department-popup-field.full {
+    grid-column: 1 / -1;
+}
+.department-popup-field label {
+    color: #1a4268;
+    font-size: 14px;
+    font-weight: 700;
+}
+.department-popup-field input,
+.department-popup-field select {
+    width: 100%;
+    min-height: 46px;
+    padding: 0 14px;
+    border: 1px solid #cddcec;
+    border-radius: 12px;
+    background: #ffffff;
+    box-sizing: border-box;
+    color: #17364e;
+    font-size: 14px;
+}
+.department-popup-note {
+    margin: 2px 0 0;
+    color: #5a738c;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.department-popup-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 4px;
+}
+.department-popup-actions button,
+.department-popup-actions input[type="reset"] {
+    min-height: 44px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+}
+.department-popup-actions button {
+    background: linear-gradient(135deg, #215fb8 0%, #2f86de 100%);
+    color: #ffffff;
+}
+.department-popup-actions input[type="reset"] {
+    background: #eaf0f6;
+    color: #294663;
+}
+@media (max-width: 720px) {
+    .department-popup-panel {
+        padding: 6px;
+    }
+    .department-popup-form {
+        padding: 18px;
+    }
+    .department-popup-grid.two-col {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
-<form action="addcours.php"  method="post" enctype="multipart/form-data"  onSubmit="return validate(this);">
-<table  cellpadding="5" border="0">
-<tr><td colspan="2" ><center>Course registration Form</center></td></tr>
 
-
-<tr><td>Course Code:</td><td><input type="text" class="ed" name="cd" id="cd" style="height:30px; width:180px;"required="required"  placeholder="please enter course code" />
-<script type="text/javascript">
-				    var f1 = new LiveValidation('cd');
-				    f1.add(Validate.Presence,{failureMessage: " please enter course code"});
-				     f1.add(Validate.Format,{pattern: /^[a-zA-Z0-9]+$/ ,failureMessage: " It allows only String and Number"});
-				 </script> 	
-</td></tr>
-<tr><td>Course Title:</td><td><input type="text" class="ed" name="cn" id="cn" style="height:30px; width:180px;" required="required"  placeholder="please enter course Title" />
-<script type="text/javascript">
-				    var f1 = new LiveValidation('cn');
-				    f1.add(Validate.Presence,{failureMessage: "please enter course Title "});
-				     f1.add(Validate.Format,{pattern: /^[a-zA-Z]+$/ ,failureMessage: " It allows only String"});
-				 </script> 	
-</td></tr>
-
-
-<tr><td>Creadit Hour:</td><td><input type="text" name="ch" id="ch" class="ed" style="height:30px; width:180px;" required="required"  placeholder="please enter credit hour" />
-<script type="text/javascript">
-				    var f1 = new LiveValidation('ch');
-				    f1.add(Validate.Presence,{failureMessage: " Please enter credit hour"});
-				     f1.add(Validate.Format,{pattern: /^[0-9]+$/ ,failureMessage: " It allows only number"});
-				 </script> 	
-</td></tr>
-
-<tr><td>department:</td><td><input type="text" class="ed" name="dc" readonly style="height:30px; width:180px;color:red;" required value="<?php echo $dcode ?>"/>
-
-</td></tr>
-
-<tr><td> Year:</td><td>
-<select name="ayear" required style="height:30px; width:180px;" class="ed">
-   <option>---select Year---</option>
-	<option value=2010>2010</option>
-	<option value=2011>2011</option>
-	<option value=2012>2012</option>
-	<option value=2013>2013</option>
-	<option value=2014>2014</option>
-	<option value=2015>2015</option>
-	<option value=2016>2016</option>
-	<option value=2017>2017</option>
-	<option value=2018>2018</option>
-	
-</select>	
-</td></tr>
-
-
-<tr><td></td>
-<td><input type="submit"  name="submit" value="Register" style="height: 40px;width: 120px;"id="button1">
-<input type="reset"  name="clear" value="Clear" style="height: 40px;width: 120px;"id="button1"> </td>
-
-</tr>
-</table>
-</form>
-	
-	
+<div class="department-popup-panel">
+    <div class="department-popup-card">
+        <div class="department-popup-header">
+            <span class="department-popup-kicker">Department</span>
+            <h2>Add Course</h2>
+            <p>Register a new course for this department from a cleaner popup form.</p>
+        </div>
+        <form action="addcours.php" method="post" class="department-popup-form">
+            <div class="department-popup-grid two-col">
+                <div class="department-popup-field">
+                    <label for="cd">Course Code</label>
+                    <input type="text" name="cd" id="cd" required placeholder="Enter course code" pattern="[A-Za-z0-9-]+" title="Use letters, numbers, or hyphen only.">
+                </div>
+                <div class="department-popup-field">
+                    <label for="ch">Credit Hour</label>
+                    <input type="number" name="ch" id="ch" required min="1" step="1" placeholder="Enter credit hour">
+                </div>
+                <div class="department-popup-field full">
+                    <label for="cn">Course Title</label>
+                    <input type="text" name="cn" id="cn" required placeholder="Enter course title">
+                </div>
+                <div class="department-popup-field">
+                    <label for="dc">Department</label>
+                    <input type="text" name="dc" id="dc" value="<?php echo htmlspecialchars($departmentValue, ENT_QUOTES, 'UTF-8'); ?>" required placeholder="Enter department name">
+                </div>
+                <div class="department-popup-field">
+                    <label for="ayear">Academic Year</label>
+                    <select name="ayear" id="ayear" required>
+                        <option value="">Select academic year</option>
+                        <?php for ($year = $startYear; $year <= $endYear; $year++) { ?>
+                        <option value="<?php echo htmlspecialchars((string) $year, ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars((string) $year, ENT_QUOTES, 'UTF-8'); ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+            <p class="department-popup-note">All fields are required. The department field now auto-fills when available, and you can edit it if needed before saving.</p>
+            <div class="department-popup-actions">
+                <button type="submit" name="submit">Save Course</button>
+                <input type="reset" value="Clear">
+            </div>
+        </form>
+    </div>
+</div>

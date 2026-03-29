@@ -10,8 +10,8 @@ if (!registrarIsLoggedIn()) {
 
 $photo_path = registrarCurrentPhotoPath();
 $departments = registrarFetchDepartments($conn);
-$class_years = ['1st', '2nd', '3rd', '4th'];
-$semesters = ['I', 'II', 'III'];
+$class_years = ['1st', '2nd', '3rd', '4th','5th'];
+$semesters = ['I', 'II',];
 ?>
 <!DOCTYPE html>
 <html lang="en">

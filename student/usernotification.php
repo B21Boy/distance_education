@@ -1,166 +1,68 @@
 <?php
 session_start();
-include("../connection.php");
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<script src="theme.js"></script>
-<meta charset="UTF-8">
-<title>
-Student page
-</title>
-<link rel="stylesheet" type="text/css" href="../setting.css">
-<script type="text/javascript" src="../javascript\date_time.js"></script>
-<style>
-/* inline fallback when stylesheet isn't loaded: keep columns, spacing, and proportions */
-.main-row {
-    display: flex !important;
-    flex-direction: row !important;
-    gap: 20px !important;
-    align-items: flex-start !important;
+require_once("../connection.php");
+require_once(__DIR__ . "/page_helpers.php");
+
+studentRequireLogin();
+
+$messages = array();
+$userId = studentCurrentUserId();
+
+if ($userId !== '') {
+    $sql = "SELECT m.M_ID, m.message, m.date_sended,
+                   COALESCE(NULLIF(TRIM(CONCAT_WS(' ', u.fname, u.lname)), ''), m.M_sender) AS sender_name
+            FROM message m
+            LEFT JOIN user u ON u.UID = m.M_sender
+            WHERE m.M_reciever = ?
+              AND m.status = 'no'
+            ORDER BY m.date_sended DESC";
+    $stmt = mysqli_prepare($conn, $sql);
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 's', $userId);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if ($result instanceof mysqli_result) {
+            while ($row = mysqli_fetch_assoc($result)) {
+                $messages[] = $row;
+            }
+            mysqli_free_result($result);
+        }
+        mysqli_stmt_close($stmt);
+    }
 }
-.main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
-.main-row > #sidebar { flex: 0 0 260px !important; }
-</style>
-</head>
-<body class="student-portal-page light-theme">
-<?php
-if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
-{
+
+$actionsHtml = '<a class="student-action-link" rel="facebox" href="newnotification1.php">New Message</a>';
+
+studentRenderPageStart(
+    "User notifications",
+    "Messaging",
+    "Unread Notifications",
+    "Read the latest unread messages sent to your student account and reply directly from this page.",
+    array('actions_html' => $actionsHtml)
+);
 ?>
-<div id="container">
-
-    <!-- Header -->
-    <div id="header">
-         <?php require("header.php"); ?>
-    </div>
-
-    <!-- Menu -->
-    <div id="menu">
-        <?php require("menustud.php"); ?>
-    </div>
-
-    <!-- Main row: left | center | right -->
-    <div class="main-row">
-        <!-- Left Sidebar -->
-        <div id="left">
-            <?php require("sidemenustud.php"); ?>
-        </div>
-
-        <!-- Main Content (center) -->
-        <div id="content">
-            <div id="contentindex5">
-
-<?php
-//mag show sang information sang user nga nag login
-$user_id=$_SESSION['suid'];
-
-
-?>
-<!--center side---->
-<p align="center"><font face="Times New Roman" color="black" size="4"> View And Send Message</font></p>
-
-<table width="635"  align="center">
-    <tr>
-     <td  valign="top"  width="635">
-<form  method="POST" action="viewnotification.php">
-<table align="center" border="0" cellpadding = "10" bgcolor="#EEEEEE">
-<tr>
-<td colspan="3" align="center" bgcolor="white">
-
-
-
-<?php
-	//first fetch whom u have send chats
-	
-		
-$sql="SELECT * FROM message WHERE M_reciever='$user_id' and status='no' ORDER BY date_sended DESC";
-	$result=mysql_query($sql);
-	$count=mysql_num_rows($result);
-	echo '<a  rel="facebox" href="newnotification1.php">'.'<font  size=3 face=Times New Roman>'."New Message"."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"."</font>".'</a>';
-	if($count<1)
-	{
-	echo('<font color="black" size="3" face="Times New Roman">No New Message</font>');
-	}
-	else
-	{
-	while ($row = mysql_fetch_array($result))
-	{
-		$s=$row['M_sender'];
-$result1=mysql_query("select * from user where UID='$s'")or die(mysql_error);
-$row1=mysql_fetch_array($result1);
-$FirstName=$row1['fname'];
-$middleName=$row1['lname'];
-	    echo "<table   width='400' height='100'/>";
-		echo "<hr style='border-top:3px solid #c3c3c3; border-bottom:1px solid white'/>";
-		echo "<br/><font color=black size=3 face=Times New Roman> $FirstName&nbsp;&nbsp;$middleName </br>";
-		echo "<br/> $row[message]<br/>";
-		echo "<br/> $row[date_sended]"."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;".
-		'<a  rel="facebox" href="viewnotification1.php?M_ID='.$row['M_ID'].'">'."Replay".'</a>';
-		 echo "</table>";
-	}
-	}
-
-?>
-</td>
-</tr>
-</table>
-</td>
-</tr>
-</table>            
-
-<!--end of center side---->
-	</div>
-        </div>
-
-        <!-- Right Sidebar -->
-        <div id="sidebar">
-            <div id="siderightindexphoto">
-                <div id="siderightindexphoto1">
-                    User Profile
-                </div>
-
-
-                <?php
-                echo "<b><br><font color=blue>Welcome:</font><font color=#f9160b>(".$_SESSION['sfn']."&nbsp;&nbsp;&nbsp;".$_SESSION['sln'].")</font></b><b><br><img src='".$_SESSION['sphoto']."'width=180px height=160px></b>";
-                ?>
-                <div id="sidebarr">
-                    <ul>
-                        <li><a href="updateprofilephoto.php">Change Photo</a></li>
-                        <li><a href="changepass.php">Change password</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div id="siderightindexadational">
-                <div id="siderightindexadational1">
-                    Social link
-                </div>
-                <div id="siderightindexadational12">
-                    <table>
-                        <tr><td><div id="facebook"></div></td><td>
-                        <p><a href="https://www.facebook.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Facebook</a><p></td></tr>
-                        <tr><td><div id="twitter"></div></td><td><p><a href="https://www.twitter.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Twitter</a></p></td></tr>
-                        <tr><td><div id="you"></div></td><td><p><a href="https://www.youtube.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Youtube</a></p></td></tr>
-                        <tr><td><div id="googleplus"></div></td><td><p><a href="https://plus.google.com/" style="text-decoration: none;">&nbsp;&nbsp;&nbsp;Google++</a></p></td></tr></table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <div id="footer">
-        <?php include("../footer.php"); ?>
-    </div>
-
+<div class="student-stat-row">
+    <span class="student-stat-chip"><?php echo count($messages); ?> unread message<?php echo count($messages) === 1 ? '' : 's'; ?></span>
 </div>
-<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+<?php if (empty($messages)) { ?>
+    <div class="student-empty-state">You do not have any unread notifications right now.</div>
+<?php } else { ?>
+    <div class="student-message-list">
+        <?php foreach ($messages as $message) { ?>
+            <article class="student-message-card">
+                <div class="student-message-meta">
+                    <span>From: <?php echo studentH($message['sender_name'] ?? ''); ?></span>
+                    <span><?php echo studentH(studentFormatDate($message['date_sended'] ?? '', 'M j, Y g:i A')); ?></span>
+                </div>
+                <p><?php echo nl2br(studentH($message['message'] ?? '')); ?></p>
+                <div class="student-message-actions">
+                    <a class="student-action-link secondary" rel="facebox" href="viewnotification1.php?M_ID=<?php echo urlencode((string) ($message['M_ID'] ?? '')); ?>">Reply</a>
+                </div>
+            </article>
+        <?php } ?>
+    </div>
+<?php } ?>
 <?php
-}
-else
-header("location:../index.php");
+studentRenderPageEnd();
 ?>
-</body>
-</html> 

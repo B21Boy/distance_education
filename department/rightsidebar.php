@@ -16,21 +16,19 @@ $profilePhoto = departmentCurrentPhotoPath();
     <div class="sidebar-panel-title">User Profile</div>
     <div class="sidebar-panel-body">
         <div class="sidebar-profile-card">
+            <p class="sidebar-profile-kicker"><?php echo departmentH($departmentRole); ?></p>
+            <p class="sidebar-profile-name">
+                <strong>Welcome:</strong>
+                <span>(<?php echo departmentH((string) ($_SESSION['sfn'] ?? 'User')); ?>&nbsp;&nbsp;&nbsp;<?php echo departmentH((string) ($_SESSION['sln'] ?? '')); ?>)</span>
+            </p>
+            <p class="sidebar-profile-role">
+                <?php
+                echo $departmentName !== ''
+                    ? departmentH($departmentName) . ' department account shortcuts are available below.'
+                    : 'Your department account shortcuts are available below.';
+                ?>
+            </p>
             <img src="<?php echo departmentH($profilePhoto); ?>" alt="Department head profile photo" class="profile-thumb">
-            <div class="sidebar-profile-content">
-                <p class="sidebar-profile-kicker"><?php echo departmentH($departmentRole); ?></p>
-                <p class="sidebar-profile-name">
-                    <strong><?php echo departmentH($profileName); ?></strong>
-                    <span><?php echo departmentCurrentUserId() !== '' ? departmentH(departmentCurrentUserId()) : 'Active account'; ?></span>
-                </p>
-                <p class="sidebar-profile-role">
-                    <?php
-                    echo $departmentName !== ''
-                        ? departmentH($departmentName) . ' department dashboard access'
-                        : 'Department dashboard access';
-                    ?>
-                </p>
-            </div>
         </div>
         <ul class="sidebar-action-list">
             <li><a href="updateprofilephoto.php">Change Photo</a></li>
@@ -45,7 +43,7 @@ $profilePhoto = departmentCurrentPhotoPath();
             <li><a href="https://www.facebook.com/" target="_blank" rel="noreferrer"><span class="sidebar-social-badge facebook">Fb</span>Facebook</a></li>
             <li><a href="https://www.twitter.com/" target="_blank" rel="noreferrer"><span class="sidebar-social-badge twitter">Tw</span>Twitter</a></li>
             <li><a href="https://www.youtube.com/" target="_blank" rel="noreferrer"><span class="sidebar-social-badge youtube">YT</span>YouTube</a></li>
-            <li><a href="https://www.linkedin.com/" target="_blank" rel="noreferrer"><span class="sidebar-social-badge google">In</span>LinkedIn</a></li>
+            <li><a href="https://plus.google.com/" target="_blank" rel="noreferrer"><span class="sidebar-social-badge google">G+</span>Google+</a></li>
         </ul>
     </div>
 </div>

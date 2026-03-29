@@ -42,6 +42,12 @@ foreach ($template_paths as $template_path) {
         break;
     }
 }
+if ($template_content !== false) {
+    $template_content = str_replace(
+        array('በባህር ዳር', 'ባህር ዳር'),
+        $template_content
+    );
+}
 $date = date('Y-m-d');
 ?>
 <div class="cde-popup-card">
@@ -77,7 +83,7 @@ $date = date('Y-m-d');
         </div>
         <label class="cde-popup-field" for="pb">
             Posted By
-            <input type="text" name="pb" id="pb" class="cde-popup-input" value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ደብረ ማርቆስ ዩኒቨርስቲ" required>
+            <input type="text" name="pb" id="pb" class="cde-popup-input" value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ባህር ዳር ዩኒቨርስቲ" required>
         </label>
         <div class="cde-popup-actions">
             <button type="submit" value="Post" name="sent" class="cde-popup-btn">Post</button>

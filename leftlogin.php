@@ -7,6 +7,62 @@ include("connection.php");
 
 $error = "";
 
+function normalize_login_role(string $role): string
+{
+    $normalized = strtolower(trim($role));
+    $normalized = str_replace(array('-', ' '), '_', $normalized);
+
+    $aliases = array(
+        'admin' => 'administrator',
+        'administrator' => 'administrator',
+        'system_admin' => 'administrator',
+        'cde_officer' => 'cdeofficer',
+        'cdeofficer' => 'cdeofficer',
+        'registrar' => 'registrar',
+        'department_head' => 'department_head',
+        'dept_head' => 'department_head',
+        'instructor' => 'instructor',
+        'student' => 'student',
+        'finance_staff' => 'financestaff',
+        'finance' => 'financestaff',
+        'financestaff' => 'financestaff',
+        'collage_dean' => 'collage_dean',
+        'college_dean' => 'collage_dean',
+        'acadamic_vice_presid' => 'acadamic_vice_presidant',
+        'acadamic_vice_presidant' => 'acadamic_vice_presidant',
+        'academic_vice_president' => 'acadamic_vice_presidant',
+        'academic_vice_presidant' => 'acadamic_vice_presidant',
+        'vice_president' => 'acadamic_vice_presidant',
+        'vice_presidant' => 'acadamic_vice_presidant',
+        'directorat' => 'directorat',
+        'directorate' => 'directorat',
+        'director' => 'directorat',
+    );
+
+    return isset($aliases[$normalized]) ? $aliases[$normalized] : $normalized;
+}
+
+function login_dashboard_route(string $role): string
+{
+    $roleKey = normalize_login_role($role);
+
+    $routes = array(
+        'administrator' => 'admin/adminhomepage.php',
+        'registrar' => 'registrar/registrarpage.php',
+        'department_head' => 'department/deptheadpage.php',
+        'instructor' => 'instructor/instructorpage.php',
+        'student' => 'student/studentpage.php',
+        'cdeofficer' => 'cdeofficer/cdeofficerpage.php',
+        'financestaff' => 'finance/financestafpage.php',
+        'collage_dean' => 'collage/financestafpage.php',
+        'acadamic_vice_presidant' => 'vice_presidant/vicepage.php',
+        // The project has no dedicated directorat dashboard directory.
+        'directorat' => 'vice_presidant/vicepage.php',
+    );
+
+    return isset($routes[$roleKey]) ? $routes[$roleKey] : '';
+}
+
 if (isset($_POST["login"])) {
     $un = trim($_POST["un"]);
     $pass = trim($_POST["pass"]);
@@ -22,10 +78,11 @@ if (isset($_POST["login"])) {
             $_SESSION['sun'] = $row["UserName"];
             $_SESSION['spw'] = $row["Password"];
             $_SESSION['srole'] = $row["Role"];
+            $_SESSION['srole_key'] = normalize_login_role((string) $row["Role"]);
             $_SESSION['login_time'] = date("H:i:s");
 
             $uid = $row["UID"];
-            $user_sql = "SELECT fname, lname, photo FROM user WHERE UID = ?";
+            $user_sql = "SELECT fname, lname, photo, d_code, c_code FROM user WHERE UID = ?";
             if ($user_stmt = $conn->prepare($user_sql)) {
                 $user_stmt->bind_param("s", $uid);
                 $user_stmt->execute();
@@ -34,10 +91,16 @@ if (isset($_POST["login"])) {
                     $_SESSION['sfn'] = $user_row['fname'];
                     $_SESSION['sln'] = $user_row['lname'];
                     $_SESSION['sphoto'] = $user_row['photo'];
+                    $_SESSION['sdc'] = isset($user_row['d_code']) ? (string) $user_row['d_code'] : "";
+                    $_SESSION['sdcode'] = isset($user_row['d_code']) ? (string) $user_row['d_code'] : "";
+                    $_SESSION['sccode'] = isset($user_row['c_code']) ? (string) $user_row['c_code'] : "";
                 } else {
                     $_SESSION['sfn'] = "";
                     $_SESSION['sln'] = "";
                     $_SESSION['sphoto'] = "";
+                    $_SESSION['sdc'] = "";
+                    $_SESSION['sdcode'] = "";
+                    $_SESSION['sccode'] = "";
                 }
             }
 
@@ -45,41 +108,13 @@ if (isset($_POST["login"])) {
                 ob_end_clean();
             }
 
-            switch ($row["Role"]) {
-                case "administrator":
-                    header("Location: admin/adminhomepage.php");
-                    exit();
-                case "registrar":
-                    header("Location: registrar/registrarpage.php");
-                    exit();
-                case "department_head":
-                    header("Location: department/deptheadpage.php");
-                    exit();
-                case "instructor":
-                    header("Location: instructor/instructorpage.php");
-                    exit();
-                case "student":
-                    header("Location: student/studentpage.php");
-                    exit();
-                case "cdeofficer":
-                    header("Location: cdeofficer/cdeofficerpage.php");
-                    exit();
-                case "financestaff":
-                    header("Location: finance/financestafpage.php");
-                    exit();
-                case "collage_dean":
-                    header("Location: collage/financestafpage.php");
-                    exit();
-                case "acadamic_vice_presid":
-                case "acadamic_vice_presidant":
-                    header("Location: vice_presidant/vicepage.php");
-                    exit();
-                case "directorat":
-                    header("Location: directorat/directorpage.php");
-                    exit();
-                default:
-                    $error = "Unknown role type.";
+            $route = login_dashboard_route((string) $row["Role"]);
+            if ($route !== '' && file_exists(__DIR__ . '/' . $route)) {
+                header("Location: " . $route);
+                exit();
             }
+
+            $error = "This account role does not have a valid dashboard route yet.";
         } else {
             $error = "Invalid username or password.";
         }

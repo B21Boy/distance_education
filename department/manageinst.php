@@ -7,18 +7,16 @@ departmentRequireLogin();
 
 $departmentCode = departmentCurrentDepartmentCode();
 $departmentName = departmentCurrentDepartmentName($conn);
-$courses = [];
-
-if ($departmentName !== '') {
-    $escapedDepartment = mysqli_real_escape_string($conn, $departmentName);
-    $result = mysqli_query($conn, "SELECT course_code, cname, chour, ayear, department FROM course WHERE department = '{$escapedDepartment}' ORDER BY course_code ASC");
-    if ($result instanceof mysqli_result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-            $courses[] = $row;
-        }
-        mysqli_free_result($result);
-    }
-}
+$status = (string) ($_GET['status'] ?? '');
+$messages = [
+    'assigned' => 'Instructor assigned successfully.',
+    'empty' => 'All assignment fields are required.',
+    'invalid-course' => 'The selected course could not be found.',
+    'invalid-instructor' => 'The selected instructor could not be found.',
+    'already-assigned' => 'This course already has an assigned instructor.',
+    'error' => 'The instructor could not be assigned right now.'
+];
+$courses = departmentFetchCourses($conn);
 
 $actions = '';
 if ($departmentCode !== '') {
@@ -33,6 +31,7 @@ departmentRenderPageStart(
     $actions
 );
 ?>
+<?php echo departmentStatusBanner($status, $messages); ?>
 <div class="department-stat-row">
     <span class="department-stat-chip">Courses found: <?php echo count($courses); ?></span>
     <?php if ($departmentName !== '') { ?>

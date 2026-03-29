@@ -224,11 +224,11 @@ if ($user_id !== '') {
 
 $current_page = basename(isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : '');
 $menu_items = array(
-	array(
-		'href' => 'cdeofficerpage.php',
-		'label' => 'Calculate Employee Worked Fee[' . $total . ']',
-		'class' => $total >= 1 ? 'has-alert' : ''
-	),
+	// array(
+	// 	'href' => 'cdeofficerpage.php?view=worked_fee',
+	// 	'label' => 'Calculate Employee Worked Fee[' . $total . ']',
+	// 	'class' => $total >= 1 ? 'has-alert' : ''
+	// ),
 	array('href' => 'preparemoduleschedule.php', 'label' => 'Post module Preparation schedule'),
 	array(
 		'label' => 'Add Programs',
@@ -250,6 +250,11 @@ $menu_items = array(
 	array(
 		'href' => 'usernotification.php',
 		'label' => 'Notification[' . $message_count . ']',
+		'class' => $message_count >= 1 ? 'has-alert' : ''
+	),
+	array(
+		'href' => 'verfication.php',
+		'label' => 'Document Verfication[' . $message_count . ']',
 		'class' => $message_count >= 1 ? 'has-alert' : ''
 	),
 	array('href' => '../logout.php', 'label' => 'Log out')

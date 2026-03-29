@@ -1,67 +1,62 @@
 <?php
 session_start();
-include("../connection.php");
-?>
-<?php
-//mag show sang information sang user nga nag login
-$user_id=$_SESSION['suid'];
-$dept=$_SESSION['sdcode'];
-$result=mysql_query("select * from user where UID='$user_id'")or die(mysql_error);
-$row=mysql_fetch_array($result);
-$FirstName=$row['fname'];
-$middleName=$row['lname'];
+require_once("../connection.php");
 
-?>
-<?php
-$date=date("Y-m-d");
-?>
-<form action="newnotificationprocess1.php" method="post" onsubmit='return formValidation()'>
-<table style="border:2px solid black; border-radius:7px;margin-top:6px;box-shadow:4px 1px 3px black;" width="450px" height="200px" align="center">
-<tr bgcolor="" ><td align="center" colspan="4" ><font style="Time New Roman" size='3'>New Message Submit Form</font></td></tr>
-<tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td> <font size="3" face="Times New Roman"> Send By:</td>
-<td><input type="text" name="M_sender" width="172"  value="<?php echo $user_id;?>"ReadOnly>
-</td>
-</tr>
-<tr>
-<td><font size="2" face="Time New Roman">Send To:</td>
-<td>
-<select name="M_Reciever" style="width: 172">
-<?php 
-$result1=mysql_query("select * from account where Role='instructor'")or die(mysql_error);
-//$result=mysql_query("select UID,fname,lname from user ")or die(mysql_error);
-while ($row = mysql_fetch_array($result1)){
-?>
- <option value="<?php echo $row['UID'];?>">
-     <?php echo $row['UID']; ?>
-    </option>
-<?php
+$userId = isset($_SESSION['suid']) ? trim((string) $_SESSION['suid']) : '';
+$instructors = array();
+
+$stmt = mysqli_prepare($conn, "SELECT UID FROM account WHERE Role = 'instructor' ORDER BY UID ASC");
+if ($stmt) {
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($result instanceof mysqli_result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $instructors[] = $row;
+        }
+        mysqli_free_result($result);
+    }
+    mysqli_stmt_close($stmt);
 }
-?>        
-</select>
-</td>
-</tr>
- <tr>
-<td> <font size="3" face="Times New Roman"> Message:</td>
-<td>
-<textarea  style="overflow:auto;resize:none" rows="3" cols="19" align="center" name="message" required x-moz-errormessage="Required"autocomplete='off' onkeypress="return letter_validate(event);"></textarea>
-</td>
-</td>
-</tr>
- <tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td> <font size="3" face="Times New Roman"> Date:</td>
-<td>
-<input type="text" name="date_sended" value="<?php echo $date; ?>"ReadOnly>
-</td> 
-</tr>
-<tr>
-<td colspan=2 align=center><br><input type='submit' class="button_example" value="Send" name='submitMain' Onclick="return check(this.form);"/> 
-</form>
-</table>
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New Message</title>
+<style>
+body { margin: 0; padding: 18px; font-family: "Times New Roman", Georgia, serif; background: #f4f8fc; color: #17364e; }
+.modal-form { display: grid; gap: 14px; }
+.modal-form label { display: grid; gap: 6px; font-weight: 700; }
+.modal-form input, .modal-form select, .modal-form textarea { width: 100%; padding: 10px 12px; border: 1px solid #c8dce7; border-radius: 10px; box-sizing: border-box; }
+.modal-form textarea { resize: vertical; min-height: 110px; }
+.modal-form button { padding: 11px 16px; border: 0; border-radius: 999px; background: linear-gradient(135deg, #0d5d8b, #2a87aa); color: #ffffff; font-weight: 700; cursor: pointer; }
+.modal-note { margin: 0; color: #5d748b; font-size: 13px; }
+</style>
+</head>
+<body>
+<form action="newnotificationprocess1.php" method="post" class="modal-form">
+    <label>
+        Send By
+        <input type="text" name="M_sender" value="<?php echo htmlspecialchars($userId, ENT_QUOTES, 'UTF-8'); ?>" readonly>
+    </label>
 
+    <label>
+        Send To
+        <select name="M_Reciever" required>
+            <option value="">Select instructor</option>
+            <?php foreach ($instructors as $instructor) { ?>
+                <option value="<?php echo htmlspecialchars($instructor['UID'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"><?php echo htmlspecialchars($instructor['UID'] ?? '', ENT_QUOTES, 'UTF-8'); ?></option>
+            <?php } ?>
+        </select>
+    </label>
+
+    <label>
+        Message
+        <textarea name="message" required></textarea>
+    </label>
+
+    <p class="modal-note">The message will be stored immediately and marked unread for the selected instructor.</p>
+    <button type="submit" name="submitMain">Send Message</button>
+</form>
+</body>
+</html>

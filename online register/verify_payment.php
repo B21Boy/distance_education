@@ -2,9 +2,30 @@
 include '../connection.php';
 $config = include 'otp_config.php';
 
+function parseRawQueryParams() {
+    $query = $_SERVER['QUERY_STRING'] ?? '';
+    if (strpos($query, '&amp;') !== false) {
+        $query = str_replace('&amp;', '&', $query);
+    }
+
+    $params = [];
+    parse_str($query, $params);
+    return $params;
+}
+
 // Chapa can send data via GET or POST
-$trx_ref = $_GET['trx_ref'] ?? $_POST['trx_ref'] ?? '';
-$status = $_GET['status'] ?? $_POST['status'] ?? '';
+$trx_ref = trim($_GET['trx_ref'] ?? $_POST['trx_ref'] ?? '');
+$status = trim($_GET['status'] ?? $_POST['status'] ?? '');
+
+if (empty($trx_ref) || $status === '') {
+    $rawParams = parseRawQueryParams();
+    if (empty($trx_ref) && !empty($rawParams['trx_ref'])) {
+        $trx_ref = trim($rawParams['trx_ref']);
+    }
+    if ($status === '' && isset($rawParams['status'])) {
+        $status = trim($rawParams['status']);
+    }
+}
 
 error_log("Verify payment called - trx_ref: $trx_ref, status: $status");
 error_log("GET params: " . json_encode($_GET));

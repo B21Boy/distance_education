@@ -22,14 +22,9 @@ html {
     scroll-behavior: smooth;
 }
 
-html,
-body {
-    min-height: 100%;
-    overflow-x: hidden;
-}
-
 body {
     margin: 0;
+    min-height: 100vh;
     background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 32%),
         linear-gradient(180deg, #eef4fb 0%, #f8fafc 100%);
     color: var(--text);
@@ -49,27 +44,27 @@ img {
 
 .register-shell {
     width: min(1180px, calc(100% - 40px));
-    margin: 20px auto;
+    margin: 32px auto;
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-    gap: 16px;
+    gap: 24px;
 }
 
 .intro-panel,
 .form-panel {
     background: var(--panel-bg);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
 }
 
 .intro-panel {
-    padding: 24px;
+    padding: 34px;
     background: linear-gradient(160deg, rgba(255,255,255,0.98), rgba(236,246,251,0.96));
 }
 
 .form-panel {
-    padding: 24px;
+    padding: 32px;
 }
 
 .eyebrow {
@@ -89,28 +84,20 @@ h3 {
 }
 
 h1 {
-    font-size: clamp(1.6rem, 2.0vw, 2.0rem);
-    max-width: 42rem;
-    line-height: 1.2;
-    margin-top: 10px;
-    margin-bottom: 14px;
-    word-break: break-word;
+    font-size: clamp(2rem, 2.8vw, 3.4rem);
+    line-height: 1.05;
+    margin-top: 12px;
+    margin-bottom: 18px;
 }
 
 h2 {
-    font-size: 1.55rem;
-    margin-bottom: 16px;
+    font-size: 1.75rem;
+    margin-bottom: 18px;
 }
 
 h3 {
-    font-size: 0.98rem;
+    font-size: 1.05rem;
     margin-bottom: 4px;
-}
-
-.process-item p {
-    font-size: 0.92rem;
-    line-height: 1.55;
-    margin: 0;
 }
 
 .intro-copy,
@@ -128,46 +115,25 @@ h3 {
 }
 
 .process-card {
-    margin-top: 18px;
+    margin-top: 24px;
     background: #fff;
-    border-radius: 18px;
+    border-radius: 20px;
     border: 1px solid rgba(15, 23, 42, 0.08);
-    padding: 20px;
+    padding: 24px;
 }
 
 .process-list {
-    position: relative;
     display: grid;
-    gap: 26px;
-    margin-top: 20px;
-    padding-left: 18px;
+    gap: 16px;
+    margin-top: 18px;
 }
 
 .process-item {
-    position: relative;
     display: flex;
     gap: 18px;
     align-items: flex-start;
-    padding-bottom: 18px;
+    padding-bottom: 16px;
     border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-}
-
-.process-item::after {
-    content: "";
-    position: absolute;
-    left: 21px;
-    top: 46px;
-    bottom: -4px;
-    width: 2px;
-    background: #cbd5e1;
-}
-
-.process-item:last-child::after {
-    display: none;
-}
-
-.process-item.success::after {
-    background: #16a34a;
 }
 
 .process-item:last-child {
@@ -176,122 +142,37 @@ h3 {
 }
 
 .process-number {
-    min-width: 40px;
-    min-height: 40px;
+    min-width: 42px;
+    min-height: 42px;
     border-radius: 50%;
     display: grid;
     place-items: center;
-    background: #e2e8f0;
-    color: #0f172a;
+    background: var(--accent);
+    color: white;
     font-weight: 700;
-    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.16);
-    z-index: 1;
-}
-
-.process-item.success .process-number {
-    background: #16a34a;
-    color: #ffffff;
-}
-
-.otp-debug {
-    margin-top: 12px;
-    font-size: 0.95rem;
-    color: #0f5132;
-    background: #d1fae5;
-    border: 1px solid #86efac;
-    padding: 12px 14px;
-    border-radius: 12px;
-}
-
-.hidden {
-    display: none !important;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.16);
 }
 
 .register-form {
     display: grid;
-    gap: 12px;
+    gap: 18px;
 }
 
-.form-field {
-    position: relative;
+.register-form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
-.form-field input,
-.form-field select,
-.form-field textarea {
+.register-form input,
+.register-form select,
+.register-form textarea {
     width: 100%;
-    font-size: 0.95rem;
-    padding: 18px 12px 10px;
+    padding: 14px 16px;
     border: 1px solid #cbd5e1;
     border-radius: 12px;
     background: #ffffff;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.form-field label {
-    position: absolute;
-    left: 14px;
-    top: 18px;
-    transform: translateY(-50%);
-    transition: all 0.2s ease;
-    color: #64748b;
-    font-size: 0.95rem;
-    padding: 0 6px;
-    background: #ffffff;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.form-field input:focus,
-.form-field select:focus,
-.form-field textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-}
-
-.form-field input:focus + label,
-.form-field input:not(:placeholder-shown) + label,
-.form-field textarea:focus + label,
-.form-field textarea:not(:placeholder-shown) + label,
-.form-field select:focus + label,
-.form-field select:not(:placeholder-shown) + label {
-    top: 0;
-    transform: translateY(-50%);
-    font-size: 0.78rem;
-    color: var(--accent);
-}
-
-.form-field input::placeholder,
-.form-field textarea::placeholder {
-    color: transparent;
-}
-
-.register-form button {
-    font-size: 0.95rem;
-    padding: 12px 16px;
-}
-
-.form-panel .eyebrow {
-    font-size: 0.78rem;
-}
-
-.form-panel h2 {
-    font-size: 1.35rem;
-}
-
-.field-hint {
-    margin: 0;
-    font-size: 0.88rem;
-    line-height: 1.5;
-}
-
-.status-box {
-    font-size: 0.92rem;
-}
-
-.progress-box .check-item {
-    font-size: 0.9rem;
 }
 
 .register-form input:focus,
@@ -364,8 +245,8 @@ h3 {
 }
 
 .status-box {
-    margin-top: 16px;
-    padding: 16px;
+    margin-top: 18px;
+    padding: 18px;
     border-radius: 18px;
     border: 1px solid rgba(15,23,42,0.08);
     background: #f8fafc;
@@ -384,13 +265,13 @@ h3 {
 }
 
 .progress-box {
-    margin-top: 18px;
+    margin-top: 22px;
     display: grid;
-    gap: 10px;
+    gap: 12px;
 }
 
 .check-item {
-    padding: 14px 16px;
+    padding: 16px 18px;
     border-radius: 16px;
     border: 1px solid rgba(15, 23, 42, 0.08);
     background: #f8fafc;
@@ -416,8 +297,8 @@ h3 {
 }
 
 .progress-footer {
-    margin-top: 22px;
-    padding-bottom: 20px;
+    margin-top: 32px;
+    padding-bottom: 30px;
 }
 
 .progress-container {
