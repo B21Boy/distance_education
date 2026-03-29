@@ -34,6 +34,22 @@ function cde_popup_read_docx($filename)
 
 $template_path = __DIR__ . '/Land Admin.docx';
 $template_content = cde_popup_read_docx($template_path);
+$scheduleInformation = $template_content !== false ? $template_content : "Template file could not be loaded. Please check cdeofficer/Land Admin.docx.";
+$postedBy = "ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት";
+
+$latestSchedule = mysqli_query($conn, "SELECT * FROM module_schedule ORDER BY no DESC LIMIT 1");
+if ($latestSchedule instanceof mysqli_result) {
+    $existingSchedule = mysqli_fetch_assoc($latestSchedule);
+    mysqli_free_result($latestSchedule);
+    if (is_array($existingSchedule)) {
+        if (isset($existingSchedule['information']) && trim((string) $existingSchedule['information']) !== '') {
+            $scheduleInformation = (string) $existingSchedule['information'];
+        }
+        if (isset($existingSchedule['posted_by']) && trim((string) $existingSchedule['posted_by']) !== '') {
+            $postedBy = (string) $existingSchedule['posted_by'];
+        }
+    }
+}
 ?>
 <div class="cde-popup-card">
     <div class="cde-popup-header">
@@ -44,11 +60,11 @@ $template_content = cde_popup_read_docx($template_path);
     <form action="posteschedule.php" method="post" class="cde-popup-form">
         <label class="cde-popup-field" for="infor">
             Schedule Information
-            <textarea name="infor" id="infor" class="cde-popup-textarea" required readonly><?php echo $template_content !== false ? htmlspecialchars($template_content, ENT_QUOTES, 'UTF-8') : "Template file could not be loaded. Please check cdeofficer/Land Admin.docx."; ?></textarea>
+            <textarea name="infor" id="infor" class="cde-popup-textarea" required><?php echo htmlspecialchars($scheduleInformation, ENT_QUOTES, 'UTF-8'); ?></textarea>
         </label>
         <label class="cde-popup-field" for="pb">
             Posted By
-            <input type="text" id="pb" name="pb" class="cde-popup-input" value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት" readonly>
+            <input type="text" id="pb" name="pb" class="cde-popup-input" value="<?php echo htmlspecialchars($postedBy, ENT_QUOTES, 'UTF-8'); ?>" required>
         </label>
         <div class="cde-popup-actions">
             <button type="submit" name="submit" class="cde-popup-btn">Send</button>

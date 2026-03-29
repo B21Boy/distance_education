@@ -28,6 +28,15 @@ CDE Officer page
 <?php
 if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&& isset($_SESSION['sln'])&& isset($_SESSION['srole']))
 {
+    $scheduleRows = array();
+    $sql = mysqli_query($conn, "SELECT * FROM module_schedule");
+    if ($sql instanceof mysqli_result) {
+        while ($row = mysqli_fetch_assoc($sql)) {
+            $scheduleRows[] = $row;
+        }
+        mysqli_free_result($sql);
+    }
+    $c = count($scheduleRows);
 ?>
 <div id="container">
 <div id="header">
@@ -48,10 +57,6 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
 	
 </div><div id="content">
 	<div id="contentindex5">
-	<?php
-	$sql=mysql_query("select * from module_schedule");
-	$c=mysql_num_rows($sql);
-	?>
     <div class="admin-page-shell">
         <div class="admin-page-header">
             <div>
@@ -66,10 +71,9 @@ if(isset($_SESSION['sun'])&& isset($_SESSION['spw'])&& isset($_SESSION['sfn'])&&
                 <a rel="facebox" href="insertschedule.php" class="page-nav-link is-primary"><?php echo $c >= 1 ? 'Update Module Preparation Schedule' : 'Prepare Module Preparation Schedule'; ?></a>
             </div>
             <?php if ($c >= 1) {
-            while($row=mysql_fetch_array($sql))
-            {
+            foreach ($scheduleRows as $row) {
             ?>
-            <div class="admin-page-status-card" style="white-space: pre-wrap;"><?php echo htmlspecialchars($row['information'], ENT_QUOTES, 'UTF-8'); ?></div>
+            <div class="admin-page-status-card" style="white-space: pre-wrap;"><?php echo htmlspecialchars((string) ($row['information'] ?? ''), ENT_QUOTES, 'UTF-8'); ?></div>
             <?php
             }
             } else {
