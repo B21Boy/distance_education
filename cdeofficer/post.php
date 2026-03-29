@@ -1,73 +1,94 @@
 <?php
 include("../connection.php");
-$date=date('Y/m/d');
-?>
-<form action="posted.php" method="post">
-<table  cellpadding="5" border="0">
-<tr><td colspan="2" ><center>Post Registration Date</center></td></tr>
+require("popup_styles.php");
 
-<tr><td>Title:</td><td><input type="text" name="title" size="32"  required placeholder="Enter the title" style="width: 300px"/>
-</td></tr>
-<tr><td>Type:</td><td><input type="text" name="typ" size="32" required placeholder="Enter the type" style="width: 300px"/></td></tr>
-<tr><td>Date:</td><td><input type="text" name="date" size="32"  readonly  value="<?php echo $date;?>" style="width: 300px"/></td></tr>
-<tr><td>Expired Date:</td><td><input type="date" name="exd" size="32"  required style="width: 300px"/></td></tr>
-<tr><td>Registration Start Date:</td><td><input type="date" name="sd" size="32"  required style="width: 300px"/></td></tr>
-<tr><td>Registration End Date:</td><td><input type="date" name="ed" size="32"  required  style="width: 300px"/></td></tr>
-<tr><td><b>Information:</b></td><td>
-<textarea name="infor" required  cols="34" rows="7" style="width: 400px" readonly>
-	
-<?php
-function read_file_docx($filename){
-
-    $striped_content = '';
+function cde_registration_popup_read_docx($filename)
+{
     $content = '';
-
-    if(!$filename || !file_exists($filename)) return false;
+    if (!$filename || !file_exists($filename)) {
+        return false;
+    }
 
     $zip = zip_open($filename);
-
-    if (!$zip || is_numeric($zip)) return false;
+    if (!$zip || is_numeric($zip)) {
+        return false;
+    }
 
     while ($zip_entry = zip_read($zip)) {
-
-        if (zip_entry_open($zip, $zip_entry) == FALSE) continue;
-
-        if (zip_entry_name($zip_entry) != "word/document.xml") continue;
-
+        if (zip_entry_open($zip, $zip_entry) == false) {
+            continue;
+        }
+        if (zip_entry_name($zip_entry) != "word/document.xml") {
+            continue;
+        }
         $content .= zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
-
         zip_entry_close($zip_entry);
-    }// end while
-
+    }
     zip_close($zip);
+
     $content = str_replace('</w:r></w:p></w:tc><w:tc>', " ", $content);
     $content = str_replace('</w:r></w:p>', "\r\n", $content);
-    $striped_content = strip_tags($content);
 
-    return $striped_content;
+    return strip_tags($content);
 }
-$filename = "C:\wamp\www\cde[1]\postr.docx";// or /var/www/html/file.docx
 
-$content = read_file_docx($filename);
-if($content !== false) {
-
-    echo ($content);
-}
-else {
-    echo 'Couldn\'t the file. Please check that file.';
-}
-$date=date('Y-m-d');
-?>	
-	
-	
-</textarea></td></tr>
-<tr><td>Posted By:</td><td><input type="text" style="width: 300px" name="pb"  value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ባህር ዳር  ዩኒቨርስቲ" readonly/></td></tr>
-<tr><td></td><td><input type="hidden" style="width: 300px" name="st"  value="register" readonly/></td></tr>
-<tr><td></td>
-<td><input type="submit"  name="submit" value="Send" style="height: 40px;width: 120px;"id="m"/>
-<input type="reset"  name="clear" value="Clear" style="height: 40px;width: 120px;"id="m"/> </td>
-
-</tr>
-</table>
-</form>
-
+$date = date('Y-m-d');
+$templatePath = dirname(__DIR__) . '/postr.docx';
+$templateContent = cde_registration_popup_read_docx($templatePath);
+$information = $templateContent !== false ? $templateContent : '';
+?>
+<div class="cde-popup-card">
+    <div class="cde-popup-header">
+        <span class="cde-popup-kicker">CDE Officer</span>
+        <h1 class="cde-popup-title">Post Registration Date</h1>
+        <p class="cde-popup-copy">Create a new registration-date notice and post it to the board.</p>
+    </div>
+    <form action="posted.php" method="post" class="cde-popup-form">
+        <div class="cde-popup-grid">
+            <label class="cde-popup-field" for="title">
+                Title
+                <input type="text" name="title" id="title" class="cde-popup-input" required placeholder="Enter the title">
+            </label>
+            <label class="cde-popup-field" for="typ">
+                Type
+                <input type="text" name="typ" id="typ" class="cde-popup-input" required placeholder="Enter the type">
+            </label>
+        </div>
+        <div class="cde-popup-grid">
+            <label class="cde-popup-field" for="date">
+                Date
+                <input type="text" name="date" id="date" class="cde-popup-input" readonly value="<?php echo htmlspecialchars($date, ENT_QUOTES, 'UTF-8'); ?>">
+            </label>
+            <label class="cde-popup-field" for="exd">
+                Expired Date
+                <input type="date" name="exd" id="exd" class="cde-popup-input" required>
+            </label>
+        </div>
+        <div class="cde-popup-grid">
+            <label class="cde-popup-field" for="sd">
+                Registration Start Date
+                <input type="date" name="sd" id="sd" class="cde-popup-input" required>
+            </label>
+            <label class="cde-popup-field" for="ed">
+                Registration End Date
+                <input type="date" name="ed" id="ed" class="cde-popup-input" required>
+            </label>
+        </div>
+        <label class="cde-popup-field" for="infor">
+            Information
+            <textarea name="infor" id="infor" class="cde-popup-textarea" required placeholder="Write information here"><?php echo htmlspecialchars($information, ENT_QUOTES, 'UTF-8'); ?></textarea>
+        </label>
+        <label class="cde-popup-field" for="pb">
+            Posted By
+            <input type="text" name="pb" id="pb" class="cde-popup-input" value="ተከታታይና ርቀት ትምህርት ማስተባበሪያ ዳይሬክቶሬት ባህር ዳር ዩኒቨርስቲ" required>
+        </label>
+        <input type="hidden" name="st" value="register">
+        <div class="cde-popup-actions">
+            <button type="submit" name="submit" class="cde-popup-btn">Send</button>
+            <button type="reset" name="clear" class="cde-popup-btn-secondary">Clear</button>
+        </div>
+        <?php if ($templateContent === false) { ?>
+        <p class="cde-popup-note">The registration template file was not loaded, so the information field is left editable for manual entry.</p>
+        <?php } ?>
+    </form>
+</div>

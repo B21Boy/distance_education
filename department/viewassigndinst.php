@@ -7,8 +7,17 @@ departmentRequireLogin();
 
 $departmentCode = trim((string) ($_GET['id'] ?? departmentCurrentDepartmentCode()));
 $currentDepartmentCode = departmentCurrentDepartmentCode();
+$status = trim((string) ($_GET['status'] ?? ''));
 $departmentName = '';
 $assignments = [];
+$messages = [
+    'updated' => 'Instructor assignment updated successfully.',
+    'empty' => 'All update fields are required.',
+    'invalid-course' => 'The selected course could not be found.',
+    'invalid-instructor' => 'The selected instructor could not be found.',
+    'not-found' => 'The instructor assignment record could not be found.',
+    'error' => 'The instructor assignment could not be updated right now.'
+];
 
 if ($departmentCode !== '') {
     $departmentStmt = mysqli_prepare($conn, "SELECT DName FROM department WHERE Dcode = ? LIMIT 1");
@@ -86,6 +95,7 @@ departmentRenderPageStart(
     $actions
 );
 ?>
+<?php echo departmentStatusBanner($status, $messages); ?>
 <div class="department-stat-row">
     <span class="department-stat-chip">Assigned courses: <?php echo count($assignments); ?></span>
     <?php if ($departmentName !== '') { ?>

@@ -218,7 +218,7 @@ if ($departmentCode !== '') {
                         <option value="B">B</option>
                         <option value="C">C</option>
                         <option value="D">D</option>
-                        <option value="E">E</option>
+                       
                     </select>
                 </div>
                 <div class="department-popup-field">
@@ -238,7 +238,7 @@ if ($departmentCode !== '') {
                         <option value="">Select semester</option>
                         <option value="I">I</option>
                         <option value="II">II</option>
-                        <option value="III">III</option>
+                        
                     </select>
                 </div>
                 <div class="department-popup-field">

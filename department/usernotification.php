@@ -7,6 +7,12 @@ departmentRequireLogin();
 
 $userId = departmentCurrentUserId();
 $messages = departmentFetchUnreadMessages($conn, $userId);
+$status = trim((string) ($_GET['status'] ?? ''));
+$statusMessages = [
+    'sent' => 'Message sent successfully.',
+    'replied' => 'Reply sent successfully.',
+    'error' => 'The message could not be sent right now. Please try again.'
+];
 
 departmentRenderPageStart(
     "Department head page",
@@ -16,6 +22,7 @@ departmentRenderPageStart(
     '<a rel="facebox" href="newnotification1.php" class="department-btn">New message</a>'
 );
 ?>
+<?php echo departmentStatusBanner($status, $statusMessages); ?>
 <div class="department-stat-row">
     <span class="department-stat-chip">Unread messages: <?php echo count($messages); ?></span>
 </div>

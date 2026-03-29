@@ -44,6 +44,7 @@ foreach ($template_paths as $template_path) {
 }
 if ($template_content !== false) {
     $template_content = str_replace(
+        array('በደብረ ማርቆስ', 'ደብረ ማርቆስ'),
         array('በባህር ዳር', 'ባህር ዳር'),
         $template_content
     );
