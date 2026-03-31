@@ -8,22 +8,41 @@ function cde_popup_read_docx($filename)
         return false;
     }
 
-    $zip = zip_open($filename);
-    if (!$zip || is_numeric($zip)) {
+    if (class_exists('ZipArchive')) {
+        $zipArchive = new ZipArchive();
+        if ($zipArchive->open($filename) !== true) {
+            return false;
+        }
+
+        $documentIndex = $zipArchive->locateName('word/document.xml');
+        if ($documentIndex === false) {
+            $zipArchive->close();
+            return false;
+        }
+
+        $content = $zipArchive->getFromIndex($documentIndex);
+        $zipArchive->close();
+    } elseif (function_exists('zip_open')) {
+        $zip = zip_open($filename);
+        if (!$zip || is_numeric($zip)) {
+            return false;
+        }
+
+        while ($zip_entry = zip_read($zip)) {
+            if (zip_entry_open($zip, $zip_entry) == false) {
+                continue;
+            }
+            if (zip_entry_name($zip_entry) != "word/document.xml") {
+                continue;
+            }
+            $content .= zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
+            zip_entry_close($zip_entry);
+        }
+
+        zip_close($zip);
+    } else {
         return false;
     }
-
-    while ($zip_entry = zip_read($zip)) {
-        if (zip_entry_open($zip, $zip_entry) == false) {
-            continue;
-        }
-        if (zip_entry_name($zip_entry) != "word/document.xml") {
-            continue;
-        }
-        $content .= zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
-        zip_entry_close($zip_entry);
-    }
-    zip_close($zip);
 
     $content = str_replace('</w:r></w:p></w:tc><w:tc>', " ", $content);
     $content = str_replace('</w:r></w:p>', "\r\n", $content);

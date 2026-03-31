@@ -69,15 +69,15 @@ include("connection.php");
             <td width="6%">1</td>
             <td width="35%">Application</td>
             <td width="23%">Once only</td>
-            <td width="15%">50.00</td>
-            <td width="18%">50.00</td>
+            <td width="15%">100.00</td>
+            <td width="18%">100.00</td>
             </tr>
             <tr>
             <td width="6%">2</td>
             <td width="35%">Registration</td>
             <td width="23%">Per semester</td>
-            <td width="15%">70.00</td>
-            <td width="18%">70.00</td>
+            <td width="15%">100.00</td>
+            <td width="18%">100.00</td>
             </tr>
 
             </tbody>

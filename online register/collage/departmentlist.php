@@ -38,11 +38,12 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
 <link rel="stylesheet" href="../online.css">
 <style>
 .register-shell {
-    width: min(1180px, calc(100% - 32px));
+    width: 100%;
     margin: 32px auto;
     display: grid;
     grid-template-columns: 1fr;
     gap: 20px;
+    justify-items: center;
 }
 
 .form-panel {
@@ -51,6 +52,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
     border-radius: 28px;
     box-shadow: 0 24px 50px rgba(15, 23, 42, 0.08);
     padding: 26px;
+    width: min(1180px, calc(100% - 32px));
 }
 
 .form-panel h2 {
@@ -84,40 +86,45 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
 
 .college-carousel {
     margin: 12px auto 0;
+    --college-card-width: clamp(260px, 28vw, 360px);
     overflow-x: auto;
+    overflow-y: hidden;
     position: relative;
     display: flex;
     justify-content: center;
     background: transparent;
     border: none;
     border-radius: 28px;
-    padding: 12px 0 12px;
+    padding: 12px 0;
+    padding-inline: clamp(12px, calc((100% - var(--college-card-width)) / 2), 96px);
     max-width: min(1120px, calc(100% - 40px));
+    width: 100%;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: max(0px, calc((100% - var(--college-card-width)) / 2));
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.college-carousel::-webkit-scrollbar {
+    display: none;
 }
 .college-track {
     display: flex;
     gap: 24px;
-    justify-content: center;
     align-items: center;
-    padding: 0 14px;
+    padding: 0;
+    width: max-content;
+    margin: 0 auto;
 }
 
-/* Horizontal scrollbar styling */
-.college-carousel::-webkit-scrollbar {
-    height: 10px;
-}
-.college-carousel::-webkit-scrollbar-thumb {
-    background: rgba(148, 163, 184, 0.45);
-    border-radius: 999px;
-}
-.college-carousel::-webkit-scrollbar-track {
-    background: transparent;
-}
 .college-card {
-    flex: 0 0 400px;
-    max-width: 400px;
-    min-width: 400px;
-    height: 400px;
+    flex: 0 0 var(--college-card-width);
+    max-width: var(--college-card-width);
+    min-width: var(--college-card-width);
+    height: 360px;
     border: 1px solid rgba(148, 163, 184, 0.22);
     background: #ffffff;
     border-radius: 32px;
@@ -128,6 +135,8 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
     align-items: center;
     justify-content: center;
     padding: 30px;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
 }
 .college-card:hover {
     background: #ffffff;
@@ -150,6 +159,26 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
     font-size: 1.1rem;
     color: #0f172a;
     line-height: 1.35;
+}
+.college-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 16px;
+    width: 100%;
+}
+.college-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: none;
+    background: rgba(148, 163, 184, 0.55);
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+.college-dot.active {
+    background: #2563eb;
+    transform: scale(1.15);
 }
 
 .modal-overlay {
@@ -347,6 +376,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
                     ?>
                     </div>
                 </div>
+                <div class="college-dots" id="college-dots" aria-label="College carousel progress"></div>
             <?php else: ?>
                 <h3>Departments in <?php
                     $collegeResult = $conn->query("SELECT cname FROM collage WHERE Ccode='$selectedCollege'");
@@ -518,6 +548,90 @@ function toggleDescription(dcode, fullDesc) {
         link.textContent = 'Read More';
     }
 }
+
+function setupCollegeDots() {
+    const carousel = document.querySelector('.college-carousel');
+    const dotsContainer = document.getElementById('college-dots');
+    const cards = carousel ? Array.from(carousel.querySelectorAll('.college-card')) : [];
+
+    if (!carousel || !dotsContainer || cards.length === 0) {
+        return;
+    }
+
+    const centerCarousel = () => {
+        if (carousel.scrollWidth > carousel.clientWidth) {
+            carousel.scrollLeft = Math.round((carousel.scrollWidth - carousel.clientWidth) / 2);
+        } else {
+            carousel.scrollLeft = 0;
+        }
+    };
+
+    dotsContainer.innerHTML = '';
+    const dots = cards.map((card, index) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'college-dot';
+        dot.setAttribute('aria-label', `Go to college ${index + 1}`);
+        dot.addEventListener('click', () => {
+            const targetLeft = card.offsetLeft - (carousel.clientWidth - card.offsetWidth) / 2;
+            carousel.scrollTo({ left: targetLeft, behavior: 'smooth' });
+        });
+        dotsContainer.appendChild(dot);
+        return dot;
+    });
+
+    const updateActiveDot = () => {
+        const carouselCenter = carousel.scrollLeft + carousel.clientWidth / 2;
+        let closestIndex = 0;
+        let closestDistance = Infinity;
+
+        cards.forEach((card, index) => {
+            const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+            const distance = Math.abs(cardCenter - carouselCenter);
+            if (distance < closestDistance) {
+                closestDistance = distance;
+                closestIndex = index;
+            }
+        });
+
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === closestIndex);
+        });
+    };
+
+    updateActiveDot();
+    let userScrolled = false;
+    let ticking = false;
+    carousel.addEventListener('scroll', () => {
+        userScrolled = true;
+        if (!ticking) {
+            ticking = true;
+            window.requestAnimationFrame(() => {
+                updateActiveDot();
+                ticking = false;
+            });
+        }
+    });
+    carousel.addEventListener('wheel', (event) => {
+        if (Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+            event.preventDefault();
+            carousel.scrollLeft += event.deltaY;
+        }
+    }, { passive: false });
+    window.addEventListener('resize', () => {
+        if (!userScrolled) {
+            centerCarousel();
+        }
+        updateActiveDot();
+    });
+
+    window.requestAnimationFrame(() => {
+        centerCarousel();
+        updateActiveDot();
+    });
+}
+
+document.addEventListener('DOMContentLoaded', setupCollegeDots);
 </script>
 
 </body>

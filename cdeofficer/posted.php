@@ -1,9 +1,10 @@
 <?php
-include '../connection.php';
+require_once(__DIR__ . '/../connection.php');
 
-function posted_redirect(string $message): void
+function posted_redirect(string $message, string $status = 'register'): void
 {
-    echo '<script type="text/javascript">alert(' . json_encode($message) . ');window.location=\'updatepost.php\';</script>';
+    $targetPage = $status === 'apply' ? 'updateposta.php' : 'updatepost.php';
+    echo '<script type="text/javascript">alert(' . json_encode($message) . ');window.location=' . json_encode($targetPage) . ';</script>';
     exit;
 }
 
@@ -22,12 +23,12 @@ $pbay = isset($_POST['pb']) ? trim((string) $_POST['pb']) : '';
 $st = isset($_POST['st']) ? trim((string) $_POST['st']) : '';
 
 if ($title === '' || $taype === '' || $date === '' || $exdate === '' || $sdate === '' || $edate === '' || $infor === '' || $pbay === '' || $st === '') {
-    posted_redirect('All notice fields are required.');
+    posted_redirect('All notice fields are required.', $st);
 }
 
 $stmt = mysqli_prepare($conn, "INSERT INTO postss (Title, types, dates, Ex_date, start_date, end_date, info, posted_by, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 if (!$stmt) {
-    posted_redirect('Unable to prepare the notice insert.');
+    posted_redirect('Unable to prepare the notice insert.', $st);
 }
 
 mysqli_stmt_bind_param($stmt, "sssssssss", $title, $taype, $date, $exdate, $sdate, $edate, $infor, $pbay, $st);
@@ -36,9 +37,9 @@ $errorMessage = mysqli_error($conn);
 mysqli_stmt_close($stmt);
 
 if (!$saved) {
-    posted_redirect('Notice was not posted. ' . $errorMessage);
+    posted_redirect('Notice was not posted. ' . $errorMessage, $st);
 }
 
-posted_redirect('Successfully Posted.');
+posted_redirect('Successfully Posted.', $st);
 ?>
 

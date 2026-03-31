@@ -168,7 +168,17 @@
         <li><a href="appl_accept.php">Application</a></li>
         <li><a href="servicefees.php">Service fees</a></li>
         <li><a href="feedback.php">Feedback</a></li>
-        <li><a href="online register/online.php">online Register</a></li>
+        <li><a href="online register/online.php">online Register <ion-icon name="chevron-down-outline"></ion-icon></a>
+        <ul>
+            
+
+                <li><a href="online register/online.php">New Student</a></li>
+                <li><a href="online register/seniar.php">Senior Student</a></li>
+                
+
+        </ul>
+    
+    </li>
         <li><a href="help.php">Help</a></li>
     </ul>
 </nav>
