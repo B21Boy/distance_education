@@ -52,10 +52,12 @@ include("connection.php");
             the Faculty of Education. Distance education centers were opened in Bahir Dar University
              <br></p>
             <ol type="1">
+            <li><h4>IT</h4></li>
             <li><h4>Economics</h4></li>
             <li><h4>Management</h4></li>
             <li> <h4>Accounting</h4></li>
             <li><h4>Law</h4></li>
+            
             </ol>
         </div>
 

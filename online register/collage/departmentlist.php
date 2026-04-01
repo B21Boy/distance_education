@@ -51,8 +51,11 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
     border: 1px solid rgba(148, 163, 184, 0.18);
     border-radius: 28px;
     box-shadow: 0 24px 50px rgba(15, 23, 42, 0.08);
-    padding: 26px;
-    width: min(1180px, calc(100% - 32px));
+    padding: 30px 32px 36px;
+    width: min(1320px, calc(100% - 24px));
+    min-height: clamp(560px, 72vh, 860px);
+    display: flex;
+    flex-direction: column;
 }
 
 .form-panel h2 {
@@ -86,18 +89,19 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
 
 .college-carousel {
     margin: 12px auto 0;
-    --college-card-width: clamp(260px, 28vw, 360px);
+    --college-card-width: clamp(240px, 24vw, 320px);
     overflow-x: auto;
     overflow-y: hidden;
     position: relative;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     background: transparent;
     border: none;
     border-radius: 28px;
-    padding: 12px 0;
-    padding-inline: clamp(12px, calc((100% - var(--college-card-width)) / 2), 96px);
-    max-width: min(1120px, calc(100% - 40px));
+    min-height: 440px;
+    padding: 18px 0 24px;
+    padding-inline: clamp(16px, calc((100% - var(--college-card-width)) / 2), 140px);
+    max-width: min(1260px, 100%);
     width: 100%;
     scroll-snap-type: x mandatory;
     scroll-padding-inline: max(0px, calc((100% - var(--college-card-width)) / 2));
@@ -113,18 +117,18 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
 }
 .college-track {
     display: flex;
-    gap: 24px;
-    align-items: center;
+    gap: 20px;
+    align-items: stretch;
     padding: 0;
     width: max-content;
-    margin: 0 auto;
+    margin: 0;
 }
 
 .college-card {
     flex: 0 0 var(--college-card-width);
     max-width: var(--college-card-width);
     min-width: var(--college-card-width);
-    height: 360px;
+    height: 400px;
     border: 1px solid rgba(148, 163, 184, 0.22);
     background: #ffffff;
     border-radius: 32px;
@@ -134,7 +138,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 30px;
+    padding: 36px 28px;
     scroll-snap-align: center;
     scroll-snap-stop: always;
 }
@@ -156,7 +160,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
 }
 .college-card h4 {
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 1.18rem;
     color: #0f172a;
     line-height: 1.35;
 }
@@ -164,7 +168,8 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 10px;
+    padding-bottom: 8px;
     width: 100%;
 }
 .college-dot {
@@ -355,6 +360,40 @@ if (isset($_GET['ajax']) && $_GET['ajax'] === '1' && isset($_GET['college'])) {
 }
 .department-card button:hover {
     background: var(--accent-dark);
+}
+
+body.student-portal-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body.student-portal-page .register-shell {
+    flex: 1 0 auto;
+}
+
+body.student-portal-page .progress-footer {
+    margin-top: auto;
+}
+
+@media (max-width: 980px) {
+    .form-panel {
+        width: min(100%, calc(100% - 16px));
+        min-height: auto;
+        padding: 24px 18px 28px;
+    }
+
+    .college-carousel {
+        --college-card-width: min(280px, calc(100vw - 92px));
+        min-height: 360px;
+        padding-inline: clamp(12px, calc((100% - var(--college-card-width)) / 2), 28px);
+    }
+
+    .college-card {
+        height: 320px;
+        border-radius: 24px;
+        padding: 24px 20px;
+    }
 }
 </style>
 </head>
@@ -558,12 +597,24 @@ function setupCollegeDots() {
         return;
     }
 
-    const centerCarousel = () => {
-        if (carousel.scrollWidth > carousel.clientWidth) {
-            carousel.scrollLeft = Math.round((carousel.scrollWidth - carousel.clientWidth) / 2);
-        } else {
-            carousel.scrollLeft = 0;
-        }
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+    const scrollToCard = (card) => {
+        const carouselRect = carousel.getBoundingClientRect();
+        const cardRect = card.getBoundingClientRect();
+        const maxScrollLeft = Math.max(0, carousel.scrollWidth - carousel.clientWidth);
+        const targetLeft = carousel.scrollLeft
+            + (cardRect.left - carouselRect.left)
+            - ((carousel.clientWidth - card.offsetWidth) / 2);
+
+        carousel.scrollTo({
+            left: clamp(targetLeft, 0, maxScrollLeft),
+            behavior: 'smooth'
+        });
+    };
+
+    const resetCarousel = () => {
+        carousel.scrollLeft = 0;
     };
 
     dotsContainer.innerHTML = '';
@@ -573,8 +624,7 @@ function setupCollegeDots() {
         dot.className = 'college-dot';
         dot.setAttribute('aria-label', `Go to college ${index + 1}`);
         dot.addEventListener('click', () => {
-            const targetLeft = card.offsetLeft - (carousel.clientWidth - card.offsetWidth) / 2;
-            carousel.scrollTo({ left: targetLeft, behavior: 'smooth' });
+            scrollToCard(card);
         });
         dotsContainer.appendChild(dot);
         return dot;
@@ -620,13 +670,13 @@ function setupCollegeDots() {
     }, { passive: false });
     window.addEventListener('resize', () => {
         if (!userScrolled) {
-            centerCarousel();
+            resetCarousel();
         }
         updateActiveDot();
     });
 
     window.requestAnimationFrame(() => {
-        centerCarousel();
+        resetCarousel();
         updateActiveDot();
     });
 }
