@@ -133,6 +133,64 @@
 .instructor-note-card strong {
     color: #12395f;
 }
+.instructor-status-banner {
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    font-weight: 600;
+}
+.instructor-status-banner.success {
+    background: #edf9f0;
+    border: 1px solid #bfe2c8;
+    color: #1f6a37;
+}
+.instructor-status-banner.error {
+    background: #fff3f2;
+    border: 1px solid #efc6c3;
+    color: #9a2e26;
+}
+.instructor-selection-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: #48637f;
+}
+.instructor-selection-summary span {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #eef4fb;
+    color: #18466f;
+    font-size: 13px;
+    font-weight: 700;
+}
+.instructor-table-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+.instructor-score-input {
+    width: 100%;
+    min-width: 84px;
+    min-height: 40px;
+    padding: 0 12px;
+    border: 1px solid #bfd0e2;
+    border-radius: 10px;
+    background: #f9fbfe;
+    color: #173a5e;
+    box-sizing: border-box;
+}
+.instructor-score-input[readonly] {
+    background: #eef4fb;
+}
+.instructor-table-wrap #resultTable td,
+.instructor-table-wrap #resultTable th {
+    padding: 12px 14px;
+}
+.instructor-table-wrap #resultTable td:last-child,
+.instructor-table-wrap #resultTable th:last-child {
+    white-space: nowrap;
+}
 .instructor-message-list {
     display: grid;
     gap: 16px;

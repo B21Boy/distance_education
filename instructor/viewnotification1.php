@@ -1,45 +1,69 @@
-
-<html>
-<head>
-<script src="theme.js"></script>
-</head>
-<body class="light-theme">
 <?php
-
+session_start();
 include("../connection.php");
+require_once("page_helpers.php");
 
-$M_ID=$_GET['M_ID'];
-	$sql = "SELECT UID, M_Reciever,M_sender,M_ID FROM message, user WHERE message.M_sender=user.UID AND M_ID='$M_ID' ";
-	$result1=mysql_query($sql);
-	while($row = mysql_fetch_array($result1))
-			{
-				$u_id=$row['UID'];
-				$M_Reciever=$row['M_Reciever'];
-			}
-?>	
+if (!instructorIsLoggedIn()) {
+    exit('Unauthorized access.');
+}
 
-<?php
-$date=date("Y-m-d");
+$messageId = isset($_GET['M_ID']) ? trim((string) $_GET['M_ID']) : '';
+$currentUserId = instructorCurrentUserId();
+$messageRow = null;
+
+if ($messageId !== '') {
+    $stmt = mysqli_prepare($conn, "SELECT M_ID, M_sender, M_reciever FROM message WHERE M_ID = ? LIMIT 1");
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, 's', $messageId);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        if ($result instanceof mysqli_result) {
+            $messageRow = mysqli_fetch_assoc($result) ?: null;
+            mysqli_free_result($result);
+        }
+        mysqli_stmt_close($stmt);
+    }
+}
 ?>
-<form action="notificationprocess1.php" method="post" onsubmit='return formValidation()'>
-<table style="border:2px solid black; border-radius:7px;margin-top:6px;box-shadow:4px 1px 3px black;" width="300px" height="200px" align="center">
-<input type="hidden" name="ud_id" value="<?php echo $M_ID=$_GET['M_ID']; ?>">
-<input type="hidden" name="M_Reciever" value="<?php echo $u_id; ?>">
-<input type="hidden" name="M_sender" value="<?php echo $M_Reciever; ?>">
-<tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td> <font size="3" face="Times New Roman"> Message:</td>
-<td>
-<textarea  style="overflow:auto;resize:none" rows="3" cols="19" align="center" name="message" required x-moz-errormessage="Required"autocomplete='off' onkeypress="return letter_validate(event);"></textarea>
-</td>
-</td>
-</tr>
-<tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td align="center" colspan="2"><br><br><input type="submit" value="Send"  class="button_example" id="up" Onclick="return check(this.form);">
-</td></tr></table>
-</form>						
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Reply Message</title>
+<?php instructorRenderPopupStyles(); ?>
+</head>
+<body>
+<div class="instructor-popup-shell">
+    <h2 class="instructor-popup-title">Reply Message</h2>
+    <p class="instructor-popup-subtitle">Write your reply below and send it back to the original sender.</p>
+    <?php if ($messageRow && ($messageRow['M_reciever'] ?? '') === $currentUserId) { ?>
+        <form action="notificationprocess1.php" method="post">
+            <input type="hidden" name="ud_id" value="<?php echo instructorH($messageRow['M_ID'] ?? ''); ?>">
+            <input type="hidden" name="M_Reciever" value="<?php echo instructorH($messageRow['M_sender'] ?? ''); ?>">
+            <div class="instructor-popup-card">
+                <div class="instructor-popup-grid">
+                    <div class="instructor-popup-field">
+                        <label for="popup-reply-sender">Reply From</label>
+                        <input type="text" id="popup-reply-sender" value="<?php echo instructorH($currentUserId); ?>" readonly>
+                    </div>
+                    <div class="instructor-popup-field">
+                        <label for="popup-reply-receiver">Reply To</label>
+                        <input type="text" id="popup-reply-receiver" value="<?php echo instructorH($messageRow['M_sender'] ?? ''); ?>" readonly>
+                    </div>
+                    <div class="instructor-popup-field full">
+                        <label for="popup-reply-message">Message</label>
+                        <textarea name="message" id="popup-reply-message" required placeholder="Write your reply"></textarea>
+                    </div>
+                </div>
+                <div class="instructor-popup-actions">
+                    <button type="reset" class="instructor-popup-btn secondary">Clear</button>
+                    <button type="submit" class="instructor-popup-btn">Send Reply</button>
+                </div>
+            </div>
+        </form>
+    <?php } else { ?>
+        <div class="instructor-popup-empty">The selected message could not be opened for reply.</div>
+    <?php } ?>
+</div>
+</body>
+</html>

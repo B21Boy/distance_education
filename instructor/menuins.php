@@ -34,8 +34,11 @@ if (!defined('INSTRUCTOR_MENU_DROPDOWN_STYLES')) {
         z-index: 120;
     }
     body.student-portal-page #menubar1 .menu-dropdown-toggle {
-        padding-right: 40px !important;
-        position: relative;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding-right: 18px !important;
         cursor: default;
     }
     body.student-portal-page #menubar1 .menu-dropdown:hover > .menu-dropdown-toggle,
@@ -47,20 +50,19 @@ if (!defined('INSTRUCTOR_MENU_DROPDOWN_STYLES')) {
     }
     body.student-portal-page #menubar1 .menu-dropdown-toggle::after {
         content: "";
-        position: absolute;
-        right: 16px;
-        top: 50%;
+        position: static;
         width: 8px;
         height: 8px;
+        margin-top: -2px;
         border-right: 2px solid currentColor;
         border-bottom: 2px solid currentColor;
-        transform: translateY(-60%) rotate(45deg);
+        transform: rotate(45deg);
         transition: transform 0.18s ease;
     }
     body.student-portal-page #menubar1 .menu-dropdown:hover .menu-dropdown-toggle::after,
     body.student-portal-page #menubar1 .menu-dropdown:focus-within .menu-dropdown-toggle::after,
     body.student-portal-page #menubar1 .menu-dropdown.is-active .menu-dropdown-toggle::after {
-        transform: translateY(-30%) rotate(225deg);
+        transform: rotate(225deg);
     }
     body.student-portal-page #menubar1 .menu-dropdown-panel {
         position: absolute;

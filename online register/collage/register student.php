@@ -40,6 +40,34 @@ function parseRawQueryParams() {
     return $params;
 }
 
+function ensureNewStudentTableExists($conn) {
+    $createTableSql = "CREATE TABLE IF NOT EXISTS `newstudent` (
+        `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+        `S_ID` VARCHAR(50) NOT NULL,
+        `FName` VARCHAR(150) NOT NULL,
+        `mname` VARCHAR(150) DEFAULT NULL,
+        `LName` VARCHAR(150) NOT NULL,
+        `Sex` VARCHAR(20) DEFAULT NULL,
+        `Email` VARCHAR(200) NOT NULL,
+        `Phone_No` VARCHAR(50) NOT NULL,
+        `College` VARCHAR(200) NOT NULL,
+        `Department` VARCHAR(200) NOT NULL,
+        `year` VARCHAR(50) DEFAULT NULL,
+        `section` VARCHAR(50) DEFAULT NULL,
+        `semister` VARCHAR(50) DEFAULT NULL,
+        `program` VARCHAR(100) NOT NULL DEFAULT 'Degree',
+        `Location` VARCHAR(200) DEFAULT NULL,
+        `Education_level` VARCHAR(100) DEFAULT NULL,
+        `Date` DATE DEFAULT NULL,
+        `unread` VARCHAR(20) NOT NULL DEFAULT 'yes',
+        `status` VARCHAR(50) NOT NULL DEFAULT 'active',
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `uniq_S_ID` (`S_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+
+    $conn->query($createTableSql);
+}
+
 $tx_ref = trim($_GET['tx_ref'] ?? '');
 $status = trim($_GET['status'] ?? '');
 if (empty($tx_ref) || $status === '') {
@@ -121,12 +149,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $location = trim($_POST['Location'] ?? '');
     $education_level = trim($_POST['Education_level'] ?? '');
     $date = trim($_POST['Date'] ?? date('Y-m-d'));
+
+    if ($program === '') {
+        $program = 'Degree';
+    }
     $unread = 'yes';
     $status = 'active';
     $document_path = '';
+    $photo_path = '';
 
     $uploadedDocument = $_FILES['document_file'] ?? null;
-    $allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+    $uploadedStudentImage = $_FILES['student_image'] ?? null;
+    $allowedDocumentMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+    $allowedImageMimeTypes = ['image/jpeg', 'image/png'];
     $maxFileSize = 5 * 1024 * 1024; // 5 MB
 
     if ($uploadedDocument && $uploadedDocument['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -168,6 +203,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    if ($uploadedStudentImage && $uploadedStudentImage['error'] !== UPLOAD_ERR_NO_FILE) {
+        if ($uploadedStudentImage['error'] !== UPLOAD_ERR_OK) {
+            $message = 'Photo upload failed. Please try again.';
+            $message_class = 'error';
+        } else {
+            $mimeType = mime_content_type($uploadedStudentImage['tmp_name']);
+            $fileSize = (int) $uploadedStudentImage['size'];
+            $extension = strtolower(pathinfo($uploadedStudentImage['name'], PATHINFO_EXTENSION));
+            $allowedExtensions = ['jpg', 'jpeg', 'png'];
+
+            if (!in_array($mimeType, $allowedImageMimeTypes, true) || !in_array($extension, $allowedExtensions, true)) {
+                $message = 'Invalid photo format. Please upload JPG, JPEG, or PNG only.';
+                $message_class = 'error';
+                $uploadedStudentImage = null;
+            } elseif ($fileSize > $maxFileSize) {
+                $message = 'Photo is too large. Maximum allowed size is 5 MB.';
+                $message_class = 'error';
+                $uploadedStudentImage = null;
+            } else {
+                $uploadDir = __DIR__ . '/uploads/student_photos';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+
+                $safeName = preg_replace('/[^A-Za-z0-9._-]/', '_', basename($uploadedStudentImage['name']));
+                $uniqueName = time() . '_' . preg_replace('/\s+/', '_', $safeName);
+                $destination = $uploadDir . '/' . $uniqueName;
+
+                if (move_uploaded_file($uploadedStudentImage['tmp_name'], $destination)) {
+                    $photo_path = 'online register/collage/uploads/student_photos/' . $uniqueName;
+                } else {
+                    $message = 'Unable to save the uploaded photo. Please try again.';
+                    $message_class = 'error';
+                    $uploadedStudentImage = null;
+                }
+            }
+        }
+    }
+
     if (!$message) {
         if (!$sid || !$fname || !$lname || !$email || !$phone || !$college || !$department) {
             $message = 'Please complete required fields: ID, First name, Last name, Email, Phone, College, Department.';
@@ -179,11 +253,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Invalid date format. Please use YYYY-MM-DD.';
             $message_class = 'error';
         } else {
-            $stmt = $conn->prepare('INSERT INTO student (S_ID, FName, mname, LName, Sex, Email, Phone_No, College, Department, year, section, semister, program, Location, Education_level, Date, unread, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            ensureNewStudentTableExists($conn);
+            $stmt = $conn->prepare('INSERT INTO newstudent (S_ID, FName, mname, LName, Sex, Email, Phone_No, College, Department, year, section, semister, program, Location, Education_level, Date, unread, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
             $stmt->bind_param('ssssssssssssssssss', $sid, $fname, $mname, $lname, $sex, $email, $phone, $college, $department, $year, $section, $semester, $program, $location, $education_level, $date, $unread, $status);
 
             if ($stmt->execute()) {
-                $message = 'Student registered successfully.';
+                $message = 'New student registered successfully.';
                 if ($document_path) {
                     $message .= ' Document uploaded successfully.';
                 }
@@ -433,11 +508,6 @@ a.secondary-link:hover {
                     <input type="text" id="Phone_No" name="Phone_No" value="<?php echo htmlspecialchars($phone ?? $defaultPhone); ?>" required>
                 </div>
                 <div>
-                    <label for="document_file">Upload Document</label>
-                    <input type="file" id="document_file" name="document_file" accept=".pdf,image/png,image/jpeg">
-                    <small style="display:block; margin-top:6px; color:#617d98;">PDF, JPG, JPEG, PNG. Max 5MB.</small>
-                </div>
-                <div>
                     <label for="College">College *</label>
                     <input type="text" id="College" name="College" value="<?php echo htmlspecialchars($college ?? $defaultCollege); ?>" required>
                 </div>
@@ -449,12 +519,16 @@ a.secondary-link:hover {
                     <input type="text" id="Department" name="Department" value="<?php echo htmlspecialchars($department ?? $defaultDepartment); ?>" required>
                 </div>
                 <div>
-                    <label for="year">Year</label>
-                    <input type="text" id="year" name="year" value="<?php echo htmlspecialchars($year ?? '1'); ?>">
+                    <label for="Education_level">Education Level</label>
+                    <input type="text" id="Education_level" name="Education_level" value="<?php echo htmlspecialchars($education_level ?? ''); ?>">
                 </div>
                 <div>
-                    <label for="section">Section</label>
-                    <input type="text" id="section" name="section" value="<?php echo htmlspecialchars($section ?? 'A'); ?>">
+                    <label for="program">Program</label>
+                    <input type="text" id="program" name="program" value="<?php echo htmlspecialchars($program ?? 'Degree'); ?>">
+                </div>
+                <div>
+                    <label for="year">Year</label>
+                    <input type="text" id="year" name="year" value="<?php echo htmlspecialchars($year ?? '1'); ?>">
                 </div>
                 <div>
                     <label for="semister">Semester</label>
@@ -464,20 +538,22 @@ a.secondary-link:hover {
 
             <div class="form-row">
                 <div>
-                    <label for="program">Program</label>
-                    <input type="text" id="program" name="program" value="<?php echo htmlspecialchars($program ?? ''); ?>">
-                </div>
-                <div>
                     <label for="Location">Location</label>
                     <input type="text" id="Location" name="Location" value="<?php echo htmlspecialchars($location ?? ''); ?>">
                 </div>
                 <div>
-                    <label for="Education_level">Education Level</label>
-                    <input type="text" id="Education_level" name="Education_level" value="<?php echo htmlspecialchars($education_level ?? ''); ?>">
-                </div>
-                <div>
                     <label for="Date">Date</label>
                     <input type="date" id="Date" name="Date" value="<?php echo htmlspecialchars($date ?? date('Y-m-d')); ?>">
+                </div>
+                <div>
+                    <label for="document_file">Upload Document</label>
+                    <input type="file" id="document_file" name="document_file" accept=".pdf,image/png,image/jpeg">
+                    <small style="display:block; margin-top:6px; color:#617d98;">PDF, JPG, JPEG, PNG. Max 5MB.</small>
+                </div>
+                <div>
+                    <label for="student_image">Upload Photo</label>
+                    <input type="file" id="student_image" name="student_image" accept="image/png,image/jpeg">
+                    <small style="display:block; margin-top:6px; color:#617d98;">JPG, JPEG, PNG. Max 5MB.</small>
                 </div>
             </div>
 

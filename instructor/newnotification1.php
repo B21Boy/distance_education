@@ -1,67 +1,80 @@
 <?php
 session_start();
 include("../connection.php");
-?>
-<?php
-//mag show sang information sang user nga nag login
-$user_id=$_SESSION['suid'];
-$dept=$_SESSION['sdcode'];
-$result=mysql_query("select * from user where UID='$user_id'")or die(mysql_error);
-$row=mysql_fetch_array($result);
-$FirstName=$row['fname'];
-$middleName=$row['lname'];
+require_once("page_helpers.php");
 
-?>
-<?php
-$date=date("Y-m-d");
-?>
-<form action="newnotificationprocess1.php" method="post" onsubmit='return formValidation()'>
-<table style="border:2px solid black; border-radius:7px;margin-top:6px;box-shadow:4px 1px 3px black;" width="450px" height="200px" align="center">
-<tr bgcolor="" ><td align="center" colspan="4" ><font style="Time New Roman" size='3'>New Message Submit Form</font></td></tr>
-<tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td> <font size="3" face="Times New Roman"> Send By:</td>
-<td><input type="text" name="M_sender" width="200" value="<?php echo $user_id; ?>"ReadOnly>
-</td>
-</tr>
-<tr>
-<td><font size="2" face="Time New Roman">Send To:</td>
-<td>
-<select name="M_Reciever" style="width: 172">
-<option value="" selected>Select User Id</option>
-<?php 
-$result=mysql_query("select UID from account where Role='department_head' or Role='registrar' or Role='instructor' or Role='student' or Role='collage_dean' or Role='cdeofficer'");
-while ($row = mysql_fetch_array($result)){
-?>
- <option value="<?php echo $row['UID'];?>">
-     <?php echo $row['UID']; ?>
-    </option>
-<?php
+if (!instructorIsLoggedIn()) {
+    exit('Unauthorized access.');
 }
-?>        
-</select>
-</td>
-</tr>
- <tr>
-<td> <font size="3" face="Times New Roman"> Message:</td>
-<td>
-<textarea  style="overflow:auto;resize:none" rows="3" cols="19" align="center" name="message" required x-moz-errormessage="Required"autocomplete='off' onkeypress="return letter_validate(event);"></textarea>
-</td>
-</td>
-</tr>
- <tr>
-<td colspan = "2">   </td>
-</tr>
-<tr>
-<td> <font size="3" face="Times New Roman"> Date:</td>
-<td>
-<input type="text" name="date_sended" value="<?php echo $date; ?>"ReadOnly>
-</td> 
-</tr>
-<tr>
-<td colspan=2 align=center><br><input type='submit' class="button_example" value="Send" name='submitMain' Onclick="return check(this.form);"/> 
-</form>
-</table>
 
+$userId = instructorCurrentUserId();
+$date = date("Y-m-d");
+$recipients = [];
+$sql = "SELECT UID, Role FROM account
+        WHERE UID <> ? AND Role IN ('department_head', 'registrar', 'instructor', 'student', 'collage_dean', 'cdeofficer')
+        ORDER BY Role, UID";
+$stmt = mysqli_prepare($conn, $sql);
+if ($stmt) {
+    mysqli_stmt_bind_param($stmt, 's', $userId);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($result instanceof mysqli_result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $recipients[] = $row;
+        }
+        mysqli_free_result($result);
+    }
+    mysqli_stmt_close($stmt);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>New Message</title>
+<?php instructorRenderPopupStyles(); ?>
+</head>
+<body>
+<div class="instructor-popup-shell">
+    <h2 class="instructor-popup-title">New Message</h2>
+    <p class="instructor-popup-subtitle">Choose the receiver, write the message clearly, and send it directly from this popup.</p>
+    <?php if ($recipients) { ?>
+        <form action="newnotificationprocess1.php" method="post">
+            <div class="instructor-popup-card">
+                <div class="instructor-popup-grid">
+                    <div class="instructor-popup-field">
+                        <label for="popup-message-sender">Send By</label>
+                        <input type="text" name="M_sender" id="popup-message-sender" value="<?php echo instructorH($userId); ?>" readonly>
+                    </div>
+                    <div class="instructor-popup-field">
+                        <label for="popup-message-date">Date</label>
+                        <input type="text" name="date_sended" id="popup-message-date" value="<?php echo instructorH($date); ?>" readonly>
+                    </div>
+                    <div class="instructor-popup-field full">
+                        <label for="popup-message-receiver">Send To</label>
+                        <select name="M_Reciever" id="popup-message-receiver" required>
+                            <option value="">Select user ID</option>
+                            <?php foreach ($recipients as $recipient) { ?>
+                                <option value="<?php echo instructorH($recipient['UID'] ?? ''); ?>">
+                                    <?php echo instructorH(($recipient['UID'] ?? '') . ' (' . ($recipient['Role'] ?? '') . ')'); ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="instructor-popup-field full">
+                        <label for="popup-message-body">Message</label>
+                        <textarea name="message" id="popup-message-body" required placeholder="Write your message"></textarea>
+                    </div>
+                </div>
+                <div class="instructor-popup-actions">
+                    <button type="reset" class="instructor-popup-btn secondary">Clear</button>
+                    <button type="submit" class="instructor-popup-btn" name="submitMain">Send</button>
+                </div>
+            </div>
+        </form>
+    <?php } else { ?>
+        <div class="instructor-popup-empty">No valid receiver account is available for messaging right now.</div>
+    <?php } ?>
+</div>
+</body>
+</html>

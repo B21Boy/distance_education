@@ -1,7 +1,74 @@
 <?php
 session_start();
 ob_start();
-include("connection.php");
+require_once("connection.php");
+
+function noticeH(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+function noticePageUrl(int $page): string
+{
+    $params = $_GET;
+    $params['page'] = $page;
+
+    return htmlspecialchars($_SERVER['PHP_SELF'] . '?' . http_build_query($params), ENT_QUOTES, 'UTF-8');
+}
+
+$today = date('Y-m-d');
+$perPage = 1;
+$currentPage = max(1, (int) ($_GET['page'] ?? 1));
+$totalRecords = 0;
+$totalPages = 0;
+$notices = array();
+$loadError = '';
+
+$countStmt = mysqli_prepare($conn, "SELECT COUNT(*) FROM postss WHERE Ex_date >= ?");
+if ($countStmt) {
+    mysqli_stmt_bind_param($countStmt, 's', $today);
+    mysqli_stmt_execute($countStmt);
+    mysqli_stmt_bind_result($countStmt, $totalRecords);
+    mysqli_stmt_fetch($countStmt);
+    mysqli_stmt_close($countStmt);
+} else {
+    $loadError = 'The notice board could not connect to the database.';
+}
+
+if ($totalRecords > 0) {
+    $totalPages = (int) ceil($totalRecords / $perPage);
+    $currentPage = min($currentPage, $totalPages);
+    $offset = ($currentPage - 1) * $perPage;
+
+    $noticeStmt = mysqli_prepare(
+        $conn,
+        "SELECT Title, types, dates, info, posted_by
+         FROM postss
+         WHERE Ex_date >= ?
+         ORDER BY dates DESC
+         LIMIT ?, ?"
+    );
+
+    if ($noticeStmt) {
+        mysqli_stmt_bind_param($noticeStmt, 'sii', $today, $offset, $perPage);
+        mysqli_stmt_execute($noticeStmt);
+        mysqli_stmt_bind_result($noticeStmt, $title, $type, $datePosted, $info, $postedBy);
+
+        while (mysqli_stmt_fetch($noticeStmt)) {
+            $notices[] = array(
+                'title' => (string) $title,
+                'type' => (string) $type,
+                'date' => (string) $datePosted,
+                'info' => (string) $info,
+                'posted_by' => (string) $postedBy,
+            );
+        }
+
+        mysqli_stmt_close($noticeStmt);
+    } else {
+        $loadError = 'The notice board query could not be prepared.';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -11,7 +78,6 @@ include("connection.php");
 <title>News</title>
 <link rel="stylesheet" href="setting.css">
 <style>
-/* inline fallback when stylesheet isn't loaded: keep columns, spacing, and proportions */
 .main-row {
     display: flex !important;
     flex-direction: row !important;
@@ -19,78 +85,220 @@ include("connection.php");
     align-items: flex-start !important;
 }
 .main-row > #left { flex: 0 0 300px !important; }
-.main-row > #content { flex: 1 1 auto !important; }
+.main-row > #content { flex: 1 1 auto !important; min-width: 0; }
 .main-row > #sidebar { flex: 0 0 260px !important; }
+.notice-shell {
+    display: grid;
+    gap: 20px;
+}
+.notice-hero,
+.notice-card,
+.notice-empty,
+.notice-status {
+    border-radius: 22px;
+    box-shadow: 0 18px 38px rgba(11, 36, 61, 0.10);
+}
+.notice-hero {
+    padding: 26px 28px;
+    background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.24), transparent 32%),
+        linear-gradient(135deg, #0f4d79 0%, #1f7a9f 100%);
+    color: #f6fbff;
+}
+.notice-kicker {
+    display: inline-flex;
+    margin-bottom: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+.notice-hero h1 {
+    margin: 0 0 10px;
+    font-size: 34px;
+    line-height: 1.1;
+}
+.notice-hero p {
+    margin: 0;
+    max-width: 620px;
+    color: rgba(246, 251, 255, 0.88);
+    line-height: 1.7;
+}
+.notice-status,
+.notice-empty {
+    padding: 18px 20px;
+    background: #ffffff;
+    color: #274560;
+}
+.notice-status {
+    border: 1px solid #f0b9b9;
+    background: #fff4f4;
+    color: #7f1d1d;
+}
+.notice-card {
+    padding: 28px;
+    background: linear-gradient(180deg, #ffffff 0%, #f4f9fc 100%);
+    border: 1px solid rgba(151, 184, 207, 0.35);
+}
+.notice-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+    color: #496680;
+    font-size: 14px;
+    font-weight: 600;
+}
+.notice-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: #e7f4fb;
+    color: #0f5f86;
+}
+.notice-title {
+    margin: 0 0 14px;
+    color: #113553;
+    font-size: 30px;
+    line-height: 1.15;
+}
+.notice-body {
+    color: #20384b;
+    font-size: 16px;
+    line-height: 1.85;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.notice-footer {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(133, 166, 191, 0.28);
+    color: #35516a;
+    font-weight: 700;
+}
+.notice-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+.notice-pagination a,
+.notice-pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 700;
+}
+.notice-pagination a {
+    background: #ffffff;
+    color: #0f4d79;
+    box-shadow: 0 10px 24px rgba(11, 36, 61, 0.12);
+}
+.notice-pagination span {
+    background: #0f4d79;
+    color: #ffffff;
+}
+@media (max-width: 1100px) {
+    .main-row {
+        flex-direction: column !important;
+    }
+    .main-row > #left,
+    .main-row > #content,
+    .main-row > #sidebar {
+        flex: 1 1 auto !important;
+        width: 100% !important;
+    }
+}
+@media (max-width: 700px) {
+    .notice-hero,
+    .notice-card,
+    .notice-empty,
+    .notice-status {
+        padding: 22px 18px;
+    }
+    .notice-hero h1,
+    .notice-title {
+        font-size: 26px;
+    }
+}
 </style>
 <script src="javascript/date_time.js"></script>
 </head>
 <body class="student-portal-page">
 
 <div id="container">
-
-    <!-- Header -->
     <div id="header">
          <?php require("header.php"); ?>
     </div>
 
-    <!-- Menu -->
     <div id="menu">
         <?php require("menu.php"); ?>
     </div>
 
-    <!-- Main row: left | center | right -->
     <div class="main-row">
-        <!-- Left Sidebar -->
         <div id="left">
             <?php include("left.php"); ?>
         </div>
 
-        <!-- Main Content (center) -->
         <div id="content">
-            <?php
-            include('ps_pagination.php');
-            $conn = mysql_connect('localhost','root','');
-            if(!$conn) die("Failed to connect to database!");
-            $status = mysql_select_db('cde', $conn);
-            if(!$status) die("Failed to select database!");
-            ?>
+            <div class="notice-shell">
+                <section class="notice-hero">
+                    <span class="notice-kicker">Notice Board</span>
+                    <h1>Latest campus notices</h1>
+                    <p>Active announcements are loaded from the shared `cde.postss` table through the main site database connection, so the homepage notice board stays in sync with the rest of the system.</p>
+                </section>
 
-            <fieldset><legend>Notice Board</legend>
-            <?php
+                <?php if ($loadError !== '') { ?>
+                <div class="notice-status"><?php echo noticeH($loadError); ?></div>
+                <?php } elseif (!empty($notices)) { ?>
+                    <?php foreach ($notices as $notice) { ?>
+                    <article class="notice-card">
+                        <div class="notice-meta">
+                            <span class="notice-badge"><?php echo noticeH($notice['type']); ?></span>
+                            <span>Posted on <?php echo noticeH($notice['date']); ?></span>
+                        </div>
+                        <h2 class="notice-title"><?php echo noticeH($notice['title']); ?></h2>
+                        <div class="notice-body"><?php echo nl2br(noticeH($notice['info'])); ?></div>
+                        <div class="notice-footer">Posted by <?php echo noticeH($notice['posted_by']); ?></div>
+                    </article>
+                    <?php } ?>
 
-            $date=date('Y-m-d');
-            $sql1=mysql_query("SELECT * from postss where Ex_date>='$date' ORDER BY dates ASC") or die(mysql_error());
-            $ro=mysql_num_rows($sql1);
-            if($ro!='0')
-            {
+                    <?php if ($totalPages > 1) { ?>
+                    <nav class="notice-pagination" aria-label="Notice pages">
+                        <?php if ($currentPage > 1) { ?>
+                        <a href="<?php echo noticePageUrl(1); ?>">First</a>
+                        <a href="<?php echo noticePageUrl($currentPage - 1); ?>">Prev</a>
+                        <?php } ?>
 
-            $sql="SELECT * from postss where Ex_date>='$date' ORDER BY dates DESC";
-            $pager = new PS_Pagination($conn,$sql,1,10);
-            $rs = $pager->paginate();
-            while($row=mysql_fetch_array($rs))
-            {
+                        <?php for ($page = 1; $page <= $totalPages; $page++) { ?>
+                            <?php if ($page === $currentPage) { ?>
+                            <span><?php echo $page; ?></span>
+                            <?php } else { ?>
+                            <a href="<?php echo noticePageUrl($page); ?>"><?php echo $page; ?></a>
+                            <?php } ?>
+                        <?php } ?>
 
-                        echo"<p align='right'><b>Date:</b>"."<u>".$row['dates']."</u>"."</p>";
-                        echo"<font face='monotype corsiva' size='7' color='#347098'><center>"."<u>".$row['Title']."</u>"."</center>"."</p>";
-
-                        echo"<font face='monotype corsiva' size='5' color='#0c395f'><center>".$row['types']."</center>"."</p>"."</font>";
-                        echo "<font  size='3' color='#00000b'>".$row['info'];
-                       echo"<font size='4' color='#1046a0'><center>".$row['posted_by']."</center>"."</p>";
-
-
-            }
-            }
-            else
-            {
-                echo '<script type="text/javascript">alert("There No Post Notice!!!");</script>';
-
-            }
-            echo '<div style="text-align:center;font-size:25px;color:red;bgcolor:blue">'.$pager->renderFullNav().'</div>';
-            ?>
-            </fieldset>
+                        <?php if ($currentPage < $totalPages) { ?>
+                        <a href="<?php echo noticePageUrl($currentPage + 1); ?>">Next</a>
+                        <a href="<?php echo noticePageUrl($totalPages); ?>">Last</a>
+                        <?php } ?>
+                    </nav>
+                    <?php } ?>
+                <?php } else { ?>
+                <div class="notice-empty">There are no active notices available right now.</div>
+                <?php } ?>
+            </div>
         </div>
 
-        <!-- Right Sidebar -->
         <div id="sidebar">
             <?php require("leftlogin.php"); ?>
             <div class="sidebar-panel social-panel">
@@ -105,11 +313,9 @@ include("connection.php");
         </div>
     </div>
 
-    <!-- Footer -->
     <div id="footer">
         <?php include("footer.php"); ?>
     </div>
-
 </div>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>

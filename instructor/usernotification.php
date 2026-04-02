@@ -11,6 +11,7 @@ if (!instructorIsLoggedIn()) {
 $userId = instructorCurrentUserId();
 $photoPath = instructorCurrentPhotoPath();
 $messages = instructorFetchUnreadMessages($conn, $userId);
+$status = isset($_GET['status']) ? trim((string) $_GET['status']) : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,6 +40,17 @@ $messages = instructorFetchUnreadMessages($conn, $userId);
                         </div>
                     </div>
                     <div class="instructor-page-panel">
+                        <?php if ($status === 'sent') { ?>
+                            <div class="instructor-status-banner success">Your message was sent successfully.</div>
+                        <?php } elseif ($status === 'reply-sent') { ?>
+                            <div class="instructor-status-banner success">Your reply was sent successfully.</div>
+                        <?php } elseif ($status === 'invalid') { ?>
+                            <div class="instructor-status-banner error">The message could not be sent. Please complete the required fields and try again.</div>
+                        <?php } elseif ($status === 'not-found') { ?>
+                            <div class="instructor-status-banner error">The selected message or receiver could not be found.</div>
+                        <?php } elseif ($status === 'failed') { ?>
+                            <div class="instructor-status-banner error">The message request failed while saving to the database.</div>
+                        <?php } ?>
                         <div class="instructor-form-actions">
                             <a class="instructor-btn" rel="facebox" href="newnotification1.php">New Message</a>
                         </div>
